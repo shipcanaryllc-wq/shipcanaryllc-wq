@@ -34,42 +34,55 @@ console.log('   Key length:', k.length);
 
 const app = express();
 
-// B) CORS Configuration - Fix to allow Authorization header
-const allowedOrigins = process.env.NODE_ENV === 'production'
-  ? [
-      'https://shipcanary.com',
-      'https://www.shipcanary.com',
-      process.env.FRONTEND_URL
-    ].filter(Boolean)
-  : [
-      'http://localhost:3000',
-      'http://localhost:3001',
-      'http://127.0.0.1:3000',
-      'http://127.0.0.1:3001'
-    ]; // Multiple local origins for development
+// B) CORS Configuration - Strict allowlist
+const getAllowedOrigins = () => {
+  const origins = [];
+  
+  // Production domains
+  if (process.env.NODE_ENV === 'production') {
+    // Always allow shipcanary.com domains
+    origins.push('https://shipcanary.com');
+    origins.push('https://www.shipcanary.com');
+    
+    // Allow FRONTEND_URL if set
+    if (process.env.FRONTEND_URL) {
+      origins.push(process.env.FRONTEND_URL);
+    }
+    
+    // Allow Vercel preview deployments (optional, for preview branches)
+    // origins.push(/^https:\/\/.*\.vercel\.app$/);
+  } else {
+    // Development: allow localhost on common ports
+    origins.push('http://localhost:3000');
+    origins.push('http://localhost:3001');
+    origins.push('http://127.0.0.1:3000');
+    origins.push('http://127.0.0.1:3001');
+  }
+  
+  return origins.filter(Boolean);
+};
 
-// Support Vercel preview deployments (wildcard subdomain)
 const corsOptions = {
   origin: function (origin, callback) {
     // Allow requests with no origin (mobile apps, Postman, etc.)
-    if (!origin) return callback(null, true);
-    
-    // Check if origin is in allowed list
-    if (Array.isArray(allowedOrigins) && allowedOrigins.includes(origin)) {
+    if (!origin) {
       return callback(null, true);
     }
     
-    // Allow Vercel preview deployments (e.g., *.vercel.app)
-    if (origin.includes('.vercel.app')) {
+    const allowedOrigins = getAllowedOrigins();
+    
+    // Check exact matches
+    if (allowedOrigins.includes(origin)) {
       return callback(null, true);
     }
     
-    // Allow custom Vercel domain if set via FRONTEND_URL
-    if (process.env.FRONTEND_URL && origin === process.env.FRONTEND_URL) {
+    // Allow Vercel preview deployments in production (optional)
+    if (process.env.NODE_ENV === 'production' && origin.includes('.vercel.app')) {
       return callback(null, true);
     }
     
-    callback(new Error('Not allowed by CORS'));
+    // Reject all other origins
+    callback(new Error(`Not allowed by CORS. Origin: ${origin}`));
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],

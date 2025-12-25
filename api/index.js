@@ -15,33 +15,55 @@ require('dotenv').config();
 
 const app = express();
 
-// CORS Configuration
-const allowedOrigins = process.env.NODE_ENV === 'production'
-  ? [
-      'https://shipcanary.com',
-      'https://www.shipcanary.com',
-      process.env.FRONTEND_URL
-    ].filter(Boolean)
-  : [
-      'http://localhost:3000',
-      'http://localhost:3001',
-      'http://127.0.0.1:3000',
-      'http://127.0.0.1:3001'
-    ];
+// CORS Configuration - Strict allowlist
+const getAllowedOrigins = () => {
+  const origins = [];
+  
+  // Production domains
+  if (process.env.NODE_ENV === 'production') {
+    // Always allow shipcanary.com domains
+    origins.push('https://shipcanary.com');
+    origins.push('https://www.shipcanary.com');
+    
+    // Allow FRONTEND_URL if set
+    if (process.env.FRONTEND_URL) {
+      origins.push(process.env.FRONTEND_URL);
+    }
+    
+    // Allow Vercel preview deployments (optional, for preview branches)
+    // origins.push(/^https:\/\/.*\.vercel\.app$/);
+  } else {
+    // Development: allow localhost on common ports
+    origins.push('http://localhost:3000');
+    origins.push('http://localhost:3001');
+    origins.push('http://127.0.0.1:3000');
+    origins.push('http://127.0.0.1:3001');
+  }
+  
+  return origins.filter(Boolean);
+};
 
 const corsOptions = {
   origin: function (origin, callback) {
-    if (!origin) return callback(null, true);
-    if (Array.isArray(allowedOrigins) && allowedOrigins.includes(origin)) {
+    // Allow requests with no origin (mobile apps, Postman, etc.)
+    if (!origin) {
       return callback(null, true);
     }
-    if (origin.includes('.vercel.app')) {
+    
+    const allowedOrigins = getAllowedOrigins();
+    
+    // Check exact matches
+    if (allowedOrigins.includes(origin)) {
       return callback(null, true);
     }
-    if (process.env.FRONTEND_URL && origin === process.env.FRONTEND_URL) {
+    
+    // Allow Vercel preview deployments in production (optional)
+    if (process.env.NODE_ENV === 'production' && origin.includes('.vercel.app')) {
       return callback(null, true);
     }
-    callback(new Error('Not allowed by CORS'));
+    
+    // Reject all other origins
+    callback(new Error(`Not allowed by CORS. Origin: ${origin}`));
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],

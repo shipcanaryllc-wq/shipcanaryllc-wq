@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import API_BASE_URL from '../../config/api';
 import Logo from '../Logo/Logo';
 import './Auth.css';
 
@@ -69,8 +70,7 @@ const Login = () => {
           <button 
             type="button" 
             onClick={() => {
-              const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5001/api';
-              window.location.href = `${apiUrl}/auth/google`;
+              window.location.href = `${API_BASE_URL}/auth/google`;
             }}
             className="auth-button google-button"
           >
