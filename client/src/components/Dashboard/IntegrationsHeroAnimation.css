@@ -1,0 +1,218 @@
+/* ============================================
+   INTEGRATIONS HERO ANIMATION
+   Subtle, professional connection visualization
+   ============================================ */
+
+.hero-animation-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 20px;
+  margin-bottom: 32px;
+}
+
+.hero-animation-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 680px;
+  aspect-ratio: 1.2 / 1;
+  min-height: 400px;
+  margin: 0 auto;
+}
+
+.connections-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* ============================================
+   CENTRAL NODE (ShipCanary)
+   ============================================ */
+
+.central-node {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+  animation: float 3s ease-in-out infinite;
+}
+
+.central-node-glow {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 120px;
+  height: 120px;
+  background: radial-gradient(circle, rgba(255, 107, 53, 0.2) 0%, transparent 70%);
+  border-radius: 50%;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.central-node-content {
+  position: relative;
+  background: #ffffff;
+  border: 2px solid #ff6b35;
+  border-radius: 16px;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 4px 16px rgba(255, 107, 53, 0.2);
+  z-index: 1;
+}
+
+.central-node-text {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #111827;
+  letter-spacing: -0.3px;
+}
+
+/* ============================================
+   PLATFORM NODES
+   ============================================ */
+
+.platform-node {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  z-index: 5;
+  animation: float 3s ease-in-out infinite;
+  animation-delay: var(--delay, 0s);
+}
+
+.platform-node-content {
+  width: 64px;
+  height: 64px;
+  background: #ffffff;
+  border: 2px solid #e5e7eb;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  padding: 8px;
+}
+
+.platform-node-content img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.platform-node:hover .platform-node-content {
+  border-color: #ff6b35;
+  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.2);
+  transform: scale(1.1);
+}
+
+/* ============================================
+   CONNECTION LINES
+   ============================================ */
+
+.connection-line {
+  animation: dashMove 3s linear infinite;
+  animation-delay: var(--delay, 0s);
+  opacity: 0.6;
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+
+@keyframes float {
+  0%, 100% {
+    transform: translate(-50%, -50%) translateY(0px);
+  }
+  50% {
+    transform: translate(-50%, -50%) translateY(-4px);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.4;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: translate(-50%, -50%) scale(1.1);
+  }
+}
+
+@keyframes dashMove {
+  0% {
+    stroke-dashoffset: 0;
+  }
+  100% {
+    stroke-dashoffset: -20;
+  }
+}
+
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+
+@media (max-width: 768px) {
+  .hero-animation-wrapper {
+    max-width: 100%;
+    min-height: 350px;
+    aspect-ratio: 1 / 1.2;
+  }
+
+  .central-node-content {
+    padding: 12px 16px;
+  }
+
+  .central-node-text {
+    font-size: 0.9rem;
+  }
+
+  .platform-node-content {
+    width: 56px;
+    height: 56px;
+  }
+
+  .central-node-glow {
+    width: 100px;
+    height: 100px;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-animation-container {
+    padding: 24px 12px;
+  }
+
+  .hero-animation-wrapper {
+    min-height: 300px;
+  }
+
+  .central-node-content {
+    padding: 10px 14px;
+    gap: 8px;
+  }
+
+  .central-node-content svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  .central-node-text {
+    font-size: 0.85rem;
+  }
+
+  .platform-node-content {
+    width: 48px;
+    height: 48px;
+  }
+}
+

@@ -1,0 +1,504 @@
+/* ============================================
+   DASHBOARD VIEW - Modern SaaS UI
+   Tight, immersive, professional layout
+   ============================================ */
+
+.dashboard-view {
+  padding: 0;
+  background: linear-gradient(to bottom, #f8f8fa 0%, #f1f2f6 100%);
+  min-height: 100%;
+}
+
+.dashboard-container {
+  max-width: 1150px;
+  margin: 0 auto;
+  padding: 30px 40px 60px;
+}
+
+.dashboard-view-loading {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+  font-size: 14px;
+}
+
+/* ============================================
+   BREADCRUMB
+   ============================================ */
+
+.dashboard-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.breadcrumb-separator {
+  color: #9ca3af;
+}
+
+/* ============================================
+   KPI METRICS GRID - Taller, More Prominent
+   ============================================ */
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 24px;
+  margin-top: 0;
+}
+
+.metric-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 22px;
+  height: 120px;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.metric-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+}
+
+.metric-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.metric-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #6b7280;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.metric-value {
+  font-size: 32px;
+  font-weight: 700;
+  color: #111827;
+  line-height: 1.1;
+}
+
+.metric-icon {
+  width: 40px;
+  height: 40px;
+  background: rgba(249, 115, 22, 0.06);
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #f97316;
+  flex-shrink: 0;
+}
+
+.metric-icon svg {
+  width: 22px;
+  height: 22px;
+}
+
+/* ============================================
+   THREE COLUMN LAYOUT - Balanced Grid
+   ============================================ */
+
+.dashboard-columns {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
+  gap: 20px;
+  margin-top: 0;
+}
+
+@media (max-width: 1200px) {
+  .dashboard-columns {
+    gap: 18px;
+  }
+}
+
+.dashboard-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 28px;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  min-height: 320px;
+}
+
+.card-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 20px 0;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e5e7eb;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+/* ============================================
+   MY ACCOUNT CARD - Definition List Style
+   ============================================ */
+
+.account-info {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.info-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.info-label {
+  font-weight: 600;
+  color: #6b7280;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.info-value {
+  color: #111827;
+  font-size: 16px;
+  font-weight: 600;
+  text-align: right;
+  line-height: 1.4;
+}
+
+/* ============================================
+   RECENT ORDERS CARD
+   ============================================ */
+
+.orders-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.order-item {
+  padding: 16px 0;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.order-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.order-item:first-child {
+  padding-top: 0;
+}
+
+.order-item-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.order-item-left {
+  flex: 1;
+  min-width: 0;
+}
+
+.order-item-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.order-service {
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 6px;
+  line-height: 1.4;
+}
+
+.order-addresses {
+  font-size: 13px;
+  color: #6b7280;
+  margin-bottom: 6px;
+  line-height: 1.5;
+}
+
+.order-date {
+  font-size: 11px;
+  color: #9ca3af;
+  margin-top: 4px;
+}
+
+.order-status-pill {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.order-status-pill--success {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.order-status-pill--danger {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.order-status-pill--neutral {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.order-cost-pill {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.4;
+  background: #eff6ff;
+  color: #1e40af;
+  white-space: nowrap;
+}
+
+.order-status {
+  font-size: 13px;
+  font-weight: 500;
+  color: #6b7280;
+}
+
+/* ============================================
+   RECENT DEPOSITS CARD
+   ============================================ */
+
+.deposits-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.deposit-item {
+  padding: 12px 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.deposit-item:last-child {
+  border-bottom: none;
+}
+
+.deposit-item:first-child {
+  padding-top: 0;
+}
+
+.deposit-row-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.deposit-row-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.deposit-amount {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.deposit-date {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.deposit-method {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.deposit-status {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.deposit-status.status-completed {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.deposit-status.status-pending {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.deposit-status.status-failed {
+  background-color: #fee2e2;
+  color: #b91c1c;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: #9ca3af;
+  font-size: 14px;
+}
+
+/* ============================================
+   SHIPPING SUMMARY SECTION
+   ============================================ */
+
+.shipping-summary-section {
+  margin-top: 24px;
+}
+
+.shipping-summary-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 28px;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.summary-tiles {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.summary-tile {
+  padding: 20px;
+  background: #f9fafb;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+}
+
+.summary-tile-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #6b7280;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.summary-tile-value {
+  font-size: 32px;
+  font-weight: 700;
+  color: #111827;
+  line-height: 1.2;
+}
+
+@media (max-width: 768px) {
+  .summary-tiles {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .summary-tile-value {
+    font-size: 28px;
+  }
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+
+@media (max-width: 1200px) {
+  .dashboard-columns {
+    grid-template-columns: 1fr 1.5fr 1fr;
+  }
+}
+
+@media (max-width: 968px) {
+  .metrics-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .dashboard-columns {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .dashboard-container {
+    padding: 24px 32px 48px;
+  }
+}
+
+@media (max-width: 768px) {
+  .metrics-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .metric-card {
+    height: 96px;
+    padding: 16px;
+  }
+
+  .metric-value {
+    font-size: 24px;
+  }
+
+  .metric-icon {
+    width: 32px;
+    height: 32px;
+  }
+
+  .metric-icon svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .dashboard-container {
+    padding: 20px 24px 40px;
+  }
+
+  .dashboard-card {
+    padding: 20px;
+  }
+
+  .card-title {
+    font-size: 15px;
+    margin-bottom: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .metric-value {
+    font-size: 22px;
+  }
+
+  .metric-label {
+    font-size: 11px;
+  }
+}

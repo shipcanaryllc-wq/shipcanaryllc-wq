@@ -1,0 +1,487 @@
+/* ============================================
+   ORDER HISTORY - Modern, Structured Cards
+   Shopify/Shippo-level quality
+   ============================================ */
+
+.order-history {
+  padding: 0;
+  background: linear-gradient(to bottom, #f8f8fa 0%, #f1f2f6 100%);
+  min-height: 100%;
+}
+
+.order-history-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 40px;
+}
+
+.order-history h2 {
+  margin: 0 0 8px 0;
+  color: #111827;
+  font-size: 1.8rem;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+.subtitle {
+  color: #6b7280;
+  margin: 0 0 32px 0;
+  font-size: 1rem;
+  font-weight: 400;
+}
+
+/* ============================================
+   ORDERS LIST
+   ============================================ */
+
+.orders-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ============================================
+   ORDER CARD - Compact, Elevated
+   ============================================ */
+
+.order-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 28px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.order-card:hover {
+  border-color: #d1d5db;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+}
+
+/* ============================================
+   ORDER HEADER - Service + Status
+   ============================================ */
+
+.order-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.service-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.carrier-icon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f9fafb;
+  border-radius: 8px;
+  flex-shrink: 0;
+  padding: 6px;
+}
+
+.carrier-logo {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.service-info {
+  flex: 1;
+}
+
+.service-name {
+  margin: 0 0 6px 0;
+  color: #111827;
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+}
+
+.order-date {
+  color: #6b7280;
+  font-size: 0.875rem;
+  font-weight: 400;
+}
+
+/* Status Badge */
+.status-badge {
+  font-weight: 600;
+  font-size: 0.875rem;
+  padding: 6px 12px;
+  border-radius: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+}
+
+.status-created {
+  background: #e0e7ff;
+  color: #3730a3;
+}
+
+.status-transit {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.status-delivery {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.status-delivered {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.status-exception {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.status-default {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+/* ============================================
+   METADATA - 2-Column Layout
+   ============================================ */
+
+.order-metadata {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  margin-bottom: 24px;
+}
+
+.metadata-column {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.metadata-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.metadata-label {
+  color: #6b7280;
+  font-size: 0.8rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.metadata-value {
+  color: #111827;
+  font-size: 0.95rem;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.metadata-value-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Tracking Number Link */
+.tracking-number-link {
+  color: #ff6b35;
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-decoration: none;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+  border-bottom: 1px solid transparent;
+  transition: all 0.2s;
+}
+
+.tracking-number-link:hover {
+  color: #f55a1f;
+  border-bottom-color: #ff6b35;
+}
+
+.copy-tracking-btn {
+  background: transparent;
+  border: none;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s;
+  opacity: 0.6;
+  position: relative;
+}
+
+.copy-tracking-btn:hover {
+  background: #f3f4f6;
+  color: #ff6b35;
+  opacity: 1;
+}
+
+.copy-tracking-btn:active {
+  transform: scale(0.95);
+}
+
+.copy-tracking-btn.copied {
+  color: #059669;
+  opacity: 1;
+  background: #d1fae5;
+}
+
+.copy-tracking-btn.copied:hover {
+  background: #a7f3d0;
+  color: #047857;
+}
+
+/* Cost */
+.cost {
+  color: #059669;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+/* Status Text */
+.status-text {
+  color: #059669;
+  font-weight: 600;
+}
+
+/* ============================================
+   ACTION BUTTONS
+   ============================================ */
+
+.order-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 28px;
+  padding-top: 24px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.action-button {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  flex: 1;
+}
+
+.primary-button {
+  background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(255, 107, 53, 0.2);
+}
+
+.primary-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+}
+
+.primary-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.primary-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.secondary-button {
+  background: #ffffff;
+  color: #374151;
+  border: 1px solid #d1d5db;
+}
+
+.secondary-button:hover {
+  background: #f9fafb;
+  border-color: #9ca3af;
+  color: #111827;
+}
+
+.secondary-button:active {
+  background: #f3f4f6;
+}
+
+/* ============================================
+   EXPANDED DETAILS
+   ============================================ */
+
+.order-expanded {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid #e5e7eb;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+}
+
+.expanded-section h4 {
+  color: #111827;
+  margin: 0 0 12px 0;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: -0.2px;
+}
+
+.expanded-section p {
+  color: #374151;
+  margin: 6px 0;
+  line-height: 1.6;
+  font-size: 0.9rem;
+}
+
+/* ============================================
+   EMPTY STATE & LOGIN PROMPT
+   ============================================ */
+
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #9ca3af;
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+}
+
+.empty-state p {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.login-prompt {
+  text-align: center;
+  padding: 40px;
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+}
+
+.login-prompt h3 {
+  color: #111827;
+  margin-bottom: 15px;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.login-prompt p {
+  color: #6b7280;
+  margin-bottom: 25px;
+  font-size: 1rem;
+}
+
+.signup-prompt-button {
+  background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+  color: white;
+  border: none;
+  padding: 14px 30px;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(255, 107, 53, 0.2);
+}
+
+.signup-prompt-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+
+@media (max-width: 1200px) {
+  .order-history-container {
+    padding: 32px;
+  }
+}
+
+@media (max-width: 968px) {
+  .order-metadata {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .order-expanded {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+}
+
+@media (max-width: 768px) {
+  .order-history-container {
+    padding: 24px 20px;
+  }
+
+  .order-card {
+    padding: 20px;
+  }
+
+  .order-header {
+    flex-direction: column;
+    gap: 16px;
+    align-items: flex-start;
+  }
+
+  .service-header {
+    width: 100%;
+  }
+
+  .status-badge {
+    align-self: flex-start;
+  }
+
+  .order-actions {
+    flex-direction: column;
+  }
+
+  .action-button {
+    width: 100%;
+  }
+
+  .metadata-column {
+    gap: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .order-history-container {
+    padding: 20px 16px;
+  }
+
+  .order-card {
+    padding: 16px;
+  }
+
+  .service-name {
+    font-size: 1rem;
+  }
+
+  .order-date {
+    font-size: 0.8rem;
+  }
+}

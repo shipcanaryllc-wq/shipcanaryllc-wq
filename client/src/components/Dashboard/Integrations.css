@@ -1,0 +1,371 @@
+/* ============================================
+   INTEGRATIONS - Premium SaaS Design
+   Polished, professional, config-driven
+   ============================================ */
+
+.integrations-page {
+  min-height: 100%;
+  background: linear-gradient(to bottom, #f8f8fa 0%, #f1f2f6 100%);
+  padding: 0;
+}
+
+.integrations-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 64px 32px;
+}
+
+/* ============================================
+   HERO SECTION
+   ============================================ */
+
+.integrations-hero {
+  text-align: center;
+  margin-bottom: 56px;
+}
+
+.integrations-title {
+  font-size: 2.75rem;
+  font-weight: 800;
+  color: #111827;
+  margin: 0 0 16px 0;
+  letter-spacing: -1.5px;
+  line-height: 1.1;
+}
+
+.integrations-subtitle {
+  font-size: 1.15rem;
+  color: #6b7280;
+  margin: 0 0 40px 0;
+  line-height: 1.6;
+  font-weight: 400;
+  max-width: 720px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.coming-soon-badge {
+  display: inline-block;
+  background: rgba(255, 107, 53, 0.1);
+  color: #ff6b35;
+  padding: 8px 20px;
+  border-radius: 24px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  border: 1px solid rgba(255, 107, 53, 0.2);
+  margin-top: 32px;
+}
+
+/* ============================================
+   LOGO STRIP SECTION
+   ============================================ */
+
+.logo-strip-section {
+  text-align: center;
+  margin-bottom: 56px;
+  padding: 40px 0;
+}
+
+.logo-strip-label {
+  margin: 0 0 28px 0;
+  color: #6b7280;
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: -0.2px;
+}
+
+.logo-strip {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 40px;
+  flex-wrap: wrap;
+  opacity: 0.65;
+}
+
+.logo-strip-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  transition: all 0.3s ease;
+  filter: grayscale(100%);
+}
+
+.logo-strip-item:hover {
+  opacity: 1;
+  filter: grayscale(0%);
+  transform: scale(1.1);
+}
+
+/* ============================================
+   INTEGRATIONS GRID
+   ============================================ */
+
+.integrations-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-bottom: 72px;
+}
+
+/* ============================================
+   INTEGRATION CARD
+   ============================================ */
+
+.integration-card {
+  background: #ffffff;
+  border: 1px solid #eceff3;
+  border-radius: 16px;
+  padding: 24px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  cursor: default;
+  position: relative;
+  min-height: 220px;
+}
+
+.integration-card:hover {
+  border-color: #d1d5db;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+  transform: translateY(-4px);
+}
+
+/* ============================================
+   CARD HEADER (Logo + Name + Status)
+   ============================================ */
+
+.integration-card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.integration-logo-container {
+  width: 64px;
+  height: 64px;
+  border-radius: 14px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 12px;
+  transition: all 0.3s ease;
+}
+
+.integration-logo-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.integration-card:hover .integration-logo-container {
+  border-color: #ff6b35;
+  background: rgba(255, 107, 53, 0.05);
+}
+
+.integration-header-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.integration-name {
+  margin: 0;
+  color: #111827;
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: -0.4px;
+  line-height: 1.3;
+}
+
+.status-pill {
+  display: inline-block;
+  padding: 5px 12px;
+  border-radius: 8px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  width: fit-content;
+  border: 1.5px solid;
+}
+
+.status-pill-planned {
+  background: #f5f7fb;
+  color: #6b7280;
+  border-color: #e5e7eb;
+}
+
+.status-pill-development {
+  background: rgba(255, 107, 53, 0.1);
+  color: #ff6b35;
+  border-color: rgba(255, 107, 53, 0.3);
+}
+
+/* ============================================
+   CARD BODY (Description)
+   ============================================ */
+
+.integration-description {
+  margin: 0;
+  color: #6b7280;
+  font-size: 0.95rem;
+  line-height: 1.65;
+  font-weight: 400;
+  flex: 1;
+}
+
+/* ============================================
+   CARD FOOTER (Development Status)
+   ============================================ */
+
+.integration-footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #9ca3af;
+  font-size: 0.8rem;
+  font-weight: 500;
+  padding-top: 16px;
+  border-top: 1px solid #f3f4f6;
+  margin-top: auto;
+  align-self: flex-start;
+}
+
+.integration-footer svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+/* ============================================
+   ROADMAP SECTION
+   ============================================ */
+
+.integrations-roadmap {
+  background: #ffffff;
+  border: 1px solid #eceff3;
+  border-radius: 16px;
+  padding: 40px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+  max-width: 100%;
+}
+
+.roadmap-title {
+  margin: 0 0 20px 0;
+  color: #111827;
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: -0.4px;
+}
+
+.roadmap-description {
+  margin: 0 0 20px 0;
+  color: #374151;
+  font-size: 1rem;
+  line-height: 1.75;
+  font-weight: 400;
+}
+
+.roadmap-note {
+  margin: 0;
+  color: #9ca3af;
+  font-size: 0.9rem;
+  line-height: 1.7;
+  font-weight: 400;
+  font-style: italic;
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+
+@media (max-width: 1024px) {
+  .integrations-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .integrations-container {
+    padding: 48px 24px;
+  }
+
+  .integrations-title {
+    font-size: 2.25rem;
+  }
+
+  .integrations-subtitle {
+    font-size: 1.05rem;
+    margin-bottom: 32px;
+  }
+
+  .integrations-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    margin-bottom: 56px;
+  }
+
+  .integrations-roadmap {
+    padding: 32px 24px;
+  }
+
+  .integration-card-header {
+    gap: 14px;
+  }
+
+  .integration-logo-container {
+    width: 56px;
+    height: 56px;
+    padding: 10px;
+  }
+
+  .logo-strip {
+    gap: 28px;
+  }
+}
+
+@media (max-width: 480px) {
+  .integrations-container {
+    padding: 40px 20px;
+  }
+
+  .integrations-title {
+    font-size: 1.875rem;
+  }
+
+  .integrations-subtitle {
+    font-size: 1rem;
+  }
+
+  .integration-card {
+    padding: 20px;
+    min-height: 200px;
+    gap: 14px;
+  }
+
+  .integrations-roadmap {
+    padding: 24px 20px;
+  }
+
+  .integration-name {
+    font-size: 1.1rem;
+  }
+
+  .logo-strip {
+    gap: 20px;
+  }
+
+  .logo-strip-item {
+    padding: 8px;
+  }
+}

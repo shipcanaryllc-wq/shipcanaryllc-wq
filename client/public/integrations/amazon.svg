@@ -1,0 +1,7 @@
+<svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Amazon smile arrow -->
+  <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2z" fill="#FF9900"/>
+  <path d="M8 10c0-1 .5-2 1.5-2s1.5 1 1.5 2v4c0 1-.5 2-1.5 2S8 15 8 14v-4zm6 0c0-1 .5-2 1.5-2s1.5 1 1.5 2v4c0 1-.5 2-1.5 2S14 15 14 14v-4z" fill="white"/>
+  <path d="M7 16h10v1H7v-1z" fill="white"/>
+  <path d="M16 10l2 2-2 2v-4z" fill="#FF9900"/>
+</svg>

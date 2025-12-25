@@ -1,0 +1,219 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #f5f5f5;
+}
+
+/* ============================================
+   GLOBAL TOOLTIP OVERRIDES - FULL OPACITY
+   Ensures all tooltips are fully opaque
+   ============================================ */
+
+/* Tippy.js */
+.tippy-box,
+.tippy-content {
+  background: rgb(17, 17, 17) !important;
+  background-color: rgb(17, 17, 17) !important;
+  color: rgb(255, 255, 255) !important;
+}
+
+.tippy-box {
+  opacity: 1 !important;
+  backdrop-filter: none !important;
+  filter: none !important;
+  z-index: 99999 !important;
+  mix-blend-mode: normal !important;
+  background-image: none !important;
+}
+
+.tippy-arrow:before {
+  color: rgb(17, 17, 17) !important;
+}
+
+/* MUI */
+.MuiTooltip-tooltip,
+.MuiTooltip-tooltipPlacementBottom,
+.MuiTooltip-tooltipPlacementTop,
+.MuiTooltip-tooltipPlacementLeft,
+.MuiTooltip-tooltipPlacementRight {
+  background: rgb(17, 17, 17) !important;
+  background-color: rgb(17, 17, 17) !important;
+  color: rgb(255, 255, 255) !important;
+  opacity: 1 !important;
+  backdrop-filter: none !important;
+  z-index: 99999 !important;
+  mix-blend-mode: normal !important;
+  background-image: none !important;
+}
+
+.MuiTooltip-arrow {
+  color: rgb(17, 17, 17) !important;
+}
+
+/* Ant Design */
+.ant-tooltip,
+.ant-tooltip-inner {
+  background: rgb(17, 17, 17) !important;
+  background-color: rgb(17, 17, 17) !important;
+  color: rgb(255, 255, 255) !important;
+  opacity: 1 !important;
+  backdrop-filter: none !important;
+  z-index: 99999 !important;
+  mix-blend-mode: normal !important;
+  background-image: none !important;
+}
+
+/* Bootstrap / generic */
+.tooltip,
+.tooltip-inner,
+.popover,
+.popover-body,
+.max-tooltip,
+.service-tooltip {
+  background: rgb(17, 17, 17) !important;
+  background-color: rgb(17, 17, 17) !important;
+  color: rgb(255, 255, 255) !important;
+  opacity: 1 !important;
+  backdrop-filter: none !important;
+  z-index: 99999 !important;
+  mix-blend-mode: normal !important;
+  background-image: none !important;
+}
+
+.tooltip-inner,
+.popover-body {
+  background: rgb(17, 17, 17) !important;
+  background-color: rgb(17, 17, 17) !important;
+}
+
+.tooltip-arrow::before,
+.popover-arrow::before {
+  border-top-color: rgb(17, 17, 17) !important;
+  border-right-color: rgb(17, 17, 17) !important;
+  border-bottom-color: rgb(17, 17, 17) !important;
+  border-left-color: rgb(17, 17, 17) !important;
+}
+
+/* React Tooltip (common) */
+.react-tooltip,
+.__react_component_tooltip {
+  background: rgb(17, 17, 17) !important;
+  background-color: rgb(17, 17, 17) !important;
+  color: rgb(255, 255, 255) !important;
+  opacity: 1 !important;
+  backdrop-filter: none !important;
+  z-index: 99999 !important;
+  mix-blend-mode: normal !important;
+  background-image: none !important;
+}
+
+/* Kill blend/filters that can cause "see through" look */
+.tippy-box,
+.MuiTooltip-tooltip,
+.ant-tooltip-inner,
+.tooltip-inner,
+.popover-body,
+.react-tooltip,
+.__react_component_tooltip,
+.tooltip,
+.tooltip-content {
+  mix-blend-mode: normal !important;
+  background-image: none !important;
+  filter: none !important;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+/* ============================================
+   UNIVERSAL TOOLTIP OVERRIDES - FULL OPACITY
+   Prevents see-through tooltips across all libraries
+   ============================================ */
+
+/* Universal tooltip selectors - covers all common patterns */
+.tippy-box,
+.tippy-content,
+.MuiTooltip-tooltip,
+.MuiTooltip-tooltipPlacementBottom,
+.MuiTooltip-tooltipPlacementTop,
+.MuiTooltip-tooltipPlacementLeft,
+.MuiTooltip-tooltipPlacementRight,
+.ant-tooltip,
+.ant-tooltip-inner,
+.tooltip,
+.tooltip-inner,
+.popover,
+.popover-body,
+.react-tooltip,
+.__react_component_tooltip,
+.max-tooltip,
+.service-tooltip,
+[data-tooltip],
+[role="tooltip"] {
+  background: #111 !important;
+  background-color: #111 !important;
+  color: #fff !important;
+  opacity: 1 !important;
+  backdrop-filter: none !important;
+  filter: none !important;
+  mix-blend-mode: normal !important;
+  background-image: none !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  z-index: 999999 !important;
+  position: relative !important;
+  isolation: isolate !important;
+}
+
+/* Tooltip content/inner containers */
+.tippy-content,
+.tooltip-content,
+.tooltip-inner,
+.popover-body,
+.ant-tooltip-inner {
+  background: #111 !important;
+  background-color: #111 !important;
+  opacity: 1 !important;
+}
+
+/* Ensure tooltip arrow matches opaque bg */
+.tippy-arrow:before,
+.MuiTooltip-arrow,
+.ant-tooltip-arrow,
+.tooltip-arrow,
+.tooltip-arrow::before,
+.popover-arrow::before {
+  color: #111 !important;
+  border-top-color: #111 !important;
+  border-right-color: #111 !important;
+  border-bottom-color: #111 !important;
+  border-left-color: #111 !important;
+}
+
+.tooltip-arrow-top {
+  border-top-color: #111 !important;
+}
+
+.tooltip-arrow-bottom {
+  border-bottom-color: #111 !important;
+}
+

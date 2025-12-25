@@ -1,0 +1,716 @@
+/* Orders History Horizontal Layout */
+
+.orders-history-horizontal {
+  padding: 24px;
+  background: #f8f9fa;
+  min-height: 100vh;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: hidden;
+}
+
+/* Header */
+.orders-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.orders-header h1 {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.breadcrumb {
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+/* Top Bar - Search and Filters */
+.orders-top-bar {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.search-section {
+  margin-bottom: 16px;
+}
+
+.search-section label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.search-input-wrapper {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.search-input {
+  flex: 1;
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.875rem;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.search-btn,
+.filter-btn {
+  padding: 10px 16px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.search-btn:hover,
+.filter-btn:hover {
+  background: #f9fafb;
+  border-color: #9ca3af;
+}
+
+.filters-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.filter-group label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.date-input,
+.select-input {
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  background: white;
+}
+
+.date-input:focus,
+.select-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.actions-section {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.btn-merge-pdf {
+  padding: 10px 20px;
+  background: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-merge-pdf:hover:not(:disabled) {
+  background: #c82333;
+}
+
+.btn-merge-pdf:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Orders List */
+.orders-list-container {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.orders-list-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e5e7eb;
+  margin-bottom: 16px;
+}
+
+.select-all-checkbox input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+.orders-count {
+  font-size: 0.875rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.orders-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Column Headings */
+.orders-list-headings {
+  display: grid;
+  grid-template-columns: 44px 44px 1.4fr 1.1fr 1.1fr 1.4fr 0.9fr 52px;
+  column-gap: 12px;
+  align-items: center;
+  padding: 10px 14px;
+  background: #f9fafb;
+  border-bottom: 2px solid #e5e7eb;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #6b7280;
+  margin-bottom: 8px;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.cell-heading {
+  /* Column headings */
+}
+
+/* Download header alignment */
+.orders-list-headings .download-cell,
+.orders-list-headings .cell-actions {
+  justify-self: end;
+  padding-right: 10px;
+  text-align: right;
+}
+
+/* Order Row Grid */
+.order-row-grid {
+  display: grid;
+  grid-template-columns: 44px 44px 1.4fr 1.1fr 1.1fr 1.4fr 0.9fr 52px;
+  column-gap: 12px;
+  align-items: center;
+  padding: 12px 14px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  background: white;
+  transition: all 0.2s;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.order-row-grid:hover {
+  border-color: #d1d5db;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.order-row-grid.selected {
+  background: #f0f9ff;
+  border-color: #3b82f6;
+}
+
+/* Cell Styles */
+.cell {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0; /* Allow text truncation */
+}
+
+.cell-number {
+  align-items: center;
+  justify-content: center;
+}
+
+.row-number {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #6b7280;
+}
+
+.cell-checkbox {
+  align-items: center;
+  justify-content: center;
+}
+
+.cell-checkbox input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+.cell-label {
+  gap: 4px;
+}
+
+.label-name {
+  font-weight: 600;
+  color: #111827;
+  font-size: 0.875rem;
+}
+
+.label-cost {
+  font-size: 0.875rem;
+  color: #059669;
+  font-weight: 600;
+}
+
+.label-created {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-top: 4px;
+}
+
+.cell-from,
+.cell-to {
+  gap: 2px;
+}
+
+.address-name {
+  font-weight: 600;
+  color: #111827;
+  font-size: 0.875rem;
+}
+
+.address-location {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.cell-tracking {
+  flex-direction: row;
+  align-items: center;
+  gap: 0;
+  min-width: 0;
+}
+
+.tracking-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+}
+
+.tracking-link {
+  color: #3b82f6;
+  font-size: 13px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.2s;
+  white-space: normal;
+  word-break: break-all;
+  line-height: 1.15;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+  letter-spacing: 0.3px;
+  display: inline-block;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.tracking-link:hover {
+  color: #2563eb;
+  text-decoration: underline;
+}
+
+.copy-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  transition: all 0.2s;
+  color: #6b7280;
+}
+
+.copy-btn:hover {
+  background: #f8fafc;
+  border-color: #d1d5db;
+  color: #111827;
+}
+
+.copy-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+.copied-text {
+  font-size: 0.75rem;
+  color: #059669;
+  font-weight: 600;
+}
+
+.no-tracking {
+  color: #9ca3af;
+  font-style: italic;
+}
+
+.cell-status {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: flex-start;
+  justify-content: flex-start;
+  min-width: 0;
+}
+
+.status-badge {
+  font-size: 12px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  line-height: 1;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  height: 20px;
+  white-space: nowrap;
+}
+
+.order-status-badge {
+  font-size: 11px !important;
+  padding: 4px 8px !important;
+  border-radius: 999px;
+  line-height: 1;
+  font-weight: 600;
+  height: auto;
+}
+
+.status-badge.neutral {
+  background: #eef2f7;
+  color: #475569;
+}
+
+.status-badge.success {
+  background: #e8f7ee;
+  color: #166534;
+}
+
+.status-badge.info {
+  background: #e8f1ff;
+  color: #1d4ed8;
+}
+
+.status-badge.warning {
+  background: #fff4e5;
+  color: #9a3412;
+}
+
+.status-badge.danger {
+  background: #ffe8e8;
+  color: #b91c1c;
+}
+
+.status-secondary {
+  font-size: 11px;
+  padding: 2px 8px;
+  height: 18px;
+}
+
+.cell-created {
+  gap: 2px;
+}
+
+.created-date {
+  font-size: 0.875rem;
+  color: #111827;
+  font-weight: 500;
+}
+
+.created-time {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.cell-actions {
+  align-items: center;
+  justify-content: center;
+}
+
+/* Download Icon Button */
+.btn-download-text {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.05s ease;
+  color: #2563eb;
+}
+
+.btn-download-text:hover:not(:disabled) {
+  background: #f8fafc;
+  border-color: #dbe3f0;
+}
+
+.btn-download-text:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.btn-download-text:focus {
+  outline: none;
+}
+
+.btn-download-text:focus-visible {
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18);
+  border-color: #93c5fd;
+}
+
+.btn-download-text:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: #f3f4f6;
+  border-color: #e5e7eb;
+  color: #9ca3af;
+}
+
+.btn-download-text .icon {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+}
+
+.btn-download-text .icon-loading {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Keep old button styles for other pages (unused here but may be used elsewhere) */
+.btn-download-label {
+  padding: 6px 12px;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.btn-download-label:hover:not(:disabled) {
+  background: #2563eb;
+}
+
+.btn-download-label:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Toast Notification */
+.toast-notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: #111827;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #6b7280;
+}
+
+.empty-state p {
+  font-size: 1rem;
+  margin: 0;
+}
+
+.loading-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #6b7280;
+  font-size: 1rem;
+}
+
+.login-prompt {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.login-prompt h3 {
+  margin-bottom: 12px;
+  color: #111827;
+}
+
+.signup-prompt-button {
+  margin-top: 16px;
+  padding: 10px 24px;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Responsive Breakpoint - 2-row layout */
+@media (max-width: 1200px) {
+  .checkbox-cell {
+    grid-area: chk;
+  }
+
+  .number-cell {
+    grid-area: num;
+  }
+
+  .label-cell {
+    grid-area: label;
+  }
+
+  .from-cell {
+    grid-area: from;
+  }
+
+  .to-cell {
+    grid-area: to;
+  }
+
+  .tracking-cell {
+    grid-area: tracking;
+  }
+
+  .status-cell {
+    grid-area: status;
+  }
+
+  .download-cell {
+    grid-area: download;
+    justify-self: end;
+  }
+
+  .orders-list-headings {
+    grid-template-areas:
+      "chk num label from to tracking tracking"
+      "chk num label status status download download";
+    grid-template-columns: 44px 44px 1.4fr 1fr 1fr 1.4fr 52px;
+    row-gap: 8px;
+    padding: 10px 14px;
+  }
+
+  .order-row-grid {
+    grid-template-areas:
+      "chk num label from to tracking tracking"
+      "chk num label status status download download";
+    grid-template-columns: 44px 44px 1.4fr 1fr 1fr 1.4fr 52px;
+    row-gap: 8px;
+    padding: 12px 14px;
+  }
+}
+
+@media (max-width: 768px) {
+  .orders-list-headings {
+    display: none; /* Hide headings on mobile */
+  }
+
+  .order-row-grid {
+    grid-template-columns: 40px 32px 1fr;
+    column-gap: 12px;
+    padding: 12px;
+  }
+
+  .cell-number {
+    grid-column: 1;
+  }
+
+  .cell-checkbox {
+    grid-column: 2;
+  }
+
+  .cell-label,
+  .cell-from,
+  .cell-to,
+  .cell-tracking,
+  .cell-status,
+  .cell-actions {
+    grid-column: 3;
+  }
+
+  .filters-section {
+    grid-template-columns: 1fr;
+  }
+}
+

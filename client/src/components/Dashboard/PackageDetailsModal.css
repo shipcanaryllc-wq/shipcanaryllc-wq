@@ -1,0 +1,177 @@
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 8px;
+  padding: 30px;
+  max-width: 600px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+.modal-content h2 {
+  margin: 0 0 25px 0;
+  color: #333;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.package-info {
+  margin-bottom: 25px;
+  padding-bottom: 25px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.info-label {
+  color: #666;
+  font-weight: 500;
+}
+
+.info-value {
+  color: #333;
+  font-weight: 600;
+}
+
+.address-section {
+  margin-bottom: 25px;
+  padding-bottom: 25px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.address-block {
+  margin-bottom: 20px;
+}
+
+.address-block:last-child {
+  margin-bottom: 0;
+}
+
+.address-block h4 {
+  margin: 0 0 12px 0;
+  color: #333;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.address-name {
+  font-weight: 600;
+  color: #333;
+  margin: 5px 0;
+}
+
+.address-company {
+  color: #666;
+  margin: 5px 0;
+}
+
+.address-street {
+  color: #666;
+  margin: 5px 0;
+}
+
+.address-city {
+  color: #666;
+  margin: 5px 0;
+}
+
+.address-country {
+  color: #666;
+  margin: 5px 0;
+}
+
+.price-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  padding: 15px;
+  background: #f5f7fa;
+  border-radius: 6px;
+}
+
+.price-label {
+  font-size: 1.1rem;
+  color: #666;
+  font-weight: 500;
+}
+
+.price-value {
+  font-size: 1.3rem;
+  color: #333;
+  font-weight: 700;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 15px;
+  justify-content: flex-end;
+}
+
+.cancel-modal-button {
+  padding: 12px 24px;
+  background: #e0e0e0;
+  color: #333;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.cancel-modal-button:hover {
+  background: #d0d0d0;
+}
+
+.purchase-button {
+  padding: 12px 24px;
+  background: #333;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.purchase-button:hover {
+  background: #1a1a1a;
+}
+
+@media (max-width: 768px) {
+  .modal-content {
+    padding: 20px;
+    max-height: 95vh;
+  }
+
+  .modal-actions {
+    flex-direction: column;
+  }
+
+  .cancel-modal-button,
+  .purchase-button {
+    width: 100%;
+  }
+}
+

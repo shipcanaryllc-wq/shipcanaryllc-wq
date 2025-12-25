@@ -1,0 +1,131 @@
+.marketing-navbar {
+  background: #ffffff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.navbar-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 18px 40px; /* Increased padding to accommodate larger logo */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 70px; /* Slightly increased navbar height for better logo display */
+}
+
+/* Logo size increase: ~1.6x scale (from 90px to 144px) */
+.navbar-logo {
+  cursor: pointer;
+  transition: opacity 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.navbar-logo:hover {
+  opacity: 0.8;
+}
+
+/* Override logo size specifically in navbar - increase to ~1.6x */
+.navbar-logo .logo-container {
+  display: flex;
+  align-items: center;
+}
+
+.navbar-logo .logo-image {
+  height: 144px !important; /* Increased from 90px (medium) to 144px (~1.6x scale) */
+  width: auto !important;
+  max-width: none;
+  object-fit: contain;
+}
+
+.navbar-nav {
+  display: flex;
+  gap: 32px;
+  align-items: center;
+}
+
+.nav-link {
+  text-decoration: none;
+  color: #333;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: color 0.2s;
+  position: relative;
+}
+
+.nav-link:hover {
+  color: #ff6b35;
+}
+
+.nav-link.active {
+  color: #ff6b35;
+}
+
+.navbar-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.nav-button {
+  padding: 10px 24px;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.nav-button.secondary {
+  background: transparent;
+  color: #333;
+  border: 2px solid #e0e0e0;
+}
+
+.nav-button.secondary:hover {
+  border-color: #ff6b35;
+  color: #ff6b35;
+}
+
+.nav-button.primary {
+  background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+  color: white;
+}
+
+.nav-button.primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+}
+
+@media (max-width: 768px) {
+  .navbar-container {
+    flex-direction: column;
+    gap: 20px;
+    padding: 18px 24px; /* Adjusted padding for mobile */
+    min-height: auto;
+  }
+
+  /* Responsive logo scaling for mobile */
+  .navbar-logo .logo-image {
+    height: 100px !important; /* Scaled down proportionally for mobile */
+  }
+
+  .navbar-nav {
+    gap: 20px;
+  }
+}
+
+/* Tablet responsive adjustment */
+@media (max-width: 1024px) and (min-width: 769px) {
+  .navbar-logo .logo-image {
+    height: 120px !important; /* Slightly smaller for tablet */
+  }
+}
+

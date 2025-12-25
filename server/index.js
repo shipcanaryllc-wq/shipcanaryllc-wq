@@ -1,0 +1,388 @@
+// 1) Backend ONLY: Load dotenv at the very top BEFORE any other imports
+const dotenv = require('dotenv');
+const path = require('path');
+
+// Load .env from server directory (where this file is located)
+// This ensures it works regardless of where the process is started from
+const envPath = path.join(__dirname, '.env');
+dotenv.config({ path: envPath });
+
+console.log('[STARTUP] Loading .env from:', envPath);
+console.log('[STARTUP] Current working directory:', process.cwd());
+console.log('[STARTUP] __dirname:', __dirname);
+
+const express = require('express');
+const mongoose = require('mongoose');
+const cors = require('cors');
+const helmet = require('helmet');
+const morgan = require('morgan');
+const passport = require('passport');
+const session = require('express-session');
+
+// 2) Add startup assertions (backend)
+const k = (process.env.SHIPLABEL_API_KEY || '').trim();
+if (!k || k === 'undefined') {
+  console.error('❌ FATAL ERROR: SHIPLABEL_API_KEY missing');
+  console.error('   Set SHIPLABEL_API_KEY in server/.env file');
+  console.error('   Key length:', k.length);
+  console.error('   .env file path:', envPath);
+  console.error('   File exists:', require('fs').existsSync(envPath));
+  process.exit(1);
+}
+console.log('✅ SHIPLABEL_API_KEY loaded');
+console.log('   Key length:', k.length);
+
+const app = express();
+
+// B) CORS Configuration - Fix to allow Authorization header
+const allowedOrigins = process.env.NODE_ENV === 'production'
+  ? [
+      'https://shipcanary.com',
+      'https://www.shipcanary.com',
+      process.env.FRONTEND_URL
+    ].filter(Boolean)
+  : 'http://localhost:3000'; // Explicit origin in development
+
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'], // Only allow these headers
+  exposedHeaders: ['Authorization'],
+  preflightContinue: false,
+  optionsSuccessStatus: 204
+}));
+
+// Handle OPTIONS preflight requests explicitly
+app.options('*', cors());
+
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" },
+  contentSecurityPolicy: false // Disable CSP for development
+}));
+app.use(morgan('combined'));
+
+// BTCPay webhook route - MUST be before express.json() to use raw body for HMAC verification
+const btcpayWebhookHandler = require('./controllers/btcpayWebhookController');
+app.post('/api/btcpay/webhook', express.raw({ type: 'application/json' }), btcpayWebhookHandler);
+
+// Standard JSON body parser for all other routes
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Session configuration for OAuth
+app.use(session({
+  secret: process.env.JWT_SECRET || 'shipcanary-session-secret',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { 
+    secure: process.env.NODE_ENV === 'production', // HTTPS only in production
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // Cross-origin in production
+    httpOnly: true,
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  }
+}));
+
+// Initialize Passport
+app.use(passport.initialize());
+app.use(passport.session());
+
+// Database connection
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/shipcanary';
+
+mongoose.connect(MONGODB_URI, {
+  serverSelectionTimeoutMS: 10000,
+  socketTimeoutMS: 10000,
+  connectTimeoutMS: 10000
+})
+.then(() => {
+  console.log('✅ MongoDB connected successfully');
+  console.log(`   - Database: ${mongoose.connection.name}`);
+  console.log(`   - Connection state: ${mongoose.connection.readyState} (1=connected)`);
+})
+.catch(err => {
+  console.error('❌ MongoDB connection error:', err.message);
+  console.error('💡 Possible issues:');
+  console.error('   1. Cluster might be paused - check MongoDB Atlas dashboard');
+  console.error('   2. IP not whitelisted - check Network Access in Atlas');
+  console.error('   3. Wrong password in connection string');
+  console.error('   4. Network/firewall blocking connection');
+  console.error('💡 Check your cluster status: https://cloud.mongodb.com/');
+  console.error('💡 Connection string (masked):', MONGODB_URI.replace(/\/\/[^:]+:[^@]+@/, '//***:***@'));
+  // Don't exit - let the server start but routes will fail gracefully
+});
+
+// Log MongoDB connection state changes
+mongoose.connection.on('connected', () => {
+  console.log('✅ MongoDB connection established');
+});
+
+mongoose.connection.on('error', (err) => {
+  console.error('❌ MongoDB connection error:', err.message);
+});
+
+mongoose.connection.on('disconnected', () => {
+  console.warn('⚠️  MongoDB disconnected');
+});
+
+// ============================================================================
+// A) INSTRUMENTATION: Log Authorization header BEFORE routes
+// ============================================================================
+app.use('/api/orders', (req, res, next) => {
+  console.log('\n[REQUEST LOGGER] ════════════════════════════════════════════════════════════════');
+  console.log('[REQUEST LOGGER] 📥 INCOMING REQUEST TO /api/orders');
+  console.log('[REQUEST LOGGER] ════════════════════════════════════════════════════════════════');
+  console.log('[REQUEST LOGGER] Method:', req.method);
+  console.log('[REQUEST LOGGER] Path:', req.path);
+  console.log('[REQUEST LOGGER] URL:', req.url);
+  
+  // Check Authorization header (case-insensitive)
+  const authHeader = req.headers.authorization || req.headers.Authorization;
+  console.log('[REQUEST LOGGER] Authorization header present:', !!authHeader);
+  if (authHeader) {
+    console.log('[REQUEST LOGGER] Authorization header (first 30 chars):', authHeader.substring(0, 30) + '...');
+    console.log('[REQUEST LOGGER] Authorization header length:', authHeader.length);
+    console.log('[REQUEST LOGGER] Starts with "Bearer ":', authHeader.startsWith('Bearer ') || authHeader.startsWith('bearer '));
+  } else {
+    console.error('[REQUEST LOGGER] ❌ Authorization header MISSING!');
+    console.error('[REQUEST LOGGER] All headers:', JSON.stringify(req.headers, null, 2));
+  }
+  console.log('[REQUEST LOGGER] ════════════════════════════════════════════════════════════════\n');
+  next();
+});
+
+// Routes
+app.use('/api/auth', require('./routes/auth'));
+app.use('/api/addresses', require('./routes/addresses'));
+app.use('/api/packages', require('./routes/packages'));
+app.use('/api/orders', require('./routes/orders'));
+app.use('/api/users', require('./routes/users'));
+app.use('/api/payments', require('./routes/payments'));
+app.use('/api/payments', require('./routes/payments-btcpay'));
+app.use('/api/deposits', require('./routes/deposits'));
+
+// Health check
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok', message: 'ShipCanary API is running' });
+});
+
+// 6) Debug endpoint to verify env vars are loaded
+// GET /api/debug/env (protected with auth middleware)
+app.get('/api/debug/env', require('./middleware/auth'), (req, res) => {
+  const k = process.env.SHIPLABEL_API_KEY || '';
+  res.json({
+    shiplabelKeyLength: k.length || 0,
+    baseUrl: process.env.SHIPLABEL_BASE_URL || null,
+    hasKey: Boolean(k),
+    // keyPreview removed for security
+    workingDir: process.cwd(),
+    envFile: path.join(__dirname, '.env'),
+    envFileExists: require('fs').existsSync(path.join(__dirname, '.env'))
+  });
+});
+
+// 1) DEV-ONLY public debug route (NO secrets)
+if (process.env.NODE_ENV !== 'production') {
+  app.get('/api/debug/env-public', (req, res) => {
+    const k = process.env.SHIPLABEL_API_KEY || '';
+    res.json({
+      shiplabelKeyLength: k.length || 0,
+      hasShiplabelKey: Boolean(k),
+      shiplabelBaseUrl: process.env.SHIPLABEL_BASE_URL || 'https://www.shiplabel.net/api/v2',
+      nodeEnv: process.env.NODE_ENV || 'development',
+      cwd: process.cwd(),
+      dirname: __dirname,
+    });
+  });
+}
+
+// 2) DEV-ONLY ShipLabel connectivity test route (NO secrets)
+if (process.env.NODE_ENV !== 'production') {
+  const { shiplabel } = require('./services/shiplabelClient');
+  app.get('/api/debug/shiplabel-services-public', async (req, res) => {
+    try {
+      const r = await shiplabel.post('/services', {});
+      
+      // Parse labels using normalization helper
+      const { normalizeShipLabelServicesResponse } = require('./services/shippingService');
+      const labels = normalizeShipLabelServicesResponse(r.data);
+      
+      res.json({
+        status: r.status,
+        hasLabels: labels.length > 0,
+        labelCount: labels.length,
+        firstLabel: labels[0] ? { id: labels[0].id, name: labels[0].name } : null,
+        rawShapePreview: JSON.stringify(r.data).slice(0, 200),
+      });
+    } catch (e) {
+      res.status(502).json({
+        message: 'ShipLabel connectivity failed',
+        status: e.response?.status || null,
+        bodyPreview: e.response?.data ? JSON.stringify(e.response.data).slice(0, 300) : null,
+      });
+    }
+  });
+
+  // DEV-ONLY endpoint to test ShipLabel auth with raw request
+  app.get('/api/debug/shiplabel-auth-test', async (req, res) => {
+    try {
+      const { shiplabel } = require('./services/shiplabelClient');
+      const axios = require('axios');
+      
+      // Test 1: Using our client (Bearer format)
+      console.log('\n[TEST] Test 1: Using shiplabel client with Bearer token');
+      try {
+        const r1 = await shiplabel.post('/services', {});
+        console.log('[TEST] ✅ Test 1 SUCCESS:', r1.status);
+      } catch (e1) {
+        console.log('[TEST] ❌ Test 1 FAILED:', e1.response?.status, e1.response?.data);
+      }
+      
+      // Test 2: Direct axios call with Bearer
+      console.log('\n[TEST] Test 2: Direct axios call with Bearer token');
+      const apiKey = (process.env.SHIPLABEL_API_KEY || '').trim();
+      try {
+        const r2 = await axios.post('https://www.shiplabel.net/api/v2/services', {}, {
+          headers: {
+            'Authorization': `Bearer ${apiKey}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        console.log('[TEST] ✅ Test 2 SUCCESS:', r2.status);
+      } catch (e2) {
+        console.log('[TEST] ❌ Test 2 FAILED:', e2.response?.status, e2.response?.data);
+      }
+      
+      // Test 3: Direct axios call WITHOUT Bearer (just the key)
+      console.log('\n[TEST] Test 3: Direct axios call WITHOUT Bearer (key only)');
+      try {
+        const r3 = await axios.post('https://www.shiplabel.net/api/v2/services', {}, {
+          headers: {
+            'Authorization': apiKey,
+            'Content-Type': 'application/json'
+          }
+        });
+        console.log('[TEST] ✅ Test 3 SUCCESS:', r3.status);
+      } catch (e3) {
+        console.log('[TEST] ❌ Test 3 FAILED:', e3.response?.status, e3.response?.data);
+      }
+      
+      // Test 4: Using X-API-Key header
+      console.log('\n[TEST] Test 4: Using X-API-Key header');
+      try {
+        const r4 = await axios.post('https://www.shiplabel.net/api/v2/services', {}, {
+          headers: {
+            'X-API-Key': apiKey,
+            'Content-Type': 'application/json'
+          }
+        });
+        console.log('[TEST] ✅ Test 4 SUCCESS:', r4.status);
+      } catch (e4) {
+        console.log('[TEST] ❌ Test 4 FAILED:', e4.response?.status, e4.response?.data);
+      }
+      
+      res.json({
+        message: 'Check server console logs for test results',
+        apiKeyLength: apiKey?.length || 0
+      });
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  // DEV-ONLY endpoint to test create-order end-to-end
+  app.get('/api/debug/shiplabel-create-order-public', async (req, res) => {
+    try {
+      // Import normalization helpers
+      const { normalizeShipLabelServicesResponse, normalizeShipLabelCreateOrderResponse } = require('./services/shippingService');
+      
+      // Step 1: Get first label ID from /services
+      const servicesRes = await shiplabel.post('/services', {});
+      
+      // Parse labels using normalization helper
+      const labels = normalizeShipLabelServicesResponse(servicesRes.data);
+      
+      if (labels.length === 0) {
+        return res.status(502).json({
+          message: 'No labels available from /services',
+          status: servicesRes.status,
+          bodyPreview: JSON.stringify(servicesRes.data).slice(0, 800),
+        });
+      }
+      
+      // ONLY use label ID 369 ($1.40 one)
+      const label369 = labels.find(l => String(l.id) === '369');
+      if (!label369) {
+        return res.status(502).json({
+          message: 'Label ID 369 not available from ShipLabel services',
+          status: servicesRes.status,
+          availableLabels: labels.map(l => ({ id: l.id, name: l.name })),
+          bodyPreview: JSON.stringify(servicesRes.data).slice(0, 800),
+        });
+      }
+      
+      const labelId = String(label369.id);
+      
+      // Step 2: Call /create-order with hardcoded payload
+      const payload = {
+        label_id: labelId,
+        fromName: "Test Sender",
+        fromCompany: "ShipCanary",
+        fromAddress: "123 Main Street",
+        fromAddress2: "",
+        fromZip: "10001",
+        fromState: "NY",
+        fromCity: "New York",
+        fromCountry: "US",
+        toName: "Test Receiver",
+        toCompany: "ShipCanary",
+        toAddress: "456 Elm Street",
+        toAddress2: "",
+        toZip: "90001",
+        toState: "CA",
+        toCity: "Los Angeles",
+        toCountry: "US",
+        weight: 1.0,
+        length: 10.0,
+        height: 5.0,
+        width: 3.0,
+        reference_1: "DEBUG",
+        reference_2: "DEBUG",
+        discription: "Debug shipment"
+      };
+      
+      // Add detailed logging before create-order call
+      console.log('[DEBUG] About to call /create-order');
+      console.log('[DEBUG] Base URL:', shiplabel.defaults.baseURL);
+      console.log('[DEBUG] Full URL will be:', shiplabel.defaults.baseURL + '/create-order');
+      console.log('[DEBUG] Auth header present:', !!shiplabel.defaults.headers.Authorization);
+      console.log('[DEBUG] Auth header value (first 30 chars):', shiplabel.defaults.headers.Authorization?.slice(0, 30) + '...');
+      console.log('[DEBUG] Payload:', JSON.stringify(payload, null, 2));
+      
+      const createOrderRes = await shiplabel.post('/create-order', payload);
+      
+      // Step 3: Parse create-order response using normalization helper
+      const { ok } = normalizeShipLabelCreateOrderResponse(createOrderRes.data);
+      
+      res.json({
+        status: createOrderRes.status,
+        ok: ok,
+        labelId: labelId,
+        bodyPreview: JSON.stringify(createOrderRes.data).slice(0, 800),
+      });
+    } catch (e) {
+      // Step 4: If create-order fails, return 502 with error details
+      res.status(502).json({
+        message: 'ShipLabel create-order failed',
+        status: e.response?.status || null,
+        bodyPreview: e.response?.data ? JSON.stringify(e.response.data).slice(0, 800) : null,
+      });
+    }
+  });
+}
+
+const PORT = process.env.PORT || 5001;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
+

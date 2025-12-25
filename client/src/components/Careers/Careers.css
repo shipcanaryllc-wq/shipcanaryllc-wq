@@ -1,0 +1,418 @@
+/* ============================================
+   PREMIUM SAAS CAREERS PAGE - SHIPCANARY
+   Modern, clean, professional design
+   Inspired by Linear, Vercel, Ramp
+   ============================================ */
+
+.careers-page {
+  min-height: 100vh;
+  background: linear-gradient(to bottom, #fafbfc 0%, #ffffff 50%, #fafbfc 100%);
+}
+
+.careers-main {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 120px 64px;
+}
+
+/* ============================================
+   HERO SECTION - Premium SaaS Hero
+   ============================================ */
+
+.careers-hero {
+  position: relative;
+  text-align: center;
+  margin-bottom: 120px;
+  padding: 80px 0;
+  overflow: hidden;
+}
+
+.hero-gradient-bg {
+  position: absolute;
+  top: -50%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 800px;
+  height: 800px;
+  background: radial-gradient(circle, rgba(255, 107, 53, 0.08) 0%, rgba(247, 147, 30, 0.05) 50%, transparent 70%);
+  border-radius: 50%;
+  z-index: 0;
+}
+
+.hero-content-wrapper {
+  position: relative;
+  z-index: 1;
+}
+
+.careers-title {
+  font-size: 4.5rem;
+  font-weight: 800;
+  color: #0a0a0a;
+  margin: 0 0 24px 0;
+  letter-spacing: -2.5px;
+  line-height: 1.1;
+  animation: fadeInUp 0.8s ease-out;
+}
+
+.careers-subtitle {
+  font-size: 1.35rem;
+  font-weight: 400;
+  color: #4a5568;
+  margin: 0 0 48px 0;
+  line-height: 1.6;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+  animation: fadeInUp 0.8s ease-out 0.2s both;
+}
+
+.careers-cta-button {
+  background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+  color: white;
+  border: none;
+  padding: 18px 48px;
+  border-radius: 50px;
+  font-size: 1.15rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 16px rgba(255, 107, 53, 0.25);
+  letter-spacing: -0.2px;
+  animation: fadeInUp 0.8s ease-out 0.4s both;
+}
+
+.careers-cta-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(255, 107, 53, 0.35);
+}
+
+.careers-cta-button:active {
+  transform: translateY(-1px);
+}
+
+/* ============================================
+   BENEFITS SECTION - Elevated Cards
+   ============================================ */
+
+.benefits-section {
+  margin-bottom: 120px;
+}
+
+.benefits-section-title {
+  font-size: 3rem;
+  font-weight: 800;
+  color: #0a0a0a;
+  margin: 0 0 64px 0;
+  text-align: center;
+  letter-spacing: -1.5px;
+  animation: fadeInUp 0.8s ease-out 0.6s both;
+}
+
+.benefits-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+}
+
+.benefit-card {
+  background: #ffffff;
+  padding: 40px 32px;
+  border-radius: 16px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.benefit-icon-badge {
+  width: 48px;
+  height: 48px;
+  border-radius: 9999px;
+  background: rgba(255, 122, 0, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+  color: #111827;
+  transition: all 0.3s ease;
+}
+
+.benefit-card:hover .benefit-icon-badge {
+  background: rgba(255, 107, 53, 0.12);
+  color: #ff6b35;
+  transform: scale(1.05);
+}
+
+.benefit-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #ff6b35, #f7931e);
+  transform: scaleX(0);
+  transition: transform 0.4s;
+}
+
+.benefit-card:hover::before {
+  transform: scaleX(1);
+}
+
+.benefit-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(255, 107, 53, 0.12);
+  border-color: rgba(255, 107, 53, 0.2);
+}
+
+.benefit-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #0a0a0a;
+  margin: 0 0 16px 0;
+  letter-spacing: -0.5px;
+}
+
+.benefit-description {
+  font-size: 1.05rem;
+  color: #4a5568;
+  line-height: 1.65;
+  margin: 0;
+  font-weight: 400;
+}
+
+/* ============================================
+   OPEN ROLES SECTION - Modern Job Cards
+   ============================================ */
+
+.open-roles-section {
+  margin-top: 80px;
+}
+
+.open-roles-title {
+  font-size: 3rem;
+  font-weight: 800;
+  color: #0a0a0a;
+  margin: 0 0 64px 0;
+  text-align: center;
+  letter-spacing: -1.5px;
+  animation: fadeInUp 0.8s ease-out 0.8s both;
+}
+
+.jobs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.job-card {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 16px;
+  padding: 32px 40px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 32px;
+  animation: fadeInUp 0.8s ease-out both;
+}
+
+.job-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(255, 107, 53, 0.1);
+  border-color: rgba(255, 107, 53, 0.2);
+}
+
+.job-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.job-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.job-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #0a0a0a;
+  margin: 0;
+  letter-spacing: -0.5px;
+}
+
+.job-location {
+  background: linear-gradient(135deg, rgba(255, 107, 53, 0.1) 0%, rgba(247, 147, 30, 0.08) 100%);
+  color: #ff6b35;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border: 1px solid rgba(255, 107, 53, 0.2);
+}
+
+.job-description {
+  font-size: 1.05rem;
+  color: #4a5568;
+  line-height: 1.65;
+  margin: 0;
+  font-weight: 400;
+}
+
+.job-actions {
+  flex-shrink: 0;
+}
+
+.job-apply-button {
+  background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+  color: white;
+  border: none;
+  padding: 12px 32px;
+  border-radius: 50px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(255, 107, 53, 0.2);
+  letter-spacing: -0.2px;
+}
+
+.job-apply-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+}
+
+.job-apply-button:active {
+  transform: translateY(0);
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+
+@media (max-width: 1024px) {
+  .careers-main {
+    padding: 100px 48px;
+  }
+
+  .careers-title {
+    font-size: 3.5rem;
+  }
+
+  .benefits-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 28px;
+  }
+
+  .job-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 24px;
+  }
+
+  .job-actions {
+    width: 100%;
+  }
+
+  .job-apply-button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .careers-main {
+    padding: 80px 32px;
+  }
+
+  .careers-hero {
+    padding: 60px 0;
+    margin-bottom: 80px;
+  }
+
+  .careers-title {
+    font-size: 2.75rem;
+    letter-spacing: -2px;
+  }
+
+  .careers-subtitle {
+    font-size: 1.15rem;
+  }
+
+  .careers-cta-button {
+    padding: 16px 40px;
+    font-size: 1.05rem;
+  }
+
+  .benefits-section-title,
+  .open-roles-title {
+    font-size: 2.25rem;
+    letter-spacing: -1px;
+  }
+
+  .benefits-section {
+    margin-bottom: 80px;
+  }
+
+  .benefits-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .benefit-card {
+    padding: 32px 28px;
+  }
+
+  .open-roles-section {
+    margin-top: 60px;
+  }
+
+  .job-card {
+    padding: 28px 24px;
+  }
+
+  .job-title {
+    font-size: 1.3rem;
+  }
+
+  .job-description {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .careers-main {
+    padding: 60px 24px;
+  }
+
+  .careers-title {
+    font-size: 2.25rem;
+  }
+
+  .benefits-section-title,
+  .open-roles-title {
+    font-size: 1.75rem;
+  }
+}

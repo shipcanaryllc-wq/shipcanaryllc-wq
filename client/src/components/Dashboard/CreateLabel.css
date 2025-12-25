@@ -1,0 +1,991 @@
+/* ============================================
+   CREATE LABEL - Calm, Modern SaaS Form
+   Reduced visual noise, clear hierarchy
+   ============================================ */
+
+/* Mapbox Autocomplete Suggestions Styling */
+.mapbox-suggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #d0d0d0;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  margin-top: 4px;
+  max-height: 300px;
+  overflow-y: auto;
+  z-index: 1000;
+}
+
+.suggestion-item {
+  padding: 12px 16px;
+  cursor: pointer;
+  border-top: 1px solid #e0e0e0;
+  transition: background-color 0.2s;
+}
+
+.suggestion-item:first-child {
+  border-top: none;
+}
+
+.suggestion-item:hover,
+.suggestion-item.selected {
+  background-color: #f5f5f5;
+}
+
+.suggestion-title {
+  font-weight: 500;
+  color: #333;
+  font-size: 0.95rem;
+  margin-bottom: 4px;
+}
+
+.suggestion-address {
+  color: #666;
+  font-size: 0.85rem;
+}
+
+/* ============================================
+   MAIN CONTAINER
+   ============================================ */
+
+.create-label {
+  margin: 0;
+  padding: 0;
+  overflow: visible;
+  position: relative;
+  background: linear-gradient(to bottom, #f8f8fa 0%, #f1f2f6 100%);
+  min-height: 100%;
+}
+
+.create-label-container {
+  max-width: 1150px;
+  margin: 0 auto;
+  padding: 40px;
+}
+
+.create-label h2 {
+  margin: 0 0 8px 0;
+  padding: 0;
+  color: #1a1a1a;
+  font-size: 1.8rem;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+.subtitle {
+  color: #6b7280;
+  margin: 0 0 40px 0;
+  padding: 0;
+  font-size: 1rem;
+  font-weight: 400;
+}
+
+/* ============================================
+   SECTION TITLES - Clear Hierarchy
+   ============================================ */
+
+.form-section {
+  margin-bottom: 48px;
+}
+
+.section-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 24px 0;
+  letter-spacing: -0.4px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+/* ============================================
+   USPS SERVICE CARDS - Softer, Calmer
+   ============================================ */
+
+.usps-options {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 0;
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: visible;
+}
+
+@media (max-width: 1400px) {
+  .usps-options {
+    grid-template-columns: repeat(5, minmax(200px, 1fr));
+  }
+}
+
+.usps-option {
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: #fafbfc;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  margin: 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  min-height: 140px;
+  overflow: visible;
+  isolation: isolate; /* Create new stacking context */
+}
+
+.usps-option:hover {
+  border-color: #d1d5db;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  background: #ffffff;
+}
+
+.usps-option.selected {
+  border-color: #ff6b35;
+  border-width: 2px;
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgba(255, 107, 53, 0.15);
+}
+
+.option-main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  overflow: visible;
+  position: relative;
+  z-index: 1;
+  padding-bottom: 28px; /* Space for Max+info in bottom-right */
+}
+
+.option-service-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  position: relative;
+}
+
+.option-service-name {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #111827;
+  letter-spacing: -0.2px;
+  flex: 1;
+}
+
+.option-max-info {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  z-index: 2;
+  white-space: nowrap;
+}
+
+.max-label {
+  font-size: 0.8rem;
+  color: #6b7280;
+  font-weight: 400;
+}
+
+/* Info Icon and Tooltip */
+.info-icon-container {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  cursor: help;
+  z-index: 1;
+}
+
+/* ============================================
+   GLOBAL TOOLTIP OVERRIDES - FULL OPACITY
+   Covers all common tooltip libraries
+   ============================================ */
+
+/* Tippy.js */
+.tippy-box,
+.tippy-content {
+  background: rgb(17, 17, 17) !important;
+  background-color: rgb(17, 17, 17) !important;
+  color: rgb(255, 255, 255) !important;
+}
+
+.tippy-box {
+  opacity: 1 !important;
+  backdrop-filter: none !important;
+  filter: none !important;
+  z-index: 99999 !important;
+  mix-blend-mode: normal !important;
+  background-image: none !important;
+}
+
+.tippy-arrow:before {
+  color: rgb(17, 17, 17) !important;
+}
+
+/* MUI */
+.MuiTooltip-tooltip,
+.MuiTooltip-tooltipPlacementBottom,
+.MuiTooltip-tooltipPlacementTop,
+.MuiTooltip-tooltipPlacementLeft,
+.MuiTooltip-tooltipPlacementRight {
+  background: rgb(17, 17, 17) !important;
+  background-color: rgb(17, 17, 17) !important;
+  color: rgb(255, 255, 255) !important;
+  opacity: 1 !important;
+  backdrop-filter: none !important;
+  z-index: 99999 !important;
+  mix-blend-mode: normal !important;
+  background-image: none !important;
+}
+
+.MuiTooltip-arrow {
+  color: rgb(17, 17, 17) !important;
+}
+
+/* Ant Design */
+.ant-tooltip,
+.ant-tooltip-inner {
+  background: rgb(17, 17, 17) !important;
+  background-color: rgb(17, 17, 17) !important;
+  color: rgb(255, 255, 255) !important;
+  opacity: 1 !important;
+  backdrop-filter: none !important;
+  z-index: 99999 !important;
+  mix-blend-mode: normal !important;
+  background-image: none !important;
+}
+
+/* Bootstrap / generic */
+.tooltip,
+.tooltip-inner,
+.popover,
+.popover-body,
+.max-tooltip,
+.service-tooltip {
+  background: rgb(17, 17, 17) !important;
+  background-color: rgb(17, 17, 17) !important;
+  color: rgb(255, 255, 255) !important;
+  opacity: 1 !important;
+  backdrop-filter: none !important;
+  z-index: 99999 !important;
+  mix-blend-mode: normal !important;
+  background-image: none !important;
+}
+
+.tooltip-inner,
+.popover-body {
+  background: rgb(17, 17, 17) !important;
+  background-color: rgb(17, 17, 17) !important;
+}
+
+.tooltip-arrow::before,
+.popover-arrow::before {
+  border-top-color: rgb(17, 17, 17) !important;
+  border-right-color: rgb(17, 17, 17) !important;
+  border-bottom-color: rgb(17, 17, 17) !important;
+  border-left-color: rgb(17, 17, 17) !important;
+}
+
+/* React Tooltip (common) */
+.react-tooltip,
+.__react_component_tooltip {
+  background: rgb(17, 17, 17) !important;
+  background-color: rgb(17, 17, 17) !important;
+  color: rgb(255, 255, 255) !important;
+  opacity: 1 !important;
+  backdrop-filter: none !important;
+  z-index: 99999 !important;
+  mix-blend-mode: normal !important;
+  background-image: none !important;
+}
+
+/* Kill blend/filters that can cause "see through" look */
+.tippy-box,
+.MuiTooltip-tooltip,
+.ant-tooltip-inner,
+.tooltip-inner,
+.popover-body,
+.react-tooltip,
+.__react_component_tooltip,
+.tooltip,
+.tooltip-content {
+  mix-blend-mode: normal !important;
+  background-image: none !important;
+  filter: none !important;
+}
+
+.info-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.06);
+  color: #6b7280;
+  font-size: 12px;
+  font-weight: 600;
+  font-style: italic;
+  transition: all 0.2s ease;
+  user-select: none;
+  line-height: 1;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+}
+
+.info-icon-container:hover .info-icon {
+  background: rgba(255, 107, 53, 0.1);
+  color: #ff6b35;
+  border-color: rgba(255, 107, 53, 0.2);
+}
+
+.tooltip {
+  position: fixed !important;
+  z-index: 999999 !important;
+  pointer-events: none;
+  opacity: 1 !important;
+  visibility: visible;
+  will-change: transform;
+  backdrop-filter: none !important;
+  filter: none !important;
+  mix-blend-mode: normal !important;
+  background-image: none !important;
+  isolation: isolate !important;
+}
+
+.tooltip-content {
+  background: #111 !important;
+  background-color: #111 !important;
+  color: #fff !important;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  min-width: 220px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  position: relative;
+  white-space: normal;
+  opacity: 1 !important;
+  backdrop-filter: none !important;
+  filter: none !important;
+  mix-blend-mode: normal !important;
+  background-image: none !important;
+  isolation: isolate !important;
+}
+
+/* Tooltip Arrow */
+.tooltip-arrow {
+  position: absolute;
+  width: 0;
+  height: 0;
+  border: 6px solid transparent;
+  transform: translateX(-50%);
+}
+
+.tooltip-arrow-top {
+  bottom: -12px;
+  border-top-color: #111 !important;
+  border-bottom: none;
+}
+
+.tooltip-arrow-bottom {
+  top: -12px;
+  border-bottom-color: #111 !important;
+  border-top: none;
+}
+
+/* Ensure arrow borders are solid */
+.tooltip-arrow::before {
+  border-top-color: #111 !important;
+  border-right-color: #111 !important;
+  border-bottom-color: #111 !important;
+  border-left-color: #111 !important;
+}
+
+.tooltip-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+.tooltip-row:last-child {
+  margin-bottom: 0;
+}
+
+.tooltip-label {
+  color: #ccc;
+  font-weight: 400;
+}
+
+.tooltip-value {
+  color: white;
+  font-weight: 600;
+}
+
+.option-savings {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 6px 0;
+}
+
+.savings-badge {
+  font-size: 0.85rem;
+  color: #059669;
+  font-weight: 500;
+}
+
+.savings-text {
+  font-size: 0.8rem;
+  color: #9ca3af;
+  font-weight: 400;
+}
+
+.option-price {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 8px;
+}
+
+.price-label {
+  font-size: 0.8rem;
+  color: #6b7280;
+  font-weight: 400;
+}
+
+.price-value {
+  font-size: 1.25rem;
+  color: #111827;
+  font-weight: 700;
+}
+
+.option-select-indicator {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  z-index: 10;
+}
+
+.selected-checkmark {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #ff6b35;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.select-arrow {
+  color: #d1d5db;
+  font-size: 16px;
+  font-weight: 300;
+}
+
+.usps-option.selected .select-arrow {
+  display: none;
+}
+
+/* ============================================
+   FORM STYLING - Cleaner, Quieter
+   ============================================ */
+
+.label-form {
+  margin-top: 0;
+}
+
+.label-form h3 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0 0 24px 0;
+  letter-spacing: -0.3px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: #374151;
+  font-weight: 500;
+  font-size: 0.9rem;
+  letter-spacing: -0.1px;
+}
+
+.form-group label:has(+ input[required]),
+.form-group label:has(+ select[required]) {
+  font-weight: 600;
+  color: #111827;
+}
+
+/* Optional field labels - lighter */
+.form-group label:not(:has(+ input[required])):not(:has(+ select[required])) {
+  color: #6b7280;
+  font-weight: 400;
+}
+
+/* Address and Package Sections */
+.address-section,
+.package-section {
+  margin-bottom: 0;
+  padding: 0;
+  background: transparent;
+  border-radius: 0;
+  border: none;
+}
+
+.section-header-inline {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.section-header-inline h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.address-section h3,
+.package-section h3 {
+  margin: 0 0 20px 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.new-address-form,
+.new-package-form {
+  background: #ffffff;
+  padding: 24px;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.form-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+/* Name + Company Row - Grouped together */
+.name-company-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 16px;
+}
+
+.dimensions-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+/* Weight field - same row as dimensions */
+.dimensions-row + .form-group {
+  max-width: 200px;
+}
+
+.form-group.full-width {
+  width: 100%;
+}
+
+.save-option {
+  padding-top: 16px;
+  border-top: 1px solid #e5e7eb;
+  margin-top: 16px;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: #6b7280;
+  font-weight: 400;
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: #ff6b35;
+}
+
+.checkbox-label span {
+  user-select: none;
+}
+
+.form-group select,
+.form-group input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  transition: all 0.2s;
+  background: #ffffff;
+}
+
+.form-group select:focus,
+.form-group input:focus {
+  outline: none;
+  border-color: #ff6b35;
+  box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+}
+
+/* Uppercase display for address/name fields */
+.form-group input[autoComplete="name"],
+.form-group input[autoComplete="organization"],
+.form-group input[autoComplete="address-line1"],
+.form-group input[autoComplete="address-line2"],
+.form-group input[autoComplete="address-level2"],
+.form-group input[id*="street-address"],
+.form-group input[autoComplete="address-level2"] {
+  text-transform: uppercase;
+}
+
+/* State dropdown styling */
+.state-select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  background-color: white;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.state-select:focus {
+  outline: none;
+  border-color: #ff6b35;
+  box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+}
+
+.error-message {
+  background-color: #fee2e2;
+  color: #b91c1c;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  border: 1px solid #fecaca;
+}
+
+.success-message {
+  background-color: #dcfce7;
+  color: #166534;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  border: 1px solid #bbf7d0;
+}
+
+.cost-preview {
+  background: #f9fafb;
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 24px;
+  text-align: center;
+  font-size: 1rem;
+  border: 1px solid #e5e7eb;
+}
+
+/* ============================================
+   CTA BUTTON - Dominant, Clear
+   ============================================ */
+
+.cta-wrapper {
+  margin-top: 48px;
+  padding-top: 32px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.submit-button {
+  width: 100%;
+  padding: 16px 24px;
+  background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.25);
+}
+
+.submit-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  background: linear-gradient(135deg, #f55a1f 0%, #e8840d 100%);
+  box-shadow: 0 6px 20px rgba(255, 107, 53, 0.35);
+}
+
+.submit-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.submit-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ============================================
+   USPS BRANDING HEADER
+   ============================================ */
+
+.usps-branding-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
+  padding: 16px 20px;
+  background: linear-gradient(135deg, #004b87 0%, #0066cc 100%);
+  border-radius: 12px;
+  margin: 0 0 24px 0;
+  box-shadow: 0 2px 8px rgba(0, 75, 135, 0.2);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.w-10 {
+  width: 2.5rem;
+}
+
+.h-10 {
+  height: 2.5rem;
+}
+
+.flex {
+  display: flex;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.overflow-hidden {
+  overflow: hidden;
+}
+
+.max-w-full {
+  max-width: 100%;
+}
+
+.max-h-full {
+  max-height: 100%;
+}
+
+.object-contain {
+  object-fit: contain;
+  width: auto;
+  height: auto;
+}
+
+.usps-header-logo {
+  filter: brightness(0) invert(1);
+}
+
+.usps-branding-text {
+  color: white;
+  font-size: 1.1rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.balance-text {
+  font-size: 1.1rem;
+}
+
+.login-prompt {
+  background: #f8f9fa;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 40px;
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.login-prompt-content h3 {
+  color: #333;
+  margin-bottom: 15px;
+  font-size: 1.5rem;
+}
+
+.login-prompt-content p {
+  color: #666;
+  margin-bottom: 25px;
+  font-size: 1.1rem;
+}
+
+.login-prompt-buttons {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+}
+
+.signup-prompt-button {
+  background: #333;
+  color: white;
+  border: none;
+  padding: 14px 30px;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.signup-prompt-button:hover {
+  background: #1a1a1a;
+  transform: translateY(-2px);
+}
+
+.login-prompt-button {
+  background: transparent;
+  color: #333;
+  border: 2px solid #333;
+  padding: 14px 30px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.login-prompt-button:hover {
+  background: #333;
+  color: white;
+}
+
+.usps-options-preview {
+  margin-top: 30px;
+}
+
+.usps-options-preview h3 {
+  margin-bottom: 20px;
+  color: #333;
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+
+@media (max-width: 1200px) {
+  .create-label-container {
+    padding: 32px;
+  }
+}
+
+@media (max-width: 968px) {
+  .usps-options {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .dimensions-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .create-label-container {
+    padding: 24px 20px;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .name-company-row {
+    grid-template-columns: 1fr;
+  }
+
+  .dimensions-row {
+    grid-template-columns: 1fr;
+  }
+
+  .usps-options {
+    grid-template-columns: 1fr;
+  }
+
+  .login-prompt-buttons {
+    flex-direction: column;
+  }
+
+  .section-header-inline {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .address-section,
+  .package-section {
+    padding: 0;
+  }
+
+  .new-address-form,
+  .new-package-form {
+    padding: 20px;
+  }
+
+  .section-title {
+    font-size: 1.2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .create-label-container {
+    padding: 20px 16px;
+  }
+
+  .usps-option {
+    min-height: 120px;
+    padding: 12px;
+  }
+}

@@ -1,0 +1,380 @@
+.onramp-widget-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  padding: 20px;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.onramp-widget-container {
+  background: white;
+  border-radius: 24px;
+  max-width: 1000px;
+  width: 100%;
+  max-height: 90vh;
+  overflow: hidden;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.4);
+  display: flex;
+  flex-direction: column;
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.onramp-widget-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 32px 40px;
+  background: #1a202c;
+  color: white;
+  border-bottom: 3px solid #2d3748;
+}
+
+.onramp-widget-header h2 {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+.close-button {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  font-size: 2rem;
+  color: white;
+  cursor: pointer;
+  padding: 0;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s;
+  line-height: 1;
+}
+
+.close-button:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: rotate(90deg);
+}
+
+.onramp-widget-content {
+  padding: 40px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.onramp-info {
+  background: #f7fafc;
+  padding: 32px;
+  border-radius: 12px;
+  margin-bottom: 32px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.onramp-info h3 {
+  margin: 0 0 20px 0;
+  color: #1a202c;
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.onramp-info ol {
+  margin: 0 0 24px 0;
+  padding-left: 28px;
+  color: #333;
+  line-height: 2;
+  font-size: 1rem;
+}
+
+.onramp-info li {
+  margin-bottom: 12px;
+  position: relative;
+}
+
+.onramp-info li strong {
+  color: #667eea;
+  font-weight: 600;
+}
+
+.important-note {
+  background: #f7fafc;
+  border: 1px solid #cbd5e0;
+  border-left: 4px solid #4a5568;
+  padding: 20px 24px;
+  border-radius: 8px;
+  color: #4a5568;
+  font-size: 0.95rem;
+  line-height: 1.7;
+}
+
+.important-note strong {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 1rem;
+}
+
+.provider-selector {
+  margin-bottom: 32px;
+  padding: 24px;
+  background: #f7fafc;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+}
+
+.provider-note {
+  margin: 12px 0 0 0;
+  color: #4a5568;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  font-style: italic;
+}
+
+.provider-selector label {
+  display: block;
+  margin-bottom: 12px;
+  font-weight: 600;
+  color: #333;
+  font-size: 1rem;
+}
+
+.provider-selector select {
+  padding: 14px 20px;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  font-size: 1rem;
+  width: 100%;
+  max-width: 400px;
+  cursor: pointer;
+  background: white;
+  transition: all 0.2s;
+  font-weight: 500;
+}
+
+.provider-selector select:hover {
+  border-color: #667eea;
+}
+
+.provider-selector select:focus {
+  outline: none;
+  border-color: #1a202c;
+  box-shadow: 0 0 0 3px rgba(26, 32, 44, 0.1);
+}
+
+.widget-embed {
+  border: 2px solid #e8e8e8;
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: 32px;
+  min-height: 500px;
+  background: #f8f9fa;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.widget-embed iframe {
+  display: block;
+  width: 100%;
+  border: none;
+  min-height: 500px;
+}
+
+.widget-placeholder {
+  padding: 60px 40px;
+  text-align: center;
+  color: #4a5568;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+
+.exchange-info {
+  max-width: 500px;
+}
+
+.exchange-info h4 {
+  margin: 0 0 12px 0;
+  color: #1a202c;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.exchange-description {
+  margin: 0;
+  color: #4a5568;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.exchange-link-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 32px;
+  background: #1a202c;
+  color: white;
+  text-decoration: none;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  transition: all 0.2s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.exchange-link-button:hover {
+  background: #2d3748;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.widget-placeholder p {
+  margin: 16px 0;
+  line-height: 1.8;
+  font-size: 1rem;
+}
+
+.widget-placeholder strong {
+  color: #333;
+  font-size: 1.1rem;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.widget-note {
+  font-size: 0.95rem;
+  color: #666;
+  margin-top: 24px;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border-left: 4px solid #667eea;
+}
+
+.widget-note a {
+  color: #1a202c;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.widget-note a:hover {
+  text-decoration: underline;
+  color: #2d3748;
+}
+
+.widget-footer {
+  background: #f7fafc;
+  padding: 24px 32px;
+  border-radius: 12px;
+  text-align: center;
+  border: 1px solid #e2e8f0;
+  margin-top: 24px;
+}
+
+.widget-footer p {
+  margin: 8px 0;
+  color: #333;
+  font-size: 1rem;
+}
+
+.widget-footer strong {
+  color: #1a202c;
+  font-weight: 600;
+}
+
+.footer-note {
+  font-size: 0.9rem;
+  color: #666;
+  margin-top: 12px;
+  font-style: italic;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .onramp-widget-container {
+    max-height: 95vh;
+    border-radius: 20px;
+  }
+
+  .onramp-widget-header {
+    padding: 24px;
+  }
+
+  .onramp-widget-header h2 {
+    font-size: 1.5rem;
+  }
+
+  .onramp-widget-content {
+    padding: 24px;
+  }
+
+  .onramp-info {
+    padding: 24px;
+  }
+
+  .onramp-info ol {
+    padding-left: 24px;
+    line-height: 1.8;
+  }
+
+  .widget-embed {
+    min-height: 400px;
+  }
+
+  .widget-placeholder {
+    padding: 60px 24px;
+  }
+
+  .widget-footer {
+    padding: 20px 24px;
+  }
+}
+
+/* Scrollbar Styling */
+.onramp-widget-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.onramp-widget-content::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.onramp-widget-content::-webkit-scrollbar-thumb {
+  background: #4a5568;
+  border-radius: 4px;
+}
+
+.onramp-widget-content::-webkit-scrollbar-thumb:hover {
+  background: #2d3748;
+}

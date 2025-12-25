@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 50" width="140" height="50" preserveAspectRatio="xMidYMid meet">
+  <!-- Royal Blue Parallelogram (tilted, wider than tall) -->
+  <g transform="translate(10, 5) rotate(-2)">
+    <!-- Main blue parallelogram shape -->
+    <path d="M 0 0 L 120 8 L 120 38 L 0 30 Z" fill="#004b87" stroke="#ffffff" stroke-width="1.5"/>
+    
+    <!-- White Eagle Design Inside -->
+    <!-- Eagle Head (right side, facing right) -->
+    <path d="M 95 20 Q 100 15 105 18 Q 108 20 110 24 Q 108 28 105 26 Q 100 25 95 22 Q 93 20 95 20 Z" fill="#ffffff"/>
+    
+    <!-- Eagle Beak (curved, pointing right) -->
+    <path d="M 108 22 Q 112 20 115 22 Q 113 25 110 24 Z" fill="#ffffff"/>
+    
+    <!-- Eagle Eye -->
+    <circle cx="102" cy="22" r="2" fill="#004b87"/>
+    
+    <!-- Upper Wing (sharp, upward-sloping line from head) -->
+    <path d="M 105 20 L 85 12 L 75 8 L 65 5 L 55 3 L 45 2 L 35 2" stroke="#ffffff" stroke-width="4" fill="none" stroke-linecap="round"/>
+    
+    <!-- Lower Wing/Body (longer, downward-sloping line) -->
+    <path d="M 100 26 L 80 28 L 60 30 L 40 30 L 20 28 L 10 25" stroke="#ffffff" stroke-width="5" fill="none" stroke-linecap="round"/>
+    
+    <!-- Additional wing detail -->
+    <path d="M 90 18 L 70 14 L 50 10" stroke="#ffffff" stroke-width="3" fill="none" stroke-linecap="round"/>
+  </g>
+</svg>

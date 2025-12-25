@@ -1,0 +1,348 @@
+/* ============================================
+   ADD BALANCE - Professional SaaS Billing Screen
+   Clean, trustworthy, modern design
+   ============================================ */
+
+.add-balance {
+  min-height: 100%;
+  background: linear-gradient(to bottom, #f8f8fa 0%, #f1f2f6 100%);
+  padding: 0;
+}
+
+.add-balance-container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 40px 32px;
+}
+
+/* ============================================
+   HEADER SECTION
+   ============================================ */
+
+.balance-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+  gap: 24px;
+}
+
+.header-content {
+  flex: 1;
+}
+
+.add-balance h2 {
+  margin: 0 0 8px 0;
+  color: #111827;
+  font-size: 1.8rem;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+.header-description {
+  margin: 0;
+  color: #6b7280;
+  font-size: 0.95rem;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+.balance-badge {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 20px;
+  padding: 8px 16px;
+  font-size: 0.9rem;
+  color: #374151;
+  font-weight: 500;
+  flex-shrink: 0;
+  white-space: nowrap;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.balance-badge strong {
+  color: #111827;
+  font-weight: 700;
+}
+
+/* ============================================
+   PAYMENT CARD
+   ============================================ */
+
+.payment-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 32px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.payment-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* ============================================
+   FORM GROUP
+   ============================================ */
+
+.form-group {
+  margin-bottom: 28px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: #374151;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.2s;
+  background: #ffffff;
+  box-sizing: border-box;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #ff6b35;
+  box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+}
+
+.form-group input:disabled {
+  background: #f9fafb;
+  cursor: not-allowed;
+}
+
+.helper-text {
+  display: block;
+  margin-top: 6px;
+  color: #6b7280;
+  font-size: 0.85rem;
+  font-weight: 400;
+}
+
+/* ============================================
+   PAYMENT METHOD SECTION
+   ============================================ */
+
+.payment-method-section {
+  margin-bottom: 32px;
+  padding-top: 24px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.payment-method-title {
+  margin: 0 0 16px 0;
+  color: #111827;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: -0.2px;
+}
+
+.payment-method-content {
+  background: #f9fafb;
+  border-radius: 8px;
+  padding: 20px;
+  border: 1px solid #e5e7eb;
+}
+
+.payment-method-heading {
+  margin: 0 0 12px 0;
+  color: #111827;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+}
+
+.payment-method-description {
+  margin: 0;
+  color: #6b7280;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  font-weight: 400;
+}
+
+/* ============================================
+   PAYMENT ACTIONS
+   ============================================ */
+
+.payment-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
+  padding-top: 24px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.pay-button {
+  padding: 14px 32px;
+  background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(255, 107, 53, 0.25);
+  align-self: flex-end;
+}
+
+.pay-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.35);
+}
+
+.pay-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.pay-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.security-note {
+  margin: 0;
+  color: #9ca3af;
+  font-size: 0.8rem;
+  font-weight: 400;
+  text-align: right;
+  line-height: 1.5;
+}
+
+/* ============================================
+   ERROR MESSAGE
+   ============================================ */
+
+.error-message {
+  background: #fee2e2;
+  color: #991b1b;
+  padding: 12px 16px;
+  border-radius: 8px;
+  border: 1px solid #fecaca;
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin-bottom: 24px;
+}
+
+/* ============================================
+   LOGIN PROMPT
+   ============================================ */
+
+.login-prompt {
+  text-align: center;
+  padding: 60px 40px;
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.login-prompt h3 {
+  color: #111827;
+  margin-bottom: 16px;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.login-prompt p {
+  color: #6b7280;
+  margin-bottom: 32px;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.signup-prompt-button {
+  background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+  color: white;
+  border: none;
+  padding: 14px 30px;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 2px 8px rgba(255, 107, 53, 0.25);
+}
+
+.signup-prompt-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.35);
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+
+@media (max-width: 968px) {
+  .add-balance-container {
+    padding: 32px 24px;
+  }
+}
+
+@media (max-width: 768px) {
+  .add-balance-container {
+    padding: 24px 20px;
+  }
+
+  .balance-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .balance-badge {
+    align-self: flex-start;
+  }
+
+  .payment-card {
+    padding: 24px;
+  }
+
+  .payment-actions {
+    align-items: stretch;
+  }
+
+  .pay-button {
+    width: 100%;
+    align-self: stretch;
+  }
+
+  .security-note {
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .add-balance-container {
+    padding: 20px 16px;
+  }
+
+  .add-balance h2 {
+    font-size: 1.5rem;
+  }
+
+  .header-description {
+    font-size: 0.9rem;
+  }
+
+  .payment-card {
+    padding: 20px;
+  }
+
+  .payment-method-content {
+    padding: 16px;
+  }
+}
