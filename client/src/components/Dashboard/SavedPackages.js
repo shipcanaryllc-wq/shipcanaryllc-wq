@@ -3,8 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
 import './SavedPackages.css';
-
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001/api';
+import API_BASE_URL from '../../config/api';
 
 const SavedPackages = () => {
   const { user } = useAuth();
@@ -34,7 +33,7 @@ const SavedPackages = () => {
 
   const fetchPackages = async () => {
     try {
-      const response = await axios.get(`${API_URL}/packages`);
+      const response = await axios.get(`${API_BASE_URL}/packages`);
       setPackages(response.data);
     } catch (error) {
       console.error('Error fetching packages:', error);
@@ -63,9 +62,9 @@ const SavedPackages = () => {
       };
 
       if (editingPackage) {
-        await axios.put(`${API_URL}/packages/${editingPackage._id}`, submitData);
+        await axios.put(`${API_BASE_URL}/packages/${editingPackage._id}`, submitData);
       } else {
-        await axios.post(`${API_URL}/packages`, submitData);
+        await axios.post(`${API_BASE_URL}/packages`, submitData);
       }
       fetchPackages();
       resetForm();
@@ -94,7 +93,7 @@ const SavedPackages = () => {
     if (!window.confirm('Are you sure you want to delete this package?')) return;
     
     try {
-      await axios.delete(`${API_URL}/packages/${id}`);
+      await axios.delete(`${API_BASE_URL}/packages/${id}`);
       fetchPackages();
     } catch (error) {
       console.error('Error deleting package:', error);

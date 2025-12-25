@@ -30,8 +30,7 @@ import { useOrderSelection } from '../../hooks/useOrderSelection';
 import { mergePdfsFromUrls, downloadPdf } from '../../utils/pdfMerge';
 import OrderRowHorizontal from './OrderRowHorizontal';
 import './OrdersHistoryHorizontal.css';
-
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001/api';
+import API_BASE_URL from '../../config/api';
 
 const OrdersHistoryHorizontal = () => {
   const { user } = useAuth();
@@ -70,7 +69,7 @@ const OrdersHistoryHorizontal = () => {
   const fetchOrders = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${API_URL}/orders`, {
+      const response = await axios.get(`${API_BASE_URL}/orders`, {
         params: {
           page: 1,
           per_page: perPage,
@@ -161,7 +160,7 @@ const OrdersHistoryHorizontal = () => {
 
   const handleDownloadLabel = async (orderId) => {
     try {
-      const response = await axios.get(`${API_URL}/orders/${orderId}/label`, {
+      const response = await axios.get(`${API_BASE_URL}/orders/${orderId}/label`, {
         responseType: 'blob',
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -212,7 +211,7 @@ const OrdersHistoryHorizontal = () => {
         }
 
         // Build proxy URL
-        const proxyUrl = `${API_URL}/orders/${orderId}/label`;
+        const proxyUrl = `${API_BASE_URL}/orders/${orderId}/label`;
         pdfUrls.push(proxyUrl);
         pdfCacheRef.current.set(orderId, proxyUrl);
       }

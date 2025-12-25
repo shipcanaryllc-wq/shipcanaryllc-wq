@@ -3,8 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
 import './SavedAddresses.css';
-
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001/api';
+import API_BASE_URL from '../../config/api';
 
 const SavedAddresses = () => {
   const { user } = useAuth();
@@ -37,7 +36,7 @@ const SavedAddresses = () => {
 
   const fetchAddresses = async () => {
     try {
-      const response = await axios.get(`${API_URL}/addresses`);
+      const response = await axios.get(`${API_BASE_URL}/addresses`);
       setAddresses(response.data);
     } catch (error) {
       console.error('Error fetching addresses:', error);
@@ -50,9 +49,9 @@ const SavedAddresses = () => {
     e.preventDefault();
     try {
       if (editingAddress) {
-        await axios.put(`${API_URL}/addresses/${editingAddress._id}`, formData);
+        await axios.put(`${API_BASE_URL}/addresses/${editingAddress._id}`, formData);
       } else {
-        await axios.post(`${API_URL}/addresses`, formData);
+        await axios.post(`${API_BASE_URL}/addresses`, formData);
       }
       fetchAddresses();
       resetForm();
@@ -84,7 +83,7 @@ const SavedAddresses = () => {
     if (!window.confirm('Are you sure you want to delete this address?')) return;
     
     try {
-      await axios.delete(`${API_URL}/addresses/${id}`);
+      await axios.delete(`${API_BASE_URL}/addresses/${id}`);
       fetchAddresses();
     } catch (error) {
       console.error('Error deleting address:', error);

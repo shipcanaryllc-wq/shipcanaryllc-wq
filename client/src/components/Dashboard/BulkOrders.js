@@ -4,8 +4,7 @@ import * as XLSX from 'xlsx';
 import Papa from 'papaparse';
 import { useAuth } from '../../context/AuthContext';
 import './BulkOrders.css';
-
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001/api';
+import API_BASE_URL from '../../config/api';
 
 const BulkOrders = () => {
   const { user, updateBalance, fetchUser } = useAuth();
@@ -148,8 +147,8 @@ const BulkOrders = () => {
     const fetchData = async () => {
       try {
         const [labelTypesRes, addressesRes] = await Promise.all([
-          axios.get(`${API_URL}/orders/label-types`),
-          axios.get(`${API_URL}/addresses`)
+          axios.get(`${API_BASE_URL}/orders/label-types`),
+          axios.get(`${API_BASE_URL}/addresses`)
         ]);
         
         setLabelTypes(labelTypesRes.data);
@@ -245,7 +244,7 @@ const BulkOrders = () => {
           continue;
         }
 
-        const response = await axios.post(`${API_URL}/orders`, {
+        const response = await axios.post(`${API_BASE_URL}/orders`, {
           labelTypeId: defaultLabelType,
           fromAddressId: defaultFromAddress,
           toAddress: {

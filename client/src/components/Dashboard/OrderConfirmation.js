@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import './OrderConfirmation.css';
-
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001/api';
+import API_BASE_URL from '../../config/api';
 
 const normalizeAddressField = (value) => {
   if (!value || typeof value !== 'string') return value;
@@ -78,7 +77,7 @@ const OrderConfirmation = ({ order, onClose }) => {
     
     setDownloadingLabel(true);
     try {
-      const response = await axios.get(`${API_URL}/orders/${orderId}/label`, {
+      const response = await axios.get(`${API_BASE_URL}/orders/${orderId}/label`, {
         responseType: 'blob',
       });
       

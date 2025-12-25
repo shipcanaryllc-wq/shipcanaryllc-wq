@@ -10,8 +10,7 @@ import { useCityAutocomplete } from '../../hooks/useCityAutocomplete';
 import { useZipLookup } from '../../hooks/useZipLookup';
 import { US_STATES } from '../../constants/usStates';
 import './CreateLabel.css';
-
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001/api';
+import API_BASE_URL from '../../config/api';
 
 // Smart Tooltip Component with auto-placement
 const SmartTooltip = ({ maxDimensions, maxWeight }) => {
@@ -783,7 +782,7 @@ const CreateLabel = () => {
 
   const fetchLabelTypes = async () => {
     try {
-      const response = await axios.get(`${API_URL}/orders/label-types`);
+      const response = await axios.get(`${API_BASE_URL}/orders/label-types`);
       setLabelTypes(response.data);
     } catch (error) {
       console.error('Error fetching label types:', error);
@@ -792,7 +791,7 @@ const CreateLabel = () => {
 
   const fetchAddresses = async () => {
     try {
-      const response = await axios.get(`${API_URL}/addresses`);
+      const response = await axios.get(`${API_BASE_URL}/addresses`);
       setAddresses(response.data);
     } catch (error) {
       console.error('Error fetching addresses:', error);
@@ -801,7 +800,7 @@ const CreateLabel = () => {
 
   const fetchPackages = async () => {
     try {
-      const response = await axios.get(`${API_URL}/packages`);
+      const response = await axios.get(`${API_BASE_URL}/packages`);
       setPackages(response.data);
     } catch (error) {
       console.error('Error fetching packages:', error);
@@ -1083,7 +1082,7 @@ const CreateLabel = () => {
         }})
       };
 
-      const url = `${API_URL}/orders`;
+      const url = `${API_BASE_URL}/orders`;
       console.log('\n[CreateLabel] ════════════════════════════════════════════════════════════════');
       console.log('[CreateLabel] 🚀 CREATING LABEL - REQUEST DETAILS');
       console.log('[CreateLabel] ════════════════════════════════════════════════════════════════');

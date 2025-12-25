@@ -3,8 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
 import './AddBalance.css';
-
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001/api';
+import API_BASE_URL from '../../config/api';
 
 const AddBalance = () => {
   const { user, fetchUser } = useAuth();
@@ -49,7 +48,7 @@ const AddBalance = () => {
       }
 
       const response = await axios.post(
-        `${API_URL}/payments/create`,
+        `${API_BASE_URL}/payments/create`,
         {
           amount: parseFloat(amount),
           currency: 'USD',

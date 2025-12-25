@@ -3,8 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
 import './Checkout.css';
-
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001/api';
+import API_BASE_URL from '../../config/api';
 
 const Checkout = () => {
   const { user } = useAuth();
@@ -20,7 +19,7 @@ const Checkout = () => {
 
     try {
       const response = await axios.post(
-        `${API_URL}/payments/create`,
+        `${API_BASE_URL}/payments/create`,
         {
           amount: parseFloat(amount),
           currency: 'USD',

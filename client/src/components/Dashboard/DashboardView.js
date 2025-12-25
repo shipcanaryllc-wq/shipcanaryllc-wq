@@ -3,8 +3,7 @@ import axios from 'axios';
 import { format } from 'date-fns';
 import { useAuth } from '../../context/AuthContext';
 import './DashboardView.css';
-
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001/api';
+import API_BASE_URL from '../../config/api';
 
 // Helper function to normalize address fields to uppercase for display
 const normalizeAddressField = (value) => {
@@ -75,7 +74,7 @@ const DashboardView = () => {
     try {
       setLoading(true);
       // Fetch all orders for dashboard metrics (use high per_page to get all orders)
-      const response = await axios.get(`${API_URL}/orders`, {
+      const response = await axios.get(`${API_BASE_URL}/orders`, {
         params: {
           page: 1,
           per_page: 1000 // Get all orders for accurate metrics calculation
@@ -104,7 +103,7 @@ const DashboardView = () => {
       setLoadingDeposits(true);
       setErrorDeposits(null);
       
-      const response = await axios.get(`${API_URL}/deposits/recent`, {
+      const response = await axios.get(`${API_BASE_URL}/deposits/recent`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }

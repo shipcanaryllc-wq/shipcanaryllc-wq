@@ -4,8 +4,7 @@ import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
 import OnRampWidget from './OnRampWidget';
 import './PaymentDetail.css';
-
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001/api';
+import API_BASE_URL from '../../config/api';
 
 const PaymentDetail = () => {
   const { paymentId } = useParams();
@@ -41,7 +40,7 @@ const PaymentDetail = () => {
   const fetchPayment = async (silent = false) => {
     try {
       const response = await axios.get(
-        `${API_URL}/payments/${paymentId}`,
+        `${API_BASE_URL}/payments/${paymentId}`,
         {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`

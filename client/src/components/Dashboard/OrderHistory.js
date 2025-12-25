@@ -4,8 +4,7 @@ import axios from 'axios';
 import { format } from 'date-fns';
 import { useAuth } from '../../context/AuthContext';
 import './OrderHistory.css';
-
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001/api';
+import API_BASE_URL from '../../config/api';
 
 // Helper function to normalize address fields to uppercase for display
 const normalizeAddressField = (value) => {
@@ -86,7 +85,7 @@ const OrderHistory = () => {
     try {
       setLoading(true);
       // Fetch all orders - use high per_page limit to get all orders
-      const response = await axios.get(`${API_URL}/orders`, {
+      const response = await axios.get(`${API_BASE_URL}/orders`, {
         params: {
           page: 1,
           per_page: 1000 // Get all orders for history view
@@ -115,7 +114,7 @@ const OrderHistory = () => {
     
     setDownloadingLabel(orderId);
     try {
-      const response = await axios.get(`${API_URL}/orders/${orderId}/label`, {
+      const response = await axios.get(`${API_BASE_URL}/orders/${orderId}/label`, {
         responseType: 'blob', // Important: get binary data
       });
       

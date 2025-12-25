@@ -68,7 +68,10 @@ const Login = () => {
           
           <button 
             type="button" 
-            onClick={() => window.location.href = `${process.env.REACT_APP_API_URL || 'http://localhost:5001/api'}/auth/google`}
+            onClick={() => {
+              const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5001/api';
+              window.location.href = `${apiUrl}/auth/google`;
+            }}
             className="auth-button google-button"
           >
             <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
