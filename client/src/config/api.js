@@ -7,13 +7,24 @@ const getApiBaseUrl = () => {
   }
   
   // Development fallback: only use localhost when not in production
-  if (process.env.NODE_ENV !== 'production' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+  // Check if we're in browser (window exists) and on localhost
+  if (typeof window !== 'undefined' && 
+      process.env.NODE_ENV !== 'production' && 
+      (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
     return 'http://localhost:5001/api';
   }
   
-  // Production without REACT_APP_API_URL: throw error to catch misconfiguration
-  console.error('❌ REACT_APP_API_URL is not set! Please configure it in Vercel environment variables.');
-  throw new Error('REACT_APP_API_URL environment variable is required in production');
+  // Production without REACT_APP_API_URL: return placeholder that will fail at runtime
+  // Don't throw during build - let it fail at runtime instead
+  if (typeof window !== 'undefined') {
+    console.error('❌ REACT_APP_API_URL is not set! Please configure it in Vercel environment variables.');
+  }
+  
+  // Return a placeholder that will cause API calls to fail gracefully
+  // This allows the build to succeed, but the app will show errors at runtime
+  return process.env.NODE_ENV === 'production' 
+    ? 'https://api-not-configured.vercel.app/api' 
+    : 'http://localhost:5001/api';
 };
 
 const API_BASE_URL = getApiBaseUrl();
