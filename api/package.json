@@ -15,7 +15,9 @@
     "jsonwebtoken": "^9.0.2",
     "express-validator": "^7.0.1",
     "express-rate-limit": "^7.1.5",
-    "axios": "^1.13.2"
+    "axios": "^1.13.2",
+    "stripe": "^14.7.0",
+    "aws-sdk": "^2.1509.0"
   }
 }
 
