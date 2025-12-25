@@ -15,9 +15,15 @@ require('dotenv').config();
 
 const app = express();
 
-// CORS Configuration - Strict allowlist
+// CORS Configuration - Strict allowlist with Vercel preview support
 const getAllowedOrigins = () => {
   const origins = [];
+  
+  // Always allow localhost for development
+  origins.push('http://localhost:3000');
+  origins.push('http://localhost:3001');
+  origins.push('http://127.0.0.1:3000');
+  origins.push('http://127.0.0.1:3001');
   
   // Production domains
   if (process.env.NODE_ENV === 'production') {
@@ -29,15 +35,12 @@ const getAllowedOrigins = () => {
     if (process.env.FRONTEND_URL) {
       origins.push(process.env.FRONTEND_URL);
     }
-    
-    // Allow Vercel preview deployments (optional, for preview branches)
-    // origins.push(/^https:\/\/.*\.vercel\.app$/);
-  } else {
-    // Development: allow localhost on common ports
-    origins.push('http://localhost:3000');
-    origins.push('http://localhost:3001');
-    origins.push('http://127.0.0.1:3000');
-    origins.push('http://127.0.0.1:3001');
+  }
+  
+  // Allow ALLOWED_ORIGINS env var (comma-separated)
+  if (process.env.ALLOWED_ORIGINS) {
+    const envOrigins = process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim()).filter(Boolean);
+    origins.push(...envOrigins);
   }
   
   return origins.filter(Boolean);
@@ -45,24 +48,26 @@ const getAllowedOrigins = () => {
 
 const corsOptions = {
   origin: function (origin, callback) {
-    // Allow requests with no origin (mobile apps, Postman, etc.)
+    // Allow requests with no origin (mobile apps, Postman, server-to-server, etc.)
     if (!origin) {
       return callback(null, true);
     }
     
     const allowedOrigins = getAllowedOrigins();
     
-    // Check exact matches
+    // Check exact matches first
     if (allowedOrigins.includes(origin)) {
       return callback(null, true);
     }
     
-    // Allow Vercel preview deployments in production (optional)
-    if (process.env.NODE_ENV === 'production' && origin.includes('.vercel.app')) {
+    // Allow ALL Vercel preview/production deployments (*.vercel.app)
+    // This includes both preview branches and production deployments
+    if (origin.endsWith('.vercel.app')) {
       return callback(null, true);
     }
     
     // Reject all other origins
+    console.warn(`[CORS] Rejected origin: ${origin}`);
     callback(new Error(`Not allowed by CORS. Origin: ${origin}`));
   },
   credentials: true,
@@ -73,8 +78,23 @@ const corsOptions = {
   optionsSuccessStatus: 204
 };
 
+// Apply CORS middleware BEFORE any other middleware
 app.use(cors(corsOptions));
+
+// Explicitly handle OPTIONS preflight requests
 app.options('*', cors(corsOptions));
+
+// Additional preflight handler for all routes
+app.use((req, res, next) => {
+  if (req.method === 'OPTIONS') {
+    res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
+    res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    res.header('Access-Control-Allow-Credentials', 'true');
+    return res.sendStatus(204);
+  }
+  next();
+});
 
 app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" },
