@@ -1,8 +1,5 @@
-// Vercel serverless function wrapper for Express app
-// This catches all /api/* routes and forwards them to Express
-
-// Load environment variables
-require('dotenv').config();
+// Vercel serverless function - Express app entry point
+// This file must be in /api directory for Vercel to recognize it
 
 const express = require('express');
 const mongoose = require('mongoose');
@@ -11,18 +8,19 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const passport = require('passport');
 const session = require('express-session');
-const path = require('path');
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
 
-// Initialize Express app
+// Load environment variables
+require('dotenv').config();
+
 const app = express();
 
-// CORS Configuration for Vercel
+// CORS Configuration
 const allowedOrigins = process.env.NODE_ENV === 'production'
   ? [
       'https://shipcanary.com',
       'https://www.shipcanary.com',
-      process.env.FRONTEND_URL,
-      process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null
+      process.env.FRONTEND_URL
     ].filter(Boolean)
   : [
       'http://localhost:3000',
@@ -34,7 +32,7 @@ const allowedOrigins = process.env.NODE_ENV === 'production'
 const corsOptions = {
   origin: function (origin, callback) {
     if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin)) {
+    if (Array.isArray(allowedOrigins) && allowedOrigins.includes(origin)) {
       return callback(null, true);
     }
     if (origin.includes('.vercel.app')) {
@@ -62,15 +60,15 @@ app.use(helmet({
 }));
 app.use(morgan('combined'));
 
-// BTCPay webhook route - MUST be before express.json() to use raw body for HMAC verification
+// BTCPay webhook route - MUST be before express.json() to use raw body
 const btcpayWebhookHandler = require('../server/controllers/btcpayWebhookController');
-app.post('/btcpay/webhook', express.raw({ type: 'application/json' }), btcpayWebhookHandler);
+app.post('/api/btcpay/webhook', express.raw({ type: 'application/json' }), btcpayWebhookHandler);
 
-// Standard JSON body parser for all other routes
+// Standard JSON body parser
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Session configuration for OAuth (simplified for serverless)
+// Session configuration for OAuth
 app.use(session({
   secret: process.env.JWT_SECRET || 'shipcanary-session-secret',
   resave: false,
@@ -87,38 +85,12 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Database connection (reuse connection if exists)
-let mongooseConnection = null;
-
-const connectDB = async () => {
-  if (mongooseConnection && mongoose.connection.readyState === 1) {
-    return mongooseConnection;
-  }
-  
-  const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/shipcanary';
-  
-  try {
-    mongooseConnection = await mongoose.connect(MONGODB_URI, {
-      serverSelectionTimeoutMS: 10000,
-      socketTimeoutMS: 10000,
-      connectTimeoutMS: 10000
-    });
-    console.log('✅ MongoDB connected');
-    return mongooseConnection;
-  } catch (err) {
-    console.error('❌ MongoDB connection error:', err.message);
-    throw err;
-  }
-};
-
 // Configure Passport Google OAuth Strategy
 if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
-  const GoogleStrategy = require('passport-google-oauth20').Strategy;
-  
   passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: `${process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : process.env.BACKEND_URL || 'http://localhost:5001'}/api/auth/google/callback`
+    callbackURL: `${process.env.BACKEND_URL || process.env.VERCEL_URL || 'http://localhost:5001'}/api/auth/google/callback`
   },
   async (accessToken, refreshToken, profile, done) => {
     try {
@@ -170,53 +142,42 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
   });
 }
 
-// Health check route
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
-});
+// Database connection (reuse connection if exists)
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/shipcanary';
 
-// Routes (mounted at /api since Vercel routes /api/* to this function)
-app.use('/auth', require('../server/routes/auth'));
-app.use('/addresses', require('../server/routes/addresses'));
-app.use('/packages', require('../server/routes/packages'));
-app.use('/orders', require('../server/routes/orders'));
-app.use('/users', require('../server/routes/users'));
-app.use('/payments', require('../server/routes/payments'));
-app.use('/payments/btcpay', require('../server/routes/payments-btcpay'));
-app.use('/deposits', require('../server/routes/deposits'));
+if (!mongoose.connection.readyState) {
+  mongoose.connect(MONGODB_URI, {
+    serverSelectionTimeoutMS: 10000,
+    socketTimeoutMS: 10000,
+    connectTimeoutMS: 10000
+  })
+  .then(() => {
+    console.log('✅ MongoDB connected successfully');
+  })
+  .catch(err => {
+    console.error('❌ MongoDB connection error:', err.message);
+  });
+}
 
-// 404 handler
-app.use((req, res) => {
-  res.status(404).json({ message: 'Route not found' });
-});
+// Import routes
+app.use('/api/auth', require('../server/routes/auth'));
+app.use('/api/orders', require('../server/routes/orders'));
+app.use('/api/addresses', require('../server/routes/addresses'));
+app.use('/api/packages', require('../server/routes/packages'));
+app.use('/api/payments', require('../server/routes/payments'));
+app.use('/api/payments', require('../server/routes/payments-btcpay'));
+app.use('/api/deposits', require('../server/routes/deposits'));
+app.use('/api/users', require('../server/routes/users'));
 
-// Error handler
-app.use((err, req, res, next) => {
-  console.error('Error:', err);
-  res.status(err.status || 500).json({ 
-    message: err.message || 'Internal server error',
-    ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
+// Health check
+app.get('/api/health', (req, res) => {
+  res.json({ 
+    status: 'ok', 
+    timestamp: new Date().toISOString(),
+    mongodb: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
   });
 });
 
-// Vercel serverless function handler
-// Vercel passes requests to /api/* to this function, so we need to strip /api prefix
-module.exports = async (req, res) => {
-  // Connect to database
-  try {
-    await connectDB();
-  } catch (err) {
-    return res.status(503).json({ message: 'Database connection failed' });
-  }
-  
-  // Vercel already routes /api/* to this function, so strip /api from path
-  // The path comes as /api/auth/login, but our routes expect /auth/login
-  const originalUrl = req.url;
-  if (originalUrl.startsWith('/api/')) {
-    req.url = originalUrl.replace(/^\/api/, '') || '/';
-  }
-  
-  // Handle the request with Express
-  return app(req, res);
-};
+// Export for Vercel serverless
+module.exports = app;
 

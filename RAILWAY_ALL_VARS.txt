@@ -1,0 +1,93 @@
+=== ALL RAILWAY ENVIRONMENT VARIABLES ===
+Add these in Railway → Variables tab
+
+=== REQUIRED (Must Add) ===
+
+1. NODE_ENV
+production
+
+2. MONGODB_URI
+mongodb+srv://<db_username>:<db_password>@cluster0.sackvan.mongodb.net/shipcanary?retryWrites=true&w=majority
+⚠️ REPLACE <db_username> and <db_password> with your MongoDB Atlas credentials
+
+3. JWT_SECRET
+a14f83cb31f300f9fc6fe031177ee4b902f56f812f29e2df76d8b515eaacd6d2c0e9e75350857f546f34c6e136fff42ee7583017c6721c2b1910d1a6331c7c65
+
+4. SHIPLABEL_API_KEY
+[YOUR_SHIPLABEL_API_KEY_HERE]
+⚠️ Get from ShipLabel.net → Account Settings → API Keys
+
+5. FRONTEND_URL
+https://shipcanaryllc-wq-glvf.vercel.app
+⚠️ Update to your exact Vercel URL if different
+
+=== OPTIONAL (Only Add If You Use These Features) ===
+
+6. GOOGLE_CLIENT_ID
+[YOUR_GOOGLE_CLIENT_ID]
+⚠️ Only if using Google OAuth login
+
+7. GOOGLE_CLIENT_SECRET
+[YOUR_GOOGLE_CLIENT_SECRET]
+⚠️ Only if using Google OAuth login
+
+8. BTCPAY_URL
+https://btcpay.yourserver.com
+⚠️ Only if using BTCPay for Bitcoin payments
+
+9. BTCPAY_API_KEY
+[YOUR_BTCPAY_API_KEY]
+⚠️ Only if using BTCPay
+
+10. BTCPAY_STORE_ID
+[YOUR_BTCPAY_STORE_ID]
+⚠️ Only if using BTCPay
+
+11. BTCPAY_WEBHOOK_SECRET
+[YOUR_BTCPAY_WEBHOOK_SECRET]
+⚠️ Only if using BTCPay
+
+12. SHIPPFAST_API_TOKEN
+[YOUR_SHIPPFAST_API_TOKEN]
+⚠️ Only if using ShippFast as backup shipping service
+
+13. SHIPPFAST_BASE_URL
+https://shippfast.net/api/v1
+⚠️ Only if using ShippFast
+
+14. STRIPE_SECRET_KEY
+sk_test_your-stripe-secret-key
+⚠️ Only if using Stripe payments (legacy)
+
+15. STRIPE_PUBLISHABLE_KEY
+pk_test_your-stripe-publishable-key
+⚠️ Only if using Stripe payments (legacy)
+
+16. STRIPE_WEBHOOK_SECRET
+whsec_your-webhook-secret
+⚠️ Only if using Stripe payments (legacy)
+
+17. BACKEND_URL
+https://your-railway-url.up.railway.app
+⚠️ Usually not needed, Railway sets this automatically
+
+18. SHIPLABEL_BASE_URL
+https://api.shiplabel.net
+⚠️ Usually not needed, defaults are fine
+
+19. AWS_ACCESS_KEY_ID
+[YOUR_AWS_ACCESS_KEY]
+⚠️ Only if storing labels in AWS S3
+
+20. AWS_SECRET_ACCESS_KEY
+[YOUR_AWS_SECRET_KEY]
+⚠️ Only if storing labels in AWS S3
+
+21. AWS_REGION
+us-east-1
+⚠️ Only if using AWS S3
+
+22. AWS_S3_BUCKET
+shipcanary-labels
+⚠️ Only if using AWS S3
+

@@ -1,0 +1,21 @@
+=== RAILWAY ENVIRONMENT VARIABLES ===
+Copy these one by one into Railway → Variables tab
+
+1. NODE_ENV
+production
+
+2. MONGODB_URI
+mongodb+srv://<db_username>:<db_password>@cluster0.sackvan.mongodb.net/shipcanary?retryWrites=true&w=majority
+⚠️ REPLACE <db_username> and <db_password> with your MongoDB Atlas credentials
+
+3. JWT_SECRET
+a14f83cb31f300f9fc6fe031177ee4b902f56f812f29e2df76d8b515eaacd6d2c0e9e75350857f546f34c6e136fff42ee7583017c6721c2b1910d1a6331c7c65
+
+4. SHIPLABEL_API_KEY
+[YOUR_SHIPLABEL_API_KEY_HERE]
+⚠️ Get this from ShipLabel.net → Account Settings → API Keys
+
+5. FRONTEND_URL
+https://shipcanaryllc-wq-glvf.vercel.app
+⚠️ Update this to your exact Vercel URL if different
+
