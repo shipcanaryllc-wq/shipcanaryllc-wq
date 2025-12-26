@@ -3,6 +3,7 @@
   "buildCommand": "cd client && npm ci && npm run build",
   "outputDirectory": "client/build",
   "framework": "create-react-app",
+  "installCommand": "npm ci",
   "functions": {
     "api/index.js": {
       "includeFiles": "server/**"
