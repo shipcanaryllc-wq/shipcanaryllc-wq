@@ -29,6 +29,9 @@ const getAllowedOrigins = () => {
   origins.push('https://shipcanary.com');
   origins.push('https://www.shipcanary.com');
   
+  // Allow specific Vercel deployment
+  origins.push('https://shipcanaryllc-wq.vercel.app');
+  
   // Allow FRONTEND_URL if set
   if (process.env.FRONTEND_URL) {
     origins.push(process.env.FRONTEND_URL);
@@ -58,7 +61,6 @@ const corsOptions = {
     }
     
     // Allow ALL Vercel preview/production deployments (*.vercel.app)
-    // This includes both preview branches and production deployments
     // Pattern: shipcanaryllc-*.vercel.app or any *.vercel.app
     if (origin.endsWith('.vercel.app')) {
       return callback(null, true);
@@ -79,20 +81,8 @@ const corsOptions = {
 // Apply CORS middleware BEFORE any other middleware
 app.use(cors(corsOptions));
 
-// Explicitly handle OPTIONS preflight requests
+// Explicitly handle OPTIONS preflight requests - MUST be before routes
 app.options('*', cors(corsOptions));
-
-// Additional preflight handler for all routes
-app.use((req, res, next) => {
-  if (req.method === 'OPTIONS') {
-    res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
-    res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    res.header('Access-Control-Allow-Credentials', 'true');
-    return res.sendStatus(204);
-  }
-  next();
-});
 
 app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" },
