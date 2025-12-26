@@ -14,17 +14,16 @@ const getApiBaseUrl = () => {
     return 'http://localhost:5001/api';
   }
   
-  // Production without REACT_APP_API_URL: return placeholder that will fail at runtime
-  // Don't throw during build - let it fail at runtime instead
-  if (typeof window !== 'undefined') {
+  // Production without REACT_APP_API_URL: log error and use localhost fallback
+  // This allows the build to succeed, but the app will show errors at runtime
+  if (typeof window !== 'undefined' && process.env.NODE_ENV === 'production') {
     console.error('❌ REACT_APP_API_URL is not set! Please configure it in Vercel environment variables.');
+    // Return localhost as fallback (will fail in production, but allows build)
+    return 'http://localhost:5001/api';
   }
   
-  // Return a placeholder that will cause API calls to fail gracefully
-  // This allows the build to succeed, but the app will show errors at runtime
-  return process.env.NODE_ENV === 'production' 
-    ? 'https://api-not-configured.vercel.app/api' 
-    : 'http://localhost:5001/api';
+  // Default fallback for development
+  return 'http://localhost:5001/api';
 };
 
 const API_BASE_URL = getApiBaseUrl();

@@ -25,16 +25,13 @@ const getAllowedOrigins = () => {
   origins.push('http://127.0.0.1:3000');
   origins.push('http://127.0.0.1:3001');
   
-  // Production domains
-  if (process.env.NODE_ENV === 'production') {
-    // Always allow shipcanary.com domains
-    origins.push('https://shipcanary.com');
-    origins.push('https://www.shipcanary.com');
-    
-    // Allow FRONTEND_URL if set
-    if (process.env.FRONTEND_URL) {
-      origins.push(process.env.FRONTEND_URL);
-    }
+  // Always allow shipcanary.com domains (production)
+  origins.push('https://shipcanary.com');
+  origins.push('https://www.shipcanary.com');
+  
+  // Allow FRONTEND_URL if set
+  if (process.env.FRONTEND_URL) {
+    origins.push(process.env.FRONTEND_URL);
   }
   
   // Allow ALLOWED_ORIGINS env var (comma-separated)
@@ -62,6 +59,7 @@ const corsOptions = {
     
     // Allow ALL Vercel preview/production deployments (*.vercel.app)
     // This includes both preview branches and production deployments
+    // Pattern: shipcanaryllc-*.vercel.app or any *.vercel.app
     if (origin.endsWith('.vercel.app')) {
       return callback(null, true);
     }
