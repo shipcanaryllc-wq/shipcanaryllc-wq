@@ -22,6 +22,7 @@ const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('create-label');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const profileMenuRef = useRef(null);
 
   useEffect(() => {
@@ -56,6 +57,18 @@ const Dashboard = () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [profileMenuOpen]);
+
+  useEffect(() => {
+    // Prevent body scroll when mobile nav is open
+    if (mobileNavOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [mobileNavOpen]);
 
   const navigationSections = [
     {
@@ -102,7 +115,10 @@ const Dashboard = () => {
         <div className="header-left">
           <button 
             className="hamburger-menu"
-            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+            onClick={() => {
+              setMobileNavOpen(!mobileNavOpen);
+              setSidebarCollapsed(!sidebarCollapsed);
+            }}
             aria-label="Toggle sidebar"
           >
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2">
@@ -162,9 +178,20 @@ const Dashboard = () => {
         </div>
       </header>
 
+      {/* Mobile Overlay */}
+      {mobileNavOpen && (
+        <div 
+          className="mobile-nav-overlay"
+          onClick={() => {
+            setMobileNavOpen(false);
+            setSidebarCollapsed(false);
+          }}
+        />
+      )}
+
       <div className="dashboard-content">
         {/* Sidebar */}
-        <nav className={`dashboard-sidebar ${sidebarCollapsed ? 'collapsed' : ''}`}>
+        <nav className={`dashboard-sidebar ${sidebarCollapsed ? 'collapsed' : ''} ${mobileNavOpen ? 'mobile-open' : ''}`}>
           {navigationSections.map((section, sectionIndex) => (
             <div key={sectionIndex} className="nav-section">
               {section.heading && (
@@ -175,7 +202,11 @@ const Dashboard = () => {
                   <button
                     key={tab.id}
                     className={`nav-item ${activeTab === tab.id ? 'active' : ''}`}
-                    onClick={() => setActiveTab(tab.id)}
+                    onClick={() => {
+                      setActiveTab(tab.id);
+                      setMobileNavOpen(false);
+                      setSidebarCollapsed(false);
+                    }}
                   >
                     <span className="nav-item-icon">
                       {React.createElement(tab.icon, { size: 20 })}

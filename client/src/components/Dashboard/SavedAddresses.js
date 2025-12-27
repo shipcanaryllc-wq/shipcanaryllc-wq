@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
+import { useMapboxAutocomplete } from '../../hooks/useMapboxAutocomplete';
 import './SavedAddresses.css';
 import API_BASE_URL from '../../config/api';
 
@@ -26,13 +27,164 @@ const SavedAddresses = () => {
     email: ''
   });
 
+  // Ref for street address input
+  const streetAddressRef = useRef(null);
+  const autocompleteCloseRef = useRef(null);
+
   useEffect(() => {
+    console.log("[SavedAddresses] mounted");
+    console.log("[SavedAddresses] MAPBOX token present?", !!process.env.REACT_APP_MAPBOX_ACCESS_TOKEN);
+    console.log("[SavedAddresses] MAPBOX token preview:", process.env.REACT_APP_MAPBOX_ACCESS_TOKEN?.slice(0, 10));
+    
     if (user) {
       fetchAddresses();
     } else {
       setLoading(false);
     }
   }, [user]);
+
+  // Helper functions to parse Mapbox address (same as CreateLabel)
+  const extractHouseNumber = (feature) => {
+    if (feature.properties?.address) {
+      return feature.properties.address.trim();
+    }
+    if (feature.address) {
+      return feature.address.trim();
+    }
+    if (feature.place_name) {
+      const firstPart = feature.place_name.split(',')[0] || '';
+      const houseNumberMatch = firstPart.match(/^(\d+[A-Z]?(?:-\d+)?)\b/);
+      if (houseNumberMatch && houseNumberMatch[1]) {
+        return houseNumberMatch[1].trim();
+      }
+    }
+    return null;
+  };
+
+  const extractStreetName = (feature) => {
+    if (feature.text) {
+      return feature.text.trim();
+    }
+    if (feature.place_name) {
+      const firstPart = feature.place_name.split(',')[0] || '';
+      const withoutNumber = firstPart.replace(/^\d+[A-Z]?(?:-\d+)?\s*/, '').trim();
+      const withoutUnit = withoutNumber.replace(/\b(APT|APARTMENT|APPT|SUITE|STE|ST|UNIT|UNT|#)\s+[A-Z0-9-]+\b/gi, '').trim();
+      if (withoutUnit) {
+        return withoutUnit;
+      }
+    }
+    return null;
+  };
+
+  const extractUnit = (feature) => {
+    if (!feature.place_name) return null;
+    const firstPart = feature.place_name.split(',')[0] || '';
+    const unitPatterns = [
+      /\b(APT|APARTMENT|APPT)\s+([A-Z0-9-]+)\b/i,
+      /\b(SUITE|STE|ST)\s+([A-Z0-9-]+)\b/i,
+      /\b(UNIT|UNT)\s+([A-Z0-9-]+)\b/i,
+      /\b#\s*([A-Z0-9-]+)\b/i,
+    ];
+    for (const pattern of unitPatterns) {
+      const match = firstPart.match(pattern);
+      if (match && match[0]) {
+        return match[0].trim();
+      }
+    }
+    return null;
+  };
+
+  const parseAddress = (feature) => {
+    const address = {
+      street1: '',
+      street2: '',
+      city: '',
+      state: '',
+      zip: '',
+      country: 'US'
+    };
+
+    const context = feature.context || [];
+    const houseNumber = extractHouseNumber(feature);
+    const streetName = extractStreetName(feature);
+    const unit = extractUnit(feature);
+
+    // Build street1
+    if (houseNumber && streetName) {
+      address.street1 = `${houseNumber} ${streetName}${unit ? ' ' + unit : ''}`.trim();
+    } else if (feature.place_name) {
+      const firstPart = feature.place_name.split(',')[0] || '';
+      address.street1 = firstPart.trim();
+    } else if (houseNumber) {
+      address.street1 = streetName ? `${houseNumber} ${streetName}${unit ? ' ' + unit : ''}`.trim() : houseNumber;
+    } else if (streetName) {
+      if (feature.place_name) {
+        const firstPart = feature.place_name.split(',')[0] || '';
+        const hasNumberInPlaceName = /^\d+/.test(firstPart);
+        if (hasNumberInPlaceName) {
+          address.street1 = firstPart.trim();
+        } else {
+          address.street1 = streetName;
+        }
+      } else {
+        address.street1 = streetName;
+      }
+    } else if (feature.text) {
+      if (feature.place_name) {
+        const firstPart = feature.place_name.split(',')[0] || '';
+        address.street1 = firstPart.trim();
+      } else {
+        address.street1 = feature.text.trim();
+      }
+    }
+
+    // Extract city, state, zip, country from context
+    context.forEach(item => {
+      const id = item.id || '';
+      if (id.includes('place')) {
+        address.city = item.text || address.city;
+      } else if (id.includes('region')) {
+        const code = item.short_code || '';
+        if (code.includes('-')) {
+          address.state = code.split('-')[1].toUpperCase();
+        } else if (code.length === 2) {
+          address.state = code.toUpperCase();
+        } else if (item.text) {
+          address.state = item.text;
+        }
+      } else if (id.includes('postcode')) {
+        address.zip = item.text || address.zip;
+      } else if (id.includes('country')) {
+        address.country = item.short_code?.toUpperCase() || 'US';
+      }
+    });
+
+    return address;
+  };
+
+  // Handle address autocomplete selection
+  const handleAddressSelect = useCallback((feature) => {
+    // Close suggestions
+    if (autocompleteCloseRef.current) {
+      autocompleteCloseRef.current();
+    }
+
+    const parsed = parseAddress(feature);
+    
+    // Update formData state with parsed address
+    setFormData(prev => ({
+      ...prev,
+      street1: parsed.street1 ? parsed.street1.trim().toUpperCase() : prev.street1,
+      city: parsed.city ? parsed.city.trim().toUpperCase() : prev.city,
+      state: parsed.state ? parsed.state.trim().toUpperCase() : prev.state,
+      zip: parsed.zip ? parsed.zip.trim() : prev.zip,
+      country: parsed.country || 'US'
+    }));
+  }, []);
+
+  // Initialize autocomplete
+  const autocomplete = useMapboxAutocomplete(streetAddressRef, handleAddressSelect);
+  autocompleteCloseRef.current = autocomplete.closeSuggestions;
 
   const fetchAddresses = async () => {
     try {
@@ -174,14 +326,42 @@ const SavedAddresses = () => {
                 onChange={(e) => setFormData({ ...formData, company: e.target.value })}
               />
             </div>
-            <div className="form-group full-width">
+            <div className="form-group full-width" style={{ position: 'relative' }}>
               <label>Street Address 1</label>
               <input
+                ref={streetAddressRef}
                 type="text"
                 value={formData.street1}
                 onChange={(e) => setFormData({ ...formData, street1: e.target.value })}
                 required
+                autoComplete="off"
+                placeholder="Start typing address (e.g., 103 Bur...)"
+                id="saved-address-street"
               />
+              {autocomplete.showSuggestions && autocomplete.suggestions.length > 0 && (
+                <div 
+                  ref={autocomplete.suggestionsRef}
+                  className="mapbox-suggestions"
+                >
+                  {autocomplete.suggestions.map((suggestion, index) => (
+                    <div
+                      key={suggestion.id}
+                      className={`suggestion-item ${index === autocomplete.selectedIndex ? 'selected' : ''}`}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleAddressSelect(suggestion);
+                      }}
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                      }}
+                    >
+                      <div className="suggestion-title">{suggestion.text}</div>
+                      <div className="suggestion-address">{suggestion.place_name}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
             <div className="form-group full-width">
               <label>Street Address 2 (optional)</label>

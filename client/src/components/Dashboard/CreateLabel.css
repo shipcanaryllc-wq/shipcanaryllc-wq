@@ -931,37 +931,89 @@
 
 @media (max-width: 768px) {
   .create-label-container {
-    padding: 24px 20px;
+    padding: 16px;
+  }
+
+  .create-label h2 {
+    font-size: 1.5rem;
+    line-height: 1.3;
+  }
+
+  .subtitle {
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin-bottom: 24px;
   }
 
   .form-row {
     grid-template-columns: 1fr;
+    gap: 16px;
   }
 
   .form-grid {
     grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .form-group {
+    margin-bottom: 16px;
+  }
+
+  .form-group label {
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+    line-height: 1.4;
+  }
+
+  .form-group select,
+  .form-group input {
+    font-size: 16px; /* Prevents zoom on iOS */
+    padding: 12px;
+    min-height: 44px; /* Minimum tap target */
+    line-height: 1.5;
   }
 
   .name-company-row {
     grid-template-columns: 1fr;
+    gap: 16px;
   }
 
   .dimensions-row {
     grid-template-columns: 1fr;
+    gap: 16px;
   }
 
   .usps-options {
     grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .usps-option {
+    min-height: 100px;
+    padding: 16px;
   }
 
   .login-prompt-buttons {
     flex-direction: column;
+    gap: 12px;
+  }
+
+  .login-prompt-buttons button {
+    width: 100%;
+    min-height: 44px;
+    font-size: 1rem;
   }
 
   .section-header-inline {
     flex-direction: column;
     align-items: flex-start;
     gap: 16px;
+  }
+
+  .section-title {
+    font-size: 1.2rem;
+    line-height: 1.4;
+    margin-bottom: 20px;
   }
 
   .address-section,
@@ -971,11 +1023,28 @@
 
   .new-address-form,
   .new-package-form {
-    padding: 20px;
+    padding: 16px;
   }
 
-  .section-title {
-    font-size: 1.2rem;
+  .checkbox-label {
+    font-size: 0.9rem;
+    line-height: 1.5;
+    min-height: 44px;
+    padding: 8px 0;
+  }
+
+  .checkbox-label input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    min-width: 20px;
+    min-height: 20px;
+  }
+
+  .submit-button {
+    width: 100%;
+    min-height: 48px;
+    font-size: 1rem;
+    padding: 14px 24px;
   }
 }
 
