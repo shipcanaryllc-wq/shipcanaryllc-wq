@@ -198,7 +198,6 @@ const Dashboard = () => {
               {activeTab === 'batches-list' && <BatchesList />}
               {activeTab === 'addresses' && <SavedAddresses />}
               {activeTab === 'packages' && <SavedPackages />}
-              {activeTab === 'history' && <OrderHistory />}
               {activeTab === 'history-horizontal' && <OrdersHistoryHorizontal />}
               {activeTab === 'balance' && <AddBalance />}
               {activeTab === 'integrations' && <Integrations />}
