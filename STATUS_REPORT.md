@@ -123,3 +123,4 @@ curl -X OPTIONS https://shipcanary.com/api/auth/register \
 - **Build fails** → Disable Build Command Override in Vercel
 - **500 errors** → Check Function logs for specific error
 
+

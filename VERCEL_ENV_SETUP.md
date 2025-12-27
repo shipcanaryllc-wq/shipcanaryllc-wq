@@ -194,3 +194,4 @@ JWT_SECRET=...
 3. ✅ Test registration/login
 4. ✅ Verify no CORS errors
 
+

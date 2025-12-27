@@ -131,3 +131,4 @@ After deployment, check browser console (F12):
 2. **Explicit preflight handling** - Ensures OPTIONS requests are properly handled
 3. **Better error logging** - Helps debug CORS issues in production
 
+

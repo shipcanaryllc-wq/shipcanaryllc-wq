@@ -178,3 +178,4 @@ curl -X OPTIONS https://shipcanary.com/api/auth/register \
 
 The function will now have access to all required modules including `mongoose`, `express`, `cors`, etc.
 
+

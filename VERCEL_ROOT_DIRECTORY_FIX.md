@@ -140,3 +140,4 @@ This configuration requires **Root Directory = EMPTY**.
 **Frontend Folder**: ✅ `client/` exists and is in git
 **Build Tool**: ✅ `react-scripts` (Create React App)
 
+
