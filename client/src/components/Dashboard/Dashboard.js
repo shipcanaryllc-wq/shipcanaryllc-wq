@@ -6,7 +6,7 @@ import { DashboardIcon, PackageIcon, HistoryIcon, BulkOrdersIcon, BatchesListIco
 import CreateLabel from './CreateLabel';
 import SavedAddresses from './SavedAddresses';
 import SavedPackages from './SavedPackages';
-import OrderHistory from './OrderHistory';
+//import OrderHistory from './OrderHistory';
 import OrdersHistoryHorizontal from '../orders/OrdersHistoryHorizontal';
 import AddBalance from './AddBalance';
 import BulkOrders from './BulkOrders';
@@ -68,8 +68,8 @@ const Dashboard = () => {
       heading: 'Labels',
       items: [
         { id: 'create-label', label: 'Create Label', icon: PackageIcon },
-        { id: 'history', label: 'Order History', icon: HistoryIcon },
-        { id: 'history-horizontal', label: 'Orders History (Horizontal)', icon: HistoryIcon }
+       // { id: 'history', label: 'Order History', icon: HistoryIcon },
+        { id: 'history-horizontal', label: 'Orders History', icon: HistoryIcon }
       ]
     },
     {
