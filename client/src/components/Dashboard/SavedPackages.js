@@ -18,7 +18,6 @@ const SavedPackages = () => {
     width: '',
     height: '',
     weight: '',
-    description: '',
     unit: 'inches',
     weightUnit: 'lbs'
   });
@@ -52,6 +51,7 @@ const SavedPackages = () => {
       return;
     }
 
+
     try {
       const submitData = {
         ...formData,
@@ -82,7 +82,6 @@ const SavedPackages = () => {
       width: pkg.width.toString(),
       height: pkg.height.toString(),
       weight: pkg.weight.toString(),
-      description: pkg.description || '',
       unit: pkg.unit || 'inches',
       weightUnit: pkg.weightUnit || 'lbs'
     });
@@ -108,7 +107,6 @@ const SavedPackages = () => {
       width: '',
       height: '',
       weight: '',
-      description: '',
       unit: 'inches',
       weightUnit: 'lbs'
     });
@@ -137,35 +135,42 @@ const SavedPackages = () => {
   return (
     <div className="saved-packages">
       <div className="saved-packages-container">
-        {/* Header Bar */}
-        <div className="packages-header">
-          <div className="header-content">
-            <h2>Saved Packages</h2>
-            <p className="header-description">
-              Save commonly used box sizes and weights to speed up label creation.
-            </p>
+        {/* Header Bar - Hide when creating */}
+        {!showForm && (
+          <div className="packages-header">
+            <div className="header-content">
+              <h2>Saved Packages</h2>
+              <p className="header-description">
+                Save commonly used box sizes and weights to speed up label creation.
+              </p>
+            </div>
+            <button onClick={() => setShowForm(true)} className="add-button">
+              + Add Package
+            </button>
           </div>
-          <button onClick={() => setShowForm(!showForm)} className="add-button">
-            {showForm ? 'Cancel' : '+ Add Package'}
-          </button>
-        </div>
+        )}
 
       {showForm && (
         <form onSubmit={handleSubmit} className="package-form-new">
-          <h3>{editingPackage ? 'Edit Package' : 'Add Custom Package'}</h3>
-          <div className="form-group-new">
-            <label>Package Name*</label>
-            <input
-              type="text"
-              value={formData.label}
-              onChange={(e) => setFormData({ ...formData, label: e.target.value })}
-              required
-              placeholder="Box"
-            />
+          <div className="form-header-row">
+            <h3>{editingPackage ? 'Edit Package' : 'Add Custom Package'}</h3>
+            <button type="button" onClick={resetForm} className="cancel-button-header">
+              Cancel
+            </button>
           </div>
-          <div className="form-group-new">
-            <label>Dimensions (inches)*</label>
-            <div className="dimensions-input">
+          <div className="form-grid-2">
+            <div className="form-field col-span-2">
+              <label>Package Name*</label>
+              <input
+                type="text"
+                value={formData.label}
+                onChange={(e) => setFormData({ ...formData, label: e.target.value })}
+                required
+                placeholder="Box"
+              />
+            </div>
+            <div className="form-field">
+              <label>Length (inches)*</label>
               <input
                 type="number"
                 step="0.1"
@@ -175,7 +180,9 @@ const SavedPackages = () => {
                 required
                 placeholder="6"
               />
-              <span className="dimension-separator">x</span>
+            </div>
+            <div className="form-field">
+              <label>Width (inches)*</label>
               <input
                 type="number"
                 step="0.1"
@@ -185,7 +192,9 @@ const SavedPackages = () => {
                 required
                 placeholder="6"
               />
-              <span className="dimension-separator">x</span>
+            </div>
+            <div className="form-field">
+              <label>Height (inches)*</label>
               <input
                 type="number"
                 step="0.1"
@@ -196,31 +205,22 @@ const SavedPackages = () => {
                 placeholder="6"
               />
             </div>
-          </div>
-          <div className="form-group-new">
-            <label>Weight (lbs)*</label>
-            <input
-              type="number"
-              step="0.01"
-              min="0.1"
-              max="70"
-              value={formData.weight}
-              onChange={(e) => setFormData({ ...formData, weight: e.target.value })}
-              required
-              placeholder="0.90"
-            />
-            {formData.weight && parseFloat(formData.weight) > 70 && (
-              <span className="error-text">Maximum weight is 70 lbs</span>
-            )}
-          </div>
-          <div className="form-group-new">
-            <label>Description (Optional)</label>
-            <input
-              type="text"
-              value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              placeholder="box <1 lb"
-            />
+            <div className="form-field">
+              <label>Weight (lbs)*</label>
+              <input
+                type="number"
+                step="0.01"
+                min="0.1"
+                max="70"
+                value={formData.weight}
+                onChange={(e) => setFormData({ ...formData, weight: e.target.value })}
+                required
+                placeholder="0.90"
+              />
+              {formData.weight && parseFloat(formData.weight) > 70 && (
+                <span className="error-text">Maximum weight is 70 lbs</span>
+              )}
+            </div>
           </div>
           <div className="form-actions-new">
             <button type="submit" className="create-package-button">
@@ -233,8 +233,9 @@ const SavedPackages = () => {
         </form>
       )}
 
-        {/* Package Cards Grid */}
-        <div className="packages-list">
+        {/* Package Cards Grid - Hide when creating */}
+        {!showForm && (
+          <div className="packages-list">
           {packages.length === 0 ? (
             <div className="empty-state">
               <div className="empty-state-icon">
@@ -288,7 +289,8 @@ const SavedPackages = () => {
               </div>
             ))
           )}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -125,7 +125,7 @@ const LABEL_TYPES = [
     name: 'USPS Ground',
     maxWeight: 1,
     maxDimensions: 21, // total inches (length + width + height)
-    price: 4.90,
+    price: 4.25,
     description: 'USPS Ground - Max 21 inches total, Max 1 lb'
   },
   {
@@ -163,6 +163,52 @@ const LABEL_TYPES = [
     maxDimensions: 108, // total inches (length + width + height)
     price: 49.99,
     description: 'USPS Ground - Max 108 inches total, Max 60 lbs'
+  },
+  // Priority (apiId: 373)
+  {
+    id: 3731,
+    apiId: 373,
+    name: "USPS Priority",
+    maxWeight: 1,
+    maxDimensions: 21,
+    price: 6.45,
+    description: "USPS Priority — up to 1 lb, max 21 inches total",
+  },
+  {
+    id: 3732,
+    apiId: 373,
+    name: "USPS Priority",
+    maxWeight: 10,
+    maxDimensions: 100,
+    price: 8.70,
+    description: "USPS Priority — Max 108 inches total, Max 10 lbs",
+  },
+  {
+    id: 3733,
+    apiId: 373,
+    name: "USPS Priority",
+    maxWeight: 5,
+    maxDimensions: 40,
+    price: 24.99,
+    description: "USPS Priority — Max 108 inches total, Max 25 lbs",
+  },
+  {
+    id: 3734,
+    apiId: 373,
+    name: "USPS Priority",
+    maxWeight: 10,
+    maxDimensions: 60,
+    price: 44.99,
+    description: "USPS Priority — Max 108 inches total, Max 40 lbs",
+  },
+  {
+    id: 3735,
+    apiId: 373,
+    name: "USPS Priority",
+    maxWeight: 20,
+    maxDimensions: 80,
+    price: 69.99,
+    description: "USPS Priority — Max 108 inches total, Max 60 lbs",
   }
 ];
 

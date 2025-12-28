@@ -5,6 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 import OnRampWidget from './OnRampWidget';
 import './PaymentDetail.css';
 import API_BASE_URL from '../../config/api';
+import { Shield, Lock, Code, Eye } from 'lucide-react';
 
 const PaymentDetail = () => {
   const { paymentId } = useParams();
@@ -119,9 +120,10 @@ const PaymentDetail = () => {
   return (
     <div className="payment-detail-page">
       <div className="payment-container">
+        {/* Header Section */}
         <div className="payment-header-section">
-          <h1>Complete Your Payment</h1>
-          <p className="payment-subtitle">Secure cryptocurrency payment via BTCPay Server</p>
+          <h1>Complete Bitcoin Payment</h1>
+          <p className="payment-subtitle">Secure Bitcoin payment processed via BTCPay Server</p>
         </div>
         
         <div className="payment-info-card">
@@ -134,47 +136,55 @@ const PaymentDetail = () => {
             <div className="payment-status-section">
               <span className="status-label">Payment Status</span>
               {getStatusBadge(payment.status)}
+              {(payment.status === 'PENDING' || payment.status === 'PAID') && (
+                <p className="status-helper-text">
+                  Bitcoin payments typically take 5–10 minutes to confirm.
+                  Your ShipCanary balance will update automatically once the network confirmation is received.
+                </p>
+              )}
             </div>
           </div>
 
           <div className="payment-content">
             {payment.status === 'PENDING' && (
               <>
-                <div className="payment-method-card crypto-payment">
+                {/* Primary Payment Option - Bitcoin */}
+                <div className="payment-method-card bitcoin-payment">
                   <div className="method-header">
                     <div className="method-icon">
                       <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        <path d="M2 17L12 22L22 17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
+                        <path d="M9.5 8.5C9.5 7.67 10.17 7 11 7H13C13.83 7 14.5 7.67 14.5 8.5C14.5 9.33 13.83 10 13 10H11C10.17 10 9.5 9.33 9.5 8.5Z" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+                        <path d="M9.5 15.5C9.5 14.67 10.17 14 11 14H13C13.83 14 14.5 14.67 14.5 15.5C14.5 16.33 13.83 17 13 17H11C10.17 17 9.5 16.33 9.5 15.5Z" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+                        <path d="M12 7V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
                       </svg>
                     </div>
                     <div className="method-info">
-                      <h3>Pay with Cryptocurrency</h3>
-                      <p>Bitcoin, Lightning Network, and other supported cryptocurrencies</p>
+                      <h3>Pay with Bitcoin</h3>
+                      <p>Send Bitcoin directly to the invoice address using your wallet or exchange.</p>
                     </div>
                   </div>
                   <div className="method-features">
                     <div className="feature-item">
                       <span className="feature-icon">✓</span>
-                      <span>No KYC required</span>
+                      <span>Bitcoin-only</span>
                     </div>
                     <div className="feature-item">
                       <span className="feature-icon">✓</span>
-                      <span>Blockchain confirmation</span>
+                      <span>On-chain confirmation</span>
                     </div>
                     <div className="feature-item">
                       <span className="feature-icon">✓</span>
-                      <span>Secure and private</span>
+                      <span>Non-custodial, secure settlement</span>
                     </div>
                   </div>
                   <a
                     href={payment.btcpayCheckoutUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="btn-primary btn-large"
+                    className="btn-primary btn-bitcoin"
                   >
-                    <span>Open Payment Portal</span>
+                    <span>Open Bitcoin Payment Portal</span>
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
@@ -185,6 +195,7 @@ const PaymentDetail = () => {
                   <span>OR</span>
                 </div>
 
+                {/* Secondary Option - Buy Bitcoin with Card */}
                 <div className="payment-method-card card-payment">
                   <div className="method-header">
                     <div className="method-icon">
@@ -194,36 +205,71 @@ const PaymentDetail = () => {
                       </svg>
                     </div>
                     <div className="method-info">
-                      <h3>Buy Cryptocurrency with Card</h3>
-                      <p>Purchase crypto instantly with your credit or debit card</p>
+                      <h3>Buy Bitcoin with Card (External Exchanges)</h3>
+                      <p>If you don't already have Bitcoin, you can purchase it through a trusted exchange and send it to the invoice address.</p>
                     </div>
                   </div>
                   <div className="method-features">
-                    <div className="feature-item">
-                      <span className="feature-icon">✓</span>
-                      <span>Credit and debit cards accepted</span>
-                    </div>
                     <div className="feature-item">
                       <span className="feature-icon">✓</span>
                       <span>Trusted exchange partners</span>
                     </div>
                     <div className="feature-item">
                       <span className="feature-icon">✓</span>
-                      <span>Competitive fees</span>
+                      <span>Credit and debit cards accepted</span>
+                    </div>
+                    <div className="feature-item">
+                      <span className="feature-icon">✓</span>
+                      <span>Secure identity verification</span>
                     </div>
                   </div>
                   <button
                     onClick={() => setShowOnRamp(true)}
                     className="btn-secondary btn-large"
                   >
-                    <span>Buy Crypto with Card</span>
+                    <span>Select Exchange</span>
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
                   </button>
                   <p className="method-note">
-                    After purchasing, send the crypto to your BTCPay invoice address to complete payment
+                    After purchasing Bitcoin, return here and send it to the BTCPay invoice address to complete payment.
                   </p>
+                </div>
+
+                {/* Security & Transparency Section */}
+                <div className="security-section">
+                  <h3 className="security-title">Security & Transparency</h3>
+                  <div className="security-grid">
+                    <div className="security-item">
+                      <Shield size={20} className="security-icon" />
+                      <div className="security-content">
+                        <h4>Non-Custodial Payments</h4>
+                        <p>Bitcoin payments are non-custodial. ShipCanary never holds your Bitcoin.</p>
+                      </div>
+                    </div>
+                    <div className="security-item">
+                      <Code size={20} className="security-icon" />
+                      <div className="security-content">
+                        <h4>Open-Source Infrastructure</h4>
+                        <p>BTCPay Server is open-source and self-hosted. No third-party payment processors.</p>
+                      </div>
+                    </div>
+                    <div className="security-item">
+                      <Lock size={20} className="security-icon" />
+                      <div className="security-content">
+                        <h4>No Stored Credentials</h4>
+                        <p>We do not store payment credentials or sensitive financial information.</p>
+                      </div>
+                    </div>
+                    <div className="security-item">
+                      <Eye size={20} className="security-icon" />
+                      <div className="security-content">
+                        <h4>No KYC Required</h4>
+                        <p>ShipCanary does not perform KYC verification. Payments are processed directly via BTCPay.</p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </>
             )}
@@ -252,7 +298,7 @@ const PaymentDetail = () => {
                 </div>
                 <h3>Payment Received</h3>
                 <p>Your payment has been received and is waiting for blockchain confirmation.</p>
-                <p className="info-note">This usually takes a few minutes. We'll update you automatically when confirmed.</p>
+                <p className="info-note">Bitcoin payments typically take 5–10 minutes to confirm. We'll update you automatically when confirmed.</p>
               </div>
             )}
 
@@ -303,4 +349,3 @@ const PaymentDetail = () => {
 };
 
 export default PaymentDetail;
-

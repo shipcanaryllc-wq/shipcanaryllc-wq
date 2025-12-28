@@ -17,6 +17,7 @@
     "react-hook-form": "^7.49.2",
     "react-router-dom": "^6.20.1",
     "react-scripts": "5.0.1",
+    "simple-icons": "^16.3.0",
     "xlsx": "^0.18.5"
   },
   "scripts": {

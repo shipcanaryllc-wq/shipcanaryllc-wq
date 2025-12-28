@@ -128,20 +128,109 @@
   border: 1px solid #e5e7eb;
 }
 
+.form-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
 .address-form h3 {
-  margin: 0 0 24px 0;
+  margin: 0;
   color: #111827;
   font-size: 1.3rem;
   font-weight: 700;
   letter-spacing: -0.3px;
 }
 
-.form-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 20px;
+.cancel-button-header {
+  background: #ffffff;
+  color: #374151;
+  border: 1px solid #d1d5db;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
 }
 
+.cancel-button-header:hover {
+  background: #f9fafb;
+  border-color: #9ca3af;
+}
+
+/* Reusable 2-Column Grid System */
+.form-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  row-gap: 20px;
+}
+
+/* Utility class for full-width fields */
+.col-span-2 {
+  grid-column: 1 / -1;
+}
+
+/* Address Grid - 2-column layout (legacy) */
+.address-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px 18px;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-field label {
+  display: block;
+  margin-bottom: 0;
+  color: #374151;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.form-field label:has(+ input[required]),
+.form-field label:has(+ select[required]) {
+  font-weight: 600;
+  color: #111827;
+}
+
+.form-field label:not(:has(+ input[required])):not(:has(+ select[required])) {
+  color: #6b7280;
+  font-weight: 400;
+}
+
+.form-field input,
+.form-field select {
+  width: 100%;
+  height: 44px;
+  padding: 12px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  transition: all 0.2s;
+  background: #ffffff;
+  box-sizing: border-box;
+}
+
+.form-field input:focus,
+.form-field select:focus {
+  outline: none;
+  border-color: #ff6b35;
+  box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+}
+
+/* Utility class for full-width fields */
+.span-2 {
+  grid-column: 1 / -1;
+}
+
+/* Legacy form-group support (for backward compatibility) */
 .form-group {
   margin-bottom: 0;
 }
@@ -460,6 +549,26 @@
   }
 }
 
+@media (max-width: 900px) {
+  .form-grid-2,
+  .address-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    row-gap: 16px;
+  }
+
+  .col-span-2,
+  .span-2 {
+    grid-column: auto;
+  }
+
+  .form-field input,
+  .form-field select {
+    font-size: 16px; /* Prevents zoom on iOS */
+    min-height: 44px; /* Minimum tap target */
+  }
+}
+
 @media (max-width: 768px) {
   .saved-addresses-container {
     padding: 24px 20px;
@@ -476,8 +585,14 @@
     justify-content: center;
   }
 
-  .form-grid {
-    grid-template-columns: 1fr;
+  .form-header-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .cancel-button-header {
+    width: 100%;
   }
 
   .addresses-list {

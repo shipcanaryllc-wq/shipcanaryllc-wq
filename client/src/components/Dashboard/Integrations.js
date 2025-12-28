@@ -1,13 +1,24 @@
-import React from 'react';
-import { Clock } from 'lucide-react';
-import IntegrationsHeroAnimation from './IntegrationsHeroAnimation';
-import IntegrationLogo from './IntegrationLogo';
-import { INTEGRATIONS } from '../../config/integrations';
+import React, { useState, useMemo } from 'react';
+import { Search, ArrowRight, Loader2 } from 'lucide-react';
+import { INTEGRATIONS, CATEGORIES } from '../../config/integrations';
 import './Integrations.css';
 
 const Integrations = () => {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('All');
+
+  // Filter integrations based on search and category
+  const filteredIntegrations = useMemo(() => {
+    return INTEGRATIONS.filter(integration => {
+      const matchesSearch = integration.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                           integration.description.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesCategory = selectedCategory === 'All' || integration.category === selectedCategory;
+      return matchesSearch && matchesCategory;
+    });
+  }, [searchQuery, selectedCategory]);
+
   const getStatusLabel = (status) => {
-    return status === 'in-development' ? 'IN DEVELOPMENT' : 'PLANNED';
+    return status === 'in-development' ? 'In development' : 'Planned';
   };
 
   const getStatusClass = (status) => {
@@ -21,73 +32,130 @@ const Integrations = () => {
         <div className="integrations-hero">
           <h1 className="integrations-title">Integrations</h1>
           <p className="integrations-subtitle">
-            Connect ShipCanary to the ecommerce tools you already use. Native integrations rolling out soon.
+            Connect ShipCanary to your storefronts and marketplaces. Native integrations are rolling out soon.
           </p>
-          
-          {/* Hero Animation */}
-          <IntegrationsHeroAnimation integrations={INTEGRATIONS} />
-          
-          <div className="coming-soon-badge">
-            Coming Soon — In active development
+          <div className="coming-soon-pill">
+            Coming soon
           </div>
         </div>
 
-        {/* Logo Strip */}
-        <div className="logo-strip-section">
-          <p className="logo-strip-label">Connecting ShipCanary to the platforms you already ship with.</p>
-          <div className="logo-strip">
-            {INTEGRATIONS.map((integration) => (
-              <div key={integration.id} className="logo-strip-item">
-                <IntegrationLogo
-                  logoSrc={integration.logoSrc}
-                  name={integration.name}
-                  size={24}
-                />
-              </div>
+        {/* Roadmap Strip */}
+        <div className="roadmap-strip">
+          <div className="roadmap-steps">
+            <div className="roadmap-step">
+              <div className="roadmap-step-indicator planned">1</div>
+              <span className="roadmap-step-label">Planned</span>
+            </div>
+            <div className="roadmap-step-connector">
+              <div className="roadmap-connector-line"></div>
+            </div>
+            <div className="roadmap-step">
+              <div className="roadmap-step-indicator in-development">2</div>
+              <span className="roadmap-step-label">In development</span>
+            </div>
+            <div className="roadmap-step-connector">
+              <div className="roadmap-connector-line"></div>
+            </div>
+            <div className="roadmap-step">
+              <div className="roadmap-step-indicator launching">3</div>
+              <span className="roadmap-step-label">Launching</span>
+            </div>
+          </div>
+          <p className="roadmap-note">
+            We're building these natively, starting with Shopify.
+          </p>
+        </div>
+
+        {/* Search and Filters */}
+        <div className="integrations-filters">
+          <div className="search-wrapper">
+            <Search size={20} className="search-icon" />
+            <input
+              type="text"
+              placeholder="Search integrations..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="search-input"
+            />
+          </div>
+          
+          <div className="category-pills">
+            {CATEGORIES.map(category => (
+              <button
+                key={category}
+                className={`category-pill ${selectedCategory === category ? 'active' : ''}`}
+                onClick={() => setSelectedCategory(category)}
+              >
+                {category}
+              </button>
             ))}
           </div>
         </div>
 
         {/* Integration Cards Grid */}
         <div className="integrations-grid">
-          {INTEGRATIONS.map((integration) => (
-            <div key={integration.id} className="integration-card" title="Integration in development">
-              <div className="integration-card-header">
-                <div className="integration-logo-container">
-                  <IntegrationLogo
-                    logoSrc={integration.logoSrc}
-                    name={integration.name}
-                    size={36}
-                  />
-                </div>
-                <div className="integration-header-content">
-                  <h3 className="integration-name">{integration.name}</h3>
-                  <span className={`status-pill ${getStatusClass(integration.status)}`}>
-                    {getStatusLabel(integration.status)}
-                  </span>
-                </div>
-              </div>
+          {filteredIntegrations.length > 0 ? (
+            filteredIntegrations.map((integration, index) => {
+              const logoSrc = `/integrations/${integration.id}.svg`;
               
-              <p className="integration-description">{integration.description}</p>
-              
-              <div className="integration-footer">
-                <Clock size={14} />
-                <span>Integration in development</span>
-              </div>
+              return (
+                <div
+                  key={integration.id}
+                  className={`integration-card ${integration.status === 'planned' ? 'disabled' : ''} ${integration.status === 'in-development' ? 'in-development' : ''}`}
+                  style={{ animationDelay: `${index * 50}ms` }}
+                >
+                  {/* In Progress Indicator for In Development */}
+                  {integration.status === 'in-development' && (
+                    <div className="integration-progress-bar">
+                      <div className="integration-progress-shimmer"></div>
+                    </div>
+                  )}
+                  
+                  <div className="integration-card-header">
+                    <div className="integration-logo-container">
+                      <img
+                        src={logoSrc}
+                        alt={`${integration.name} logo`}
+                        className="integration-logo"
+                        onError={(e) => {
+                          // Fallback to placeholder if image fails to load
+                          e.target.style.display = 'none';
+                          e.target.parentElement.innerHTML = `<div class="integration-logo-placeholder">${integration.name.charAt(0)}</div>`;
+                        }}
+                      />
+                    </div>
+                    <div className="integration-header-content">
+                      <h3 className="integration-name">{integration.name}</h3>
+                      <span className={`status-pill ${getStatusClass(integration.status)}`}>
+                        {integration.status === 'in-development' && (
+                          <Loader2 size={12} className="status-pill-loader" />
+                        )}
+                        {getStatusLabel(integration.status)}
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <p className="integration-description">{integration.description}</p>
+                  
+                  <div className="integration-footer">
+                    <span className="integration-coming-soon-text">Coming soon</span>
+                    <button
+                      className="integration-connect-button"
+                      disabled
+                      title="Not available yet"
+                    >
+                      Connect
+                      <ArrowRight size={14} />
+                    </button>
+                  </div>
+                </div>
+              );
+            })
+          ) : (
+            <div className="integrations-empty">
+              <p>No integrations found matching your search.</p>
             </div>
-          ))}
-        </div>
-
-        {/* Footer Section */}
-        <div className="integrations-roadmap">
-          <h3 className="roadmap-title">What's Coming Next</h3>
-          <p className="roadmap-description">
-            Integrations will roll out in phases. You'll be able to connect your stores, 
-            import orders automatically, and sync tracking data back to your ecommerce platforms.
-          </p>
-          <p className="roadmap-note">
-            Want to request a platform? Contact support.
-          </p>
+          )}
         </div>
       </div>
     </div>

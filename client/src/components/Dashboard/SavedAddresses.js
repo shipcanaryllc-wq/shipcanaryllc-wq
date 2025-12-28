@@ -16,15 +16,13 @@ const SavedAddresses = () => {
   const [formData, setFormData] = useState({
     label: '',
     name: '',
-    company: '',
     street1: '',
     street2: '',
     city: '',
     state: '',
     zip: '',
     country: 'US',
-    phone: '',
-    email: ''
+    phone: ''
   });
 
   // Ref for street address input
@@ -218,15 +216,13 @@ const SavedAddresses = () => {
     setFormData({
       label: address.label,
       name: address.name,
-      company: address.company || '',
       street1: address.street1,
       street2: address.street2 || '',
       city: address.city,
       state: address.state,
       zip: address.zip,
       country: address.country || 'US',
-      phone: address.phone || '',
-      email: address.email || ''
+      phone: address.phone || ''
     });
     setShowForm(true);
   };
@@ -247,15 +243,13 @@ const SavedAddresses = () => {
     setFormData({
       label: '',
       name: '',
-      company: '',
       street1: '',
       street2: '',
       city: '',
       state: '',
       zip: '',
       country: 'US',
-      phone: '',
-      email: ''
+      phone: ''
     });
     setEditingAddress(null);
     setShowForm(false);
@@ -282,25 +276,32 @@ const SavedAddresses = () => {
   return (
     <div className="saved-addresses">
       <div className="saved-addresses-container">
-        {/* Header Bar */}
-        <div className="addresses-header">
-          <div className="header-content">
-            <h2>Saved Addresses</h2>
-            <p className="header-description">
-              Store frequently used ship-from locations for faster label creation.
-            </p>
+        {/* Header Bar - Hide when creating */}
+        {!showForm && (
+          <div className="addresses-header">
+            <div className="header-content">
+              <h2>Saved Addresses</h2>
+              <p className="header-description">
+                Store frequently used ship-from locations for faster label creation.
+              </p>
+            </div>
+            <button onClick={() => setShowForm(true)} className="add-button">
+              + Add Address
+            </button>
           </div>
-          <button onClick={() => setShowForm(!showForm)} className="add-button">
-            {showForm ? 'Cancel' : '+ Add Address'}
-          </button>
-        </div>
+        )}
 
       {showForm && (
         <form onSubmit={handleSubmit} className="address-form">
-          <h3>{editingAddress ? 'Edit Address' : 'Add New Address'}</h3>
-          <div className="form-grid">
-            <div className="form-group">
-              <label>Label (e.g., Home, Office)</label>
+          <div className="form-header-row">
+            <h3>{editingAddress ? 'Edit Address' : 'Add New Address'}</h3>
+            <button type="button" onClick={resetForm} className="cancel-button-header">
+              Cancel
+            </button>
+          </div>
+          <div className="form-grid-2">
+            <div className="form-field">
+              <label>Label (e.g., Home, Office)*</label>
               <input
                 type="text"
                 value={formData.label}
@@ -309,8 +310,8 @@ const SavedAddresses = () => {
                 placeholder="Home"
               />
             </div>
-            <div className="form-group">
-              <label>Full Name</label>
+            <div className="form-field">
+              <label>Full Name*</label>
               <input
                 type="text"
                 value={formData.name}
@@ -318,16 +319,8 @@ const SavedAddresses = () => {
                 required
               />
             </div>
-            <div className="form-group">
-              <label>Company (optional)</label>
-              <input
-                type="text"
-                value={formData.company}
-                onChange={(e) => setFormData({ ...formData, company: e.target.value })}
-              />
-            </div>
-            <div className="form-group full-width" style={{ position: 'relative' }}>
-              <label>Street Address 1</label>
+            <div className="form-field" style={{ position: 'relative' }}>
+              <label>Street Address*</label>
               <input
                 ref={streetAddressRef}
                 type="text"
@@ -335,7 +328,7 @@ const SavedAddresses = () => {
                 onChange={(e) => setFormData({ ...formData, street1: e.target.value })}
                 required
                 autoComplete="off"
-                placeholder="Start typing address (e.g., 103 Bur...)"
+                placeholder="123 Main St"
                 id="saved-address-street"
               />
               {autocomplete.showSuggestions && autocomplete.suggestions.length > 0 && (
@@ -363,16 +356,16 @@ const SavedAddresses = () => {
                 </div>
               )}
             </div>
-            <div className="form-group full-width">
-              <label>Street Address 2 (optional)</label>
+            <div className="form-field">
+              <label>Apartment / Unit (optional)</label>
               <input
                 type="text"
                 value={formData.street2}
                 onChange={(e) => setFormData({ ...formData, street2: e.target.value })}
               />
             </div>
-            <div className="form-group">
-              <label>City</label>
+            <div className="form-field">
+              <label>City*</label>
               <input
                 type="text"
                 value={formData.city}
@@ -380,8 +373,8 @@ const SavedAddresses = () => {
                 required
               />
             </div>
-            <div className="form-group">
-              <label>State</label>
+            <div className="form-field">
+              <label>State*</label>
               <input
                 type="text"
                 value={formData.state}
@@ -391,8 +384,8 @@ const SavedAddresses = () => {
                 placeholder="CA"
               />
             </div>
-            <div className="form-group">
-              <label>ZIP Code</label>
+            <div className="form-field">
+              <label>ZIP Code*</label>
               <input
                 type="text"
                 value={formData.zip}
@@ -402,20 +395,12 @@ const SavedAddresses = () => {
                 placeholder="12345"
               />
             </div>
-            <div className="form-group">
+            <div className="form-field">
               <label>Phone (optional)</label>
               <input
                 type="tel"
                 value={formData.phone}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-              />
-            </div>
-            <div className="form-group">
-              <label>Email (optional)</label>
-              <input
-                type="email"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
               />
             </div>
           </div>
@@ -430,8 +415,9 @@ const SavedAddresses = () => {
         </form>
       )}
 
-        {/* Address Cards Grid */}
-        <div className="addresses-list">
+        {/* Address Cards Grid - Hide when creating */}
+        {!showForm && (
+          <div className="addresses-list">
           {addresses.length === 0 ? (
             <div className="empty-state">
               <div className="empty-state-icon">
@@ -470,19 +456,18 @@ const SavedAddresses = () => {
                 </div>
                 <div className="address-details">
                   <p className="address-name">{address.name}</p>
-                  {address.company && <p className="address-company">{address.company}</p>}
                   <p className="address-street">{address.street1}</p>
                   {address.street2 && <p className="address-street">{address.street2}</p>}
                   <p className="address-city-state">
                     {address.city}, {address.state} {address.zip}
                   </p>
                   {address.phone && <p className="address-meta">Phone: {address.phone}</p>}
-                  {address.email && <p className="address-meta">Email: {address.email}</p>}
                 </div>
               </div>
             ))
           )}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );

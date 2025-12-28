@@ -379,19 +379,33 @@ router.post('/', auth, async (req, res) => {
           throw new Error('No shipping rates returned from ShipLabel');
         }
         
-        // ONLY use label ID 369 ($1.40 one)
-        const selectedRate = rates.find(r => String(r.rateId) === '369');
+        // Determine ShipLabel rateId based on UI label type's apiId
+        // Ground Advantage (apiId 126) -> ShipLabel rateId "369"
+        // Priority (apiId 373) -> ShipLabel rateId "373"
+        const shipLabelRateId = String(labelType.apiId) === '373' ? '373' : '369';
+        
+        // Select the matching rate from ShipLabel rates
+        const selectedRate = rates.find(r => String(r.rateId) === shipLabelRateId);
         
         if (!selectedRate) {
-          console.error('[CreateOrder] ❌ Step 2 FAILED: Label ID 369 not found');
+          console.error('[CreateOrder] ❌ Step 2 FAILED: Required ShipLabel rateId not available:', shipLabelRateId);
+          console.error('[CreateOrder] labelTypeId:', labelTypeId, 'apiId:', labelType.apiId);
           console.error('[CreateOrder] Available rates:', JSON.stringify(rates.map(r => ({
             rateId: r.rateId,
             service: r.service,
             price: r.amount
           })), null, 2));
           console.error('[CreateOrder] Rates count:', rates.length);
-          throw new Error('Label ID 369 ($1.40 service) not available from ShipLabel');
+          throw new Error(`Required ShipLabel rateId ${shipLabelRateId} not available`);
         }
+        
+        // Log the mapping for verification
+        console.log('[CreateOrder] Using UI labelTypeId -> apiId -> ShipLabel rateId mapping:', {
+          labelTypeId,
+          apiId: labelType.apiId,
+          shipLabelRateId,
+          selectedRate: { rateId: selectedRate.rateId, service: selectedRate.service, amount: selectedRate.amount }
+        });
         
         console.log('[CreateOrder] Step 3: Selected rate for label creation:', JSON.stringify({
           rateId: selectedRate.rateId,

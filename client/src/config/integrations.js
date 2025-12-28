@@ -7,52 +7,48 @@ export const INTEGRATIONS = [
   {
     id: "shopify",
     name: "Shopify",
-    logoSrc: "/integrations/shopify.svg",
+    category: "Ecommerce",
     status: "in-development",
-    description:
-      "Sync Shopify orders into ShipCanary, generate labels in one click, and push tracking back to your store."
+    description: "Sync orders, generate labels, and push tracking back to your store."
   },
   {
     id: "etsy",
     name: "Etsy",
-    logoSrc: "/integrations/etsy.svg",
+    category: "Marketplace",
     status: "planned",
-    description:
-      "Import Etsy orders automatically and ship them with negotiated USPS rates."
+    description: "Import orders automatically and ship with negotiated USPS rates."
   },
   {
     id: "amazon",
     name: "Amazon",
-    logoSrc: "/integrations/amazon.svg",
+    category: "Marketplace",
     status: "planned",
-    description:
-      "Aggregate Amazon orders inside ShipCanary for centralized fulfillment and tracking."
+    description: "Aggregate orders for centralized fulfillment and tracking."
   },
   {
     id: "ebay",
     name: "eBay",
-    logoSrc: "/integrations/ebay.svg",
+    category: "Marketplace",
     status: "planned",
-    description:
-      "Connect your eBay store and turn sold orders into ready-to-print labels."
+    description: "Connect your store and turn sold orders into ready-to-print labels."
   },
   {
     id: "woocommerce",
     name: "WooCommerce",
-    logoSrc: "/integrations/woocommerce.svg",
+    category: "Ecommerce",
     status: "planned",
-    description:
-      "Tie your WooCommerce storefront directly into ShipCanary for streamlined shipping."
+    description: "Tie your storefront directly into ShipCanary for streamlined shipping."
   },
   {
     id: "bigcommerce",
     name: "BigCommerce",
-    logoSrc: "/integrations/bigcommerce.svg",
+    category: "Ecommerce",
     status: "planned",
-    description:
-      "Automate label creation from BigCommerce orders and keep customers updated with tracking."
+    description: "Automate label creation and keep customers updated with tracking."
   }
 ];
+
+export const CATEGORIES = ["All", "Ecommerce", "Marketplace"];
 
 
 

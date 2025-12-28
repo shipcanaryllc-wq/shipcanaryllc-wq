@@ -13,7 +13,7 @@ import './CreateLabel.css';
 import API_BASE_URL from '../../config/api';
 
 // Smart Tooltip Component with auto-placement
-const SmartTooltip = ({ maxDimensions, maxWeight }) => {
+const SmartTooltip = ({ maxDimensions, maxWeight, apiId }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [position, setPosition] = useState({ placement: 'top', x: 0, y: 0, arrowOffset: 0 });
   const iconRef = useRef(null);
@@ -140,11 +140,11 @@ const SmartTooltip = ({ maxDimensions, maxWeight }) => {
         </div>
         <div className="tooltip-row">
           <span className="tooltip-label">Max Weight:</span>
-          <span className="tooltip-value">{maxWeight} lbs</span>
+          <span className="tooltip-value">≤ {maxWeight} lbs</span>
         </div>
         <div className="tooltip-row">
           <span className="tooltip-label">Estimated Delivery:</span>
-          <span className="tooltip-value">2-5 business days</span>
+          <span className="tooltip-value">{apiId === 373 ? '1-3 business days' : '2-5 business days'}</span>
         </div>
       </div>
       <div 
@@ -180,6 +180,9 @@ const CreateLabel = () => {
   const [userSelectedServiceId, setUserSelectedServiceId] = useState(null);
   const [autoSelectedServiceId, setAutoSelectedServiceId] = useState(null);
   
+  // Service family toggle state (controls auto-selection filtering)
+  const [serviceFamily, setServiceFamily] = useState('ground'); // 'ground' | 'priority'
+  
   // Use ref to track if purchase is in progress (prevents race conditions)
   // This is more reliable than just checking loading state because refs persist across renders
   const isPurchaseInProgressRef = useRef(false);
@@ -197,14 +200,12 @@ const CreateLabel = () => {
   const [newFromAddress, setNewFromAddress] = useState({
     label: 'New From Address',
     name: '',
-    company: '',
     street1: '',
     street2: '',
     city: '',
     state: '',
     zip: '',
     phone: '',
-    email: '',
     country: 'US'
   });
   const [newToAddress, setNewToAddress] = useState({
@@ -631,6 +632,11 @@ const CreateLabel = () => {
   }, [user]);
 
   // Auto-select cheapest service based on package dimensions/weight
+  // Helper: Filter services by family
+  const groundServices = labelTypes.filter(x => String(x.apiId) === '126');
+  const priorityServices = labelTypes.filter(x => String(x.apiId) === '373');
+  const activeServices = serviceFamily === 'priority' ? priorityServices : groundServices;
+
   const autoSelectBestService = useCallback(() => {
     // Clear existing timer
     if (autoSelectTimerRef.current) {
@@ -656,8 +662,8 @@ const CreateLabel = () => {
         return;
       }
 
-      // Filter available services that can handle this package
-      const validServices = labelTypes.filter(service => {
+      // Filter available services that can handle this package (ONLY within active family)
+      const validServices = activeServices.filter(service => {
         // Check weight limit
         if (service.maxWeight && weight > service.maxWeight) {
           return false;
@@ -686,7 +692,7 @@ const CreateLabel = () => {
 
       setAutoSelectedServiceId(cheapestService.id);
     }, 500); // 500ms debounce
-  }, [newPackage.length, newPackage.width, newPackage.height, newPackage.weight, labelTypes, userSelectedServiceId]);
+  }, [newPackage.length, newPackage.width, newPackage.height, newPackage.weight, activeServices, userSelectedServiceId]);
 
   // Auto-populate form fields when saved item is selected
   useEffect(() => {
@@ -745,14 +751,12 @@ const CreateLabel = () => {
         setNewFromAddress({
           label: addr.label || 'New From Address',
           name: (addr.name || '').toUpperCase().trim(),
-          company: addr.company ? (addr.company || '').toUpperCase().trim() : '',
           street1: (addr.street1 || '').toUpperCase().trim(),
           street2: addr.street2 ? (addr.street2 || '').toUpperCase().trim() : '',
           city: (addr.city || '').toUpperCase().trim(),
           state: (addr.state || '').toUpperCase().trim(),
           zip: (addr.zip || '').trim(),
           phone: (addr.phone || '').trim(),
-          email: (addr.email || '').trim(),
           country: (addr.country || 'US').toUpperCase().trim()
         });
       }
@@ -850,7 +854,7 @@ const CreateLabel = () => {
       const weight = parseFloat(newPackage.weight) || 0;
 
       if (weight > 0) {
-        const validServices = labelTypes.filter(service => {
+        const validServices = activeServices.filter(service => {
           // Check weight limit
           if (service.maxWeight && weight > service.maxWeight) {
             return false;
@@ -981,7 +985,7 @@ const CreateLabel = () => {
         const weight = parseFloat(newPackage.weight) || 0;
 
         if (weight > 0) {
-          const validServices = labelTypes.filter(service => {
+          const validServices = activeServices.filter(service => {
             if (service.maxWeight && weight > service.maxWeight) return false;
             if (length && width && height && service.maxDimensions) {
               const totalDimensions = length + width + height;
@@ -1029,7 +1033,6 @@ const CreateLabel = () => {
       const normalizedFromAddress = fromAddrId ? fromAddr : {
         ...newFromAddress,
         name: newFromAddress.name.toUpperCase().trim(),
-        company: newFromAddress.company ? newFromAddress.company.toUpperCase().trim() : '',
         street1: newFromAddress.street1.toUpperCase().trim(),
         street2: newFromAddress.street2 ? newFromAddress.street2.toUpperCase().trim() : '',
         city: newFromAddress.city.toUpperCase().trim(),
@@ -1135,14 +1138,12 @@ const CreateLabel = () => {
       setNewFromAddress({
         label: 'New From Address',
         name: '',
-        company: '',
         street1: '',
         street2: '',
         city: '',
         state: '',
         zip: '',
         phone: '',
-        email: '',
         country: 'US'
       });
       setNewToAddress({
@@ -1308,87 +1309,192 @@ const CreateLabel = () => {
 
   return (
     <div className="create-label">
-      <div className="create-label-container">
+      <div className="create-label-container page-shell">
         <h2>Create Shipping Label</h2>
         <p className="subtitle">Select a USPS service and fill in the details below</p>
 
         {/* Select Service Section */}
-        <div className="form-section">
-          <h3 className="section-title">Select Service</h3>
-          <div className="usps-options">
-        {labelTypes.length > 0 ? (
-          labelTypes.map(option => (
-            <div
-              key={option.id}
-              className={`usps-option ${effectiveServiceId === option.id ? 'selected' : ''}`}
-              onClick={() => {
-                // User explicitly selected this service
-                setUserSelectedServiceId(option.id);
-                setDimensionError(''); // Clear dimension error when service changes
-                // Re-validate dimensions if package is already entered
-                if (newPackage.length || newPackage.width || newPackage.height) {
-                  validateDimensions(newPackage.length, newPackage.width, newPackage.height);
-                } else if (selectedPackageId) {
-                  const pkg = packages.find(p => p._id === selectedPackageId);
-                  if (pkg && option.maxDimensions) {
-                    const totalDimensions = (parseFloat(pkg.length) || 0) + (parseFloat(pkg.width) || 0) + (parseFloat(pkg.height) || 0);
-                    if (totalDimensions > option.maxDimensions) {
-                      setDimensionError(`Total dimensions: ${totalDimensions.toFixed(1)} inches (exceeds ${option.maxDimensions} inches limit)`);
-                    } else {
-                      setDimensionError('');
+        <div className="form-section section">
+          <div className="section-header">
+            <h3 className="section-title">Select Service</h3>
+          </div>
+          
+          {/* Service Speed Toggle */}
+          {labelTypes.length > 0 && (
+            <div className="service-speed-toggle">
+              <button
+                type="button"
+                className={`speed-toggle-btn ${serviceFamily === 'ground' ? 'active' : ''}`}
+                onClick={() => {
+                  const newFamily = 'ground';
+                  setServiceFamily(newFamily);
+                  // Clear selection if current selection is not in activeServices
+                  const newActiveServices = labelTypes.filter(x => String(x.apiId) === '126');
+                  if (userSelectedServiceId && !newActiveServices.find(s => s.id === userSelectedServiceId)) {
+                    setUserSelectedServiceId(null);
+                  }
+                  setDimensionError(''); // Clear dimension error
+                  // Trigger auto-select after state updates
+                  setTimeout(() => {
+                    autoSelectBestService();
+                  }, 0);
+                }}
+              >
+                Ground Advantage
+              </button>
+              <button
+                type="button"
+                className={`speed-toggle-btn ${serviceFamily === 'priority' ? 'active' : ''}`}
+                onClick={() => {
+                  const newFamily = 'priority';
+                  setServiceFamily(newFamily);
+                  // Clear selection if current selection is not in activeServices
+                  const newActiveServices = labelTypes.filter(x => String(x.apiId) === '373');
+                  if (userSelectedServiceId && !newActiveServices.find(s => s.id === userSelectedServiceId)) {
+                    setUserSelectedServiceId(null);
+                  }
+                  setDimensionError(''); // Clear dimension error
+                  // Trigger auto-select after state updates
+                  setTimeout(() => {
+                    autoSelectBestService();
+                  }, 0);
+                }}
+              >
+                Priority Mail
+              </button>
+            </div>
+          )}
+          
+          {labelTypes.length > 0 ? (
+            <>
+              {/* Helper function to render a service card */}
+              {(() => {
+                const renderServiceCard = (option) => {
+                  // For Priority cards (apiId 373), find corresponding Ground card (apiId 126) by position
+                  let displayDimensions = option.maxDimensions;
+                  let displayWeight = option.maxWeight;
+                  
+                  if (option.apiId === 373) {
+                    const groundCards = labelTypes.filter(lt => lt.apiId === 126);
+                    const priorityCards = labelTypes.filter(lt => lt.apiId === 373);
+                    const priorityIndex = priorityCards.findIndex(lt => lt.id === option.id);
+                    
+                    if (priorityIndex >= 0 && priorityIndex < groundCards.length) {
+                      const correspondingGround = groundCards[priorityIndex];
+                      displayDimensions = correspondingGround.maxDimensions;
+                      displayWeight = correspondingGround.maxWeight;
                     }
                   }
-                }
-              }}
-            >
-              <div className="option-select-indicator">
-                {effectiveServiceId === option.id ? (
-                  <div className="selected-checkmark">✓</div>
-                ) : (
-                  <div className="select-arrow">→</div>
-                )}
-              </div>
-              <div className="option-main-content">
-                <div className="option-service-header">
-                  <div className="w-10 h-10 flex items-center justify-center overflow-hidden">
-                    <img 
-                      src="https://1000logos.net/wp-content/uploads/2020/09/USPS-Logo.png"
-                      alt="USPS" 
-                      className="max-w-full max-h-full object-contain"
-                      onError={(e) => {
-                        // Fallback to official USPS SVG if PNG doesn't work
-                        if (!e.target.src.includes('.svg')) {
-                          e.target.src = 'https://assets.usps.com/images/logo_usps_eagle.svg';
+                  
+                  // Determine if this card is disabled (not in active family)
+                  const isDisabled = (serviceFamily === 'ground' && option.apiId === 373) || (serviceFamily === 'priority' && option.apiId === 126);
+                  
+                  return (
+                    <div
+                      key={option.id}
+                      className={`usps-option ${effectiveServiceId === option.id && !isDisabled ? 'selected' : ''} ${isDisabled ? 'disabled' : ''}`}
+                      onClick={() => {
+                        // Prevent selection if disabled
+                        if (isDisabled) return;
+                        
+                        // User explicitly selected this service
+                        setUserSelectedServiceId(option.id);
+                        setDimensionError(''); // Clear dimension error when service changes
+                        // Re-validate dimensions if package is already entered
+                        if (newPackage.length || newPackage.width || newPackage.height) {
+                          validateDimensions(newPackage.length, newPackage.width, newPackage.height);
+                        } else if (selectedPackageId) {
+                          const pkg = packages.find(p => p._id === selectedPackageId);
+                          if (pkg && option.maxDimensions) {
+                            const totalDimensions = (parseFloat(pkg.length) || 0) + (parseFloat(pkg.width) || 0) + (parseFloat(pkg.height) || 0);
+                            if (totalDimensions > option.maxDimensions) {
+                              setDimensionError(`Total dimensions: ${totalDimensions.toFixed(1)} inches (exceeds ${option.maxDimensions} inches limit)`);
+                            } else {
+                              setDimensionError('');
+                            }
+                          }
                         }
                       }}
-                    />
-                  </div>
-                  <h3 className="option-service-name">{option.name}</h3>
-                </div>
-                
-                <div className="option-max-info">
-                  <SmartTooltip
-                    maxDimensions={option.maxDimensions}
-                    maxWeight={option.maxWeight}
-                  />
-                </div>
-                
-                <div className="option-savings">
-                  <span className="savings-badge">Save up to 90%</span>
-                  <span className="savings-text">• Best value available</span>
-                </div>
+                      aria-disabled={isDisabled}
+                      tabIndex={isDisabled ? -1 : 0}
+                    >
+                      <div className="option-select-indicator">
+                        {effectiveServiceId === option.id && !isDisabled ? (
+                          <div className="selected-checkmark">✓</div>
+                        ) : (
+                          <div className="select-arrow">→</div>
+                        )}
+                      </div>
+                      <div className="option-main-content">
+                        <div className="option-service-header">
+                          <div className="w-10 h-10 flex items-center justify-center overflow-hidden">
+                            <img 
+                              src="https://1000logos.net/wp-content/uploads/2020/09/USPS-Logo.png"
+                              alt="USPS" 
+                              className="max-w-full max-h-full object-contain"
+                              onError={(e) => {
+                                // Fallback to official USPS SVG if PNG doesn't work
+                                if (!e.target.src.includes('.svg')) {
+                                  e.target.src = 'https://assets.usps.com/images/logo_usps_eagle.svg';
+                                }
+                              }}
+                            />
+                          </div>
+                          <h3 className="option-service-name">{option.name}</h3>
+                        </div>
+                        
+                        <div className="option-max-info">
+                          <SmartTooltip
+                            maxDimensions={displayDimensions}
+                            maxWeight={displayWeight}
+                            apiId={option.apiId}
+                          />
+                        </div>
+                        
+                        <div className="option-savings">
+                          <span className="savings-badge">Save up to 90%</span>
+                          <span className="savings-text">• Best value available</span>
+                        </div>
 
-                <div className="option-price">
-                  <span className="price-label">Price:</span>
-                  <span className="price-value">${option.price.toFixed(2)}</span>
-                </div>
-              </div>
-            </div>
-          ))
-        ) : (
+                        <div className="option-price">
+                          <span className="price-label">Price:</span>
+                          <span className="price-value">${option.price.toFixed(2)}</span>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                };
+                
+                return (
+                  <>
+                    {/* Ground Advantage Section */}
+                    {groundServices.length > 0 && (
+                      <div className={`service-group ${serviceFamily !== 'ground' ? 'inactive-family' : ''}`}>
+                        <h4 className="service-group-title">Ground Advantage</h4>
+                        <p className="service-group-subtitle">Best value • 2–5 business days</p>
+                        <div className="usps-options">
+                          {groundServices.map(option => renderServiceCard(option))}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Priority Section */}
+                    {priorityServices.length > 0 && (
+                      <div className={`service-group ${serviceFamily !== 'priority' ? 'inactive-family' : ''}`}>
+                        <h4 className="service-group-title">Priority Mail</h4>
+                        <p className="service-group-subtitle">Faster delivery • 1–3 business days</p>
+                        <div className="usps-options">
+                          {priorityServices.map(option => renderServiceCard(option))}
+                        </div>
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
+            </>
+          ) : (
             <p>Loading available services...</p>
           )}
-          </div>
         </div>
 
         <form onSubmit={handleSubmit} className="label-form">
@@ -1396,101 +1502,104 @@ const CreateLabel = () => {
           {success && <div className="success-message">{success}</div>}
 
           {/* Package Section */}
-          <div className="form-section package-section">
-            <h3 className="section-title">Package Details</h3>
+          <div className="form-section package-section section">
+            <div className="section-header">
+              <h3 className="section-title">Package Details</h3>
+            </div>
           
-          <div className="form-group" style={{ marginBottom: '24px' }}>
-            <label>Saved packages (optional)</label>
-            <select
-              value={selectedPackageId}
-              onChange={(e) => {
-                setSelectedPackageId(e.target.value);
-                setDimensionError(''); // Clear error when package changes
-                // Reset user selection when saved package changes to allow auto-selection
-                setUserSelectedServiceId(null);
-              }}
-            >
-              <option value="">Select a saved package</option>
-              {packages.map(pkg => (
-                <option key={pkg._id} value={pkg._id}>
-                  {pkg.label} - {pkg.length}" × {pkg.width}" × {pkg.height}" ({pkg.weight} lbs)
-                </option>
-              ))}
-            </select>
+          {/* Saved packages dropdown - full width above card */}
+          <div className="section-controls">
+            <div className="form-field col-span-2">
+              <label>Saved packages (optional)</label>
+              <select
+                value={selectedPackageId}
+                onChange={(e) => {
+                  setSelectedPackageId(e.target.value);
+                  setDimensionError(''); // Clear error when package changes
+                  // Reset user selection when saved package changes to allow auto-selection
+                  setUserSelectedServiceId(null);
+                }}
+              >
+                <option value="">Select a saved package</option>
+                {packages.map(pkg => (
+                  <option key={pkg._id} value={pkg._id}>
+                    {pkg.label} - {pkg.length}" × {pkg.width}" × {pkg.height}" ({pkg.weight} lbs)
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
-          <div className="new-package-form">
-            <div className="form-grid">
-              <div className="dimensions-row">
-                <div className="form-group">
-                  <label>Length (inches) *</label>
-                  <input
-                    type="number"
-                    step="0.1"
-                    min="0.1"
-                    value={newPackage.length}
-                    onChange={(e) => {
-                      const newLength = e.target.value;
-                      setNewPackage({ ...newPackage, length: newLength });
-                      validateDimensions(newLength, newPackage.width, newPackage.height);
-                      // Reset user selection when package changes to allow auto-selection
-                      setUserSelectedServiceId(null);
-                    }}
-                    onBlur={() => {
-                      // Trigger auto-selection when user finishes editing
-                      autoSelectBestService();
-                    }}
-                    required
-                    placeholder="12"
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Width (inches) *</label>
-                  <input
-                    type="number"
-                    step="0.1"
-                    min="0.1"
-                    value={newPackage.width}
-                    onChange={(e) => {
-                      const newWidth = e.target.value;
-                      setNewPackage({ ...newPackage, width: newWidth });
-                      validateDimensions(newPackage.length, newWidth, newPackage.height);
-                      // Reset user selection when package changes to allow auto-selection
-                      setUserSelectedServiceId(null);
-                    }}
-                    onBlur={() => {
-                      // Trigger auto-selection when user finishes editing
-                      autoSelectBestService();
-                    }}
-                    required
-                    placeholder="10"
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Height (inches) *</label>
-                  <input
-                    type="number"
-                    step="0.1"
-                    min="0.1"
-                    value={newPackage.height}
-                    onChange={(e) => {
-                      const newHeight = e.target.value;
-                      setNewPackage({ ...newPackage, height: newHeight });
-                      validateDimensions(newPackage.length, newPackage.width, newHeight);
-                      // Reset user selection when package changes to allow auto-selection
-                      setUserSelectedServiceId(null);
-                    }}
-                    onBlur={() => {
-                      // Trigger auto-selection when user finishes editing
-                      autoSelectBestService();
-                    }}
-                    required
-                    placeholder="8"
-                  />
-                </div>
+          <div className="form-card">
+            <div className="form-grid-2">
+              <div className="form-field">
+                <label>Length (inches)*</label>
+                <input
+                  type="number"
+                  step="0.1"
+                  min="0.1"
+                  value={newPackage.length}
+                  onChange={(e) => {
+                    const newLength = e.target.value;
+                    setNewPackage({ ...newPackage, length: newLength });
+                    validateDimensions(newLength, newPackage.width, newPackage.height);
+                    // Reset user selection when package changes to allow auto-selection
+                    setUserSelectedServiceId(null);
+                  }}
+                  onBlur={() => {
+                    // Trigger auto-selection when user finishes editing
+                    autoSelectBestService();
+                  }}
+                  required
+                  placeholder="12"
+                />
               </div>
-              <div className="form-group">
-                <label>Weight (lbs) *</label>
+              <div className="form-field">
+                <label>Width (inches)*</label>
+                <input
+                  type="number"
+                  step="0.1"
+                  min="0.1"
+                  value={newPackage.width}
+                  onChange={(e) => {
+                    const newWidth = e.target.value;
+                    setNewPackage({ ...newPackage, width: newWidth });
+                    validateDimensions(newPackage.length, newWidth, newPackage.height);
+                    // Reset user selection when package changes to allow auto-selection
+                    setUserSelectedServiceId(null);
+                  }}
+                  onBlur={() => {
+                    // Trigger auto-selection when user finishes editing
+                    autoSelectBestService();
+                  }}
+                  required
+                  placeholder="10"
+                />
+              </div>
+              <div className="form-field">
+                <label>Height (inches)*</label>
+                <input
+                  type="number"
+                  step="0.1"
+                  min="0.1"
+                  value={newPackage.height}
+                  onChange={(e) => {
+                    const newHeight = e.target.value;
+                    setNewPackage({ ...newPackage, height: newHeight });
+                    validateDimensions(newPackage.length, newPackage.width, newHeight);
+                    // Reset user selection when package changes to allow auto-selection
+                    setUserSelectedServiceId(null);
+                  }}
+                  onBlur={() => {
+                    // Trigger auto-selection when user finishes editing
+                    autoSelectBestService();
+                  }}
+                  required
+                  placeholder="8"
+                />
+              </div>
+              <div className="form-field">
+                <label>Weight (lbs)*</label>
                 <input
                   type="number"
                   step="0.1"
@@ -1510,8 +1619,8 @@ const CreateLabel = () => {
                   placeholder="2.5"
                 />
               </div>
-              <div className="form-group full-width">
-                <label>SKU / Description *</label>
+              <div className="form-field col-span-2">
+                <label>SKU / Description*</label>
                 <input
                   type="text"
                   value={newPackage.description}
@@ -1538,51 +1647,44 @@ const CreateLabel = () => {
         </div>
 
           {/* From Address Section */}
-          <div className="form-section address-section">
-            <h3 className="section-title">From Address</h3>
+          <div className="form-section address-section section">
+            <div className="section-header">
+              <h3 className="section-title">From Address</h3>
+            </div>
           
-          <div className="form-group" style={{ marginBottom: '24px' }}>
-            <label>Saved addresses (optional)</label>
-            <select
-              value={selectedFromAddressId}
-              onChange={(e) => setSelectedFromAddressId(e.target.value)}
-            >
-              <option value="">Select a saved address</option>
-              {addresses.map(addr => (
-                <option key={addr._id} value={addr._id}>
-                  {addr.label} - {addr.city}, {addr.state}
-                </option>
-              ))}
-            </select>
+          {/* Saved addresses dropdown - full width above card */}
+          <div className="section-controls">
+            <div className="form-field col-span-2">
+              <label>Saved addresses (optional)</label>
+              <select
+                value={selectedFromAddressId}
+                onChange={(e) => setSelectedFromAddressId(e.target.value)}
+              >
+                <option value="">Select a saved address</option>
+                {addresses.map(addr => (
+                  <option key={addr._id} value={addr._id}>
+                    {addr.label} - {addr.city}, {addr.state}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
-          <div className="new-address-form">
-              <div className="form-grid">
-                <div className="name-company-row">
-                  <div className="form-group">
-                    <label>Full Name *</label>
-                    <input
-                      type="text"
-                      value={newFromAddress.name}
-                      onChange={(e) => setNewFromAddress({ ...newFromAddress, name: e.target.value.toUpperCase() })}
-                      onBlur={(e) => setNewFromAddress({ ...newFromAddress, name: e.target.value.toUpperCase().trim() })}
-                      required
-                      autoComplete="name"
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label>Company (optional)</label>
-                    <input
-                      type="text"
-                      value={newFromAddress.company}
-                      onChange={(e) => setNewFromAddress({ ...newFromAddress, company: e.target.value.toUpperCase() })}
-                      onBlur={(e) => setNewFromAddress({ ...newFromAddress, company: e.target.value ? e.target.value.toUpperCase().trim() : '' })}
-                      autoComplete="organization"
-                    />
-                  </div>
+          <div className="form-card">
+              <div className="form-grid-2">
+                <div className="form-field col-span-2">
+                  <label>Full Name*</label>
+                  <input
+                    type="text"
+                    value={newFromAddress.name}
+                    onChange={(e) => setNewFromAddress({ ...newFromAddress, name: e.target.value.toUpperCase() })}
+                    onBlur={(e) => setNewFromAddress({ ...newFromAddress, name: e.target.value.toUpperCase().trim() })}
+                    required
+                    autoComplete="name"
+                  />
                 </div>
-                <div className="form-group full-width" style={{ position: 'relative' }}>
-                  <label>Street Address *</label>
+                <div className="form-field" style={{ position: 'relative' }}>
+                  <label>Street Address*</label>
                   <input
                     ref={fromStreetRef}
                     type="text"
@@ -1591,7 +1693,7 @@ const CreateLabel = () => {
                     onBlur={(e) => setNewFromAddress({ ...newFromAddress, street1: e.target.value.toUpperCase().trim() })}
                     required
                     autoComplete="off"
-                    placeholder="Start typing address (e.g., 103 Bur...)"
+                    placeholder="START TYPING ADDRESS (E.G., 123 MAIN ST)"
                     id="from-street-address"
                   />
                   {fromAutocomplete.showSuggestions && fromAutocomplete.suggestions.length > 0 && (
@@ -1623,8 +1725,8 @@ const CreateLabel = () => {
                     </div>
                   )}
                 </div>
-                <div className="form-group full-width">
-                  <label>Street Address 2 (optional)</label>
+                <div className="form-field">
+                  <label>Apartment / Unit (optional)</label>
                   <input
                     type="text"
                     value={newFromAddress.street2}
@@ -1633,8 +1735,8 @@ const CreateLabel = () => {
                     autoComplete="address-line2"
                   />
                 </div>
-                <div className="form-group" style={{ position: 'relative' }}>
-                  <label>City *</label>
+                <div className="form-field" style={{ position: 'relative' }}>
+                  <label>City*</label>
                   <input
                     ref={fromCityRef}
                     type="text"
@@ -1671,8 +1773,8 @@ const CreateLabel = () => {
                     </div>
                   )}
                 </div>
-                <div className="form-group">
-                  <label>State *</label>
+                <div className="form-field">
+                  <label>State*</label>
                   <select
                     value={newFromAddress.state}
                     onChange={(e) => setNewFromAddress({ ...newFromAddress, state: e.target.value })}
@@ -1688,8 +1790,8 @@ const CreateLabel = () => {
                     ))}
                   </select>
                 </div>
-                <div className="form-group">
-                  <label>ZIP Code *</label>
+                <div className="form-field">
+                  <label>ZIP Code*</label>
                   <input
                     ref={fromZipRef}
                     type="text"
@@ -1704,7 +1806,7 @@ const CreateLabel = () => {
                     maxLength={5}
                   />
                 </div>
-                <div className="form-group">
+                <div className="form-field">
                   <label>Phone (optional)</label>
                   <input
                     type="tel"
@@ -1718,51 +1820,44 @@ const CreateLabel = () => {
         </div>
 
           {/* To Address Section */}
-          <div className="form-section address-section">
-            <h3 className="section-title">To Address</h3>
+          <div className="form-section address-section section">
+            <div className="section-header">
+              <h3 className="section-title">To Address</h3>
+            </div>
           
-          <div className="form-group" style={{ marginBottom: '24px' }}>
-            <label>Saved addresses (optional)</label>
-            <select
-              value={selectedToAddressId}
-              onChange={(e) => setSelectedToAddressId(e.target.value)}
-            >
-              <option value="">Select a saved address</option>
-              {addresses.map(addr => (
-                <option key={addr._id} value={addr._id}>
-                  {addr.label} - {addr.city}, {addr.state}
-                </option>
-              ))}
-            </select>
+          {/* Saved addresses dropdown - full width above card */}
+          <div className="section-controls">
+            <div className="form-field col-span-2">
+              <label>Saved addresses (optional)</label>
+              <select
+                value={selectedToAddressId}
+                onChange={(e) => setSelectedToAddressId(e.target.value)}
+              >
+                <option value="">Select a saved address</option>
+                {addresses.map(addr => (
+                  <option key={addr._id} value={addr._id}>
+                    {addr.label} - {addr.city}, {addr.state}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
-          <div className="new-address-form">
-              <div className="form-grid">
-                <div className="name-company-row">
-                  <div className="form-group">
-                    <label>Full Name *</label>
-                    <input
-                      type="text"
-                      value={newToAddress.name}
-                      onChange={(e) => setNewToAddress({ ...newToAddress, name: e.target.value.toUpperCase() })}
-                      onBlur={(e) => setNewToAddress({ ...newToAddress, name: e.target.value.toUpperCase().trim() })}
-                      required
-                      autoComplete="name"
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label>Company (optional)</label>
-                    <input
-                      type="text"
-                      value={newToAddress.company}
-                      onChange={(e) => setNewToAddress({ ...newToAddress, company: e.target.value.toUpperCase() })}
-                      onBlur={(e) => setNewToAddress({ ...newToAddress, company: e.target.value ? e.target.value.toUpperCase().trim() : '' })}
-                      autoComplete="organization"
-                    />
-                  </div>
+          <div className="form-card">
+              <div className="form-grid-2">
+                <div className="form-field">
+                  <label>Full Name*</label>
+                  <input
+                    type="text"
+                    value={newToAddress.name}
+                    onChange={(e) => setNewToAddress({ ...newToAddress, name: e.target.value.toUpperCase() })}
+                    onBlur={(e) => setNewToAddress({ ...newToAddress, name: e.target.value.toUpperCase().trim() })}
+                    required
+                    autoComplete="name"
+                  />
                 </div>
-                <div className="form-group full-width" style={{ position: 'relative' }}>
-                  <label>Street Address *</label>
+                <div className="form-field" style={{ position: 'relative' }}>
+                  <label>Street Address*</label>
                   <input
                     ref={toStreetRef}
                     type="text"
@@ -1771,7 +1866,7 @@ const CreateLabel = () => {
                     onBlur={(e) => setNewToAddress({ ...newToAddress, street1: e.target.value.toUpperCase().trim() })}
                     required
                     autoComplete="off"
-                    placeholder="Start typing address (e.g., 103 Bur...)"
+                    placeholder="START TYPING ADDRESS (E.G., 123 MAIN ST)"
                     id="to-street-address"
                   />
                   {toAutocomplete.showSuggestions && toAutocomplete.suggestions.length > 0 && (
@@ -1803,8 +1898,8 @@ const CreateLabel = () => {
                     </div>
                   )}
                 </div>
-                <div className="form-group full-width">
-                  <label>Street Address 2 (optional)</label>
+                <div className="form-field">
+                  <label>Apartment / Unit (optional)</label>
                   <input
                     type="text"
                     value={newToAddress.street2}
@@ -1813,8 +1908,8 @@ const CreateLabel = () => {
                     autoComplete="address-line2"
                   />
                 </div>
-                <div className="form-group" style={{ position: 'relative' }}>
-                  <label>City *</label>
+                <div className="form-field" style={{ position: 'relative' }}>
+                  <label>City*</label>
                   <input
                     ref={toCityRef}
                     type="text"
@@ -1851,8 +1946,8 @@ const CreateLabel = () => {
                     </div>
                   )}
                 </div>
-                <div className="form-group">
-                  <label>State *</label>
+                <div className="form-field">
+                  <label>State*</label>
                   <select
                     value={newToAddress.state}
                     onChange={(e) => setNewToAddress({ ...newToAddress, state: e.target.value })}
@@ -1868,8 +1963,8 @@ const CreateLabel = () => {
                     ))}
                   </select>
                 </div>
-                <div className="form-group">
-                  <label>ZIP Code *</label>
+                <div className="form-field">
+                  <label>ZIP Code*</label>
                   <input
                     ref={toZipRef}
                     type="text"
@@ -1884,7 +1979,7 @@ const CreateLabel = () => {
                     maxLength={5}
                   />
                 </div>
-                <div className="form-group">
+                <div className="form-field">
                   <label>Phone (optional)</label>
                   <input
                     type="tel"

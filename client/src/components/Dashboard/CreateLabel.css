@@ -3,6 +3,16 @@
    Reduced visual noise, clear hierarchy
    ============================================ */
 
+/* Spacing Variables */
+:root {
+  --space-1: 8px;
+  --space-2: 12px;
+  --space-3: 16px;
+  --space-4: 24px;
+  --space-5: 32px;
+  --space-6: 48px;
+}
+
 /* Mapbox Autocomplete Suggestions Styling */
 .mapbox-suggestions {
   position: absolute;
@@ -60,10 +70,24 @@
   min-height: 100%;
 }
 
-.create-label-container {
-  max-width: 1150px;
+/* Page Shell - Consistent Layout Wrapper */
+.page-shell {
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 40px;
+  padding: var(--space-5) var(--space-4);
+}
+
+.create-label-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--space-5) var(--space-4);
+}
+
+@media (max-width: 900px) {
+  .page-shell,
+  .create-label-container {
+    padding: var(--space-4) var(--space-3);
+  }
 }
 
 .create-label h2 {
@@ -77,28 +101,158 @@
 
 .subtitle {
   color: #6b7280;
-  margin: 0 0 40px 0;
+  margin: 0 0 var(--space-5) 0;
   padding: 0;
   font-size: 1rem;
   font-weight: 400;
 }
 
 /* ============================================
-   SECTION TITLES - Clear Hierarchy
+   SECTION STRUCTURE - Consistent Spacing
    ============================================ */
 
-.form-section {
-  margin-bottom: 48px;
+.section {
+  margin-bottom: var(--space-6);
+}
+
+.section:last-child {
+  margin-bottom: 0;
+}
+
+.section-header {
+  margin-bottom: var(--space-3);
 }
 
 .section-title {
   font-size: 1.4rem;
   font-weight: 700;
   color: #111827;
-  margin: 0 0 24px 0;
+  margin: 0 0 var(--space-2) 0;
   letter-spacing: -0.4px;
-  padding-bottom: 12px;
+  padding-bottom: var(--space-2);
   border-bottom: 1px solid #e5e7eb;
+}
+
+.section-subtitle {
+  font-size: 0.9rem;
+  color: #6b7280;
+  margin: var(--space-1) 0 0 0;
+  font-weight: 400;
+}
+
+.section-controls {
+  margin-bottom: var(--space-3);
+}
+
+/* Full-width form field for saved dropdowns */
+.section-controls .form-field.col-span-2 {
+  width: 100%;
+  max-width: 100%;
+}
+
+.form-section {
+  margin-bottom: var(--space-6);
+}
+
+.form-section:last-child {
+  margin-bottom: 0;
+}
+
+/* Service Group Sections */
+.service-group {
+  margin-bottom: 40px;
+}
+
+.service-group:last-child {
+  margin-bottom: 0;
+}
+
+.service-group-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 6px 0;
+  letter-spacing: -0.3px;
+}
+
+.service-group-subtitle {
+  font-size: 0.9rem;
+  color: #6b7280;
+  margin: 0 0 20px 0;
+  font-weight: 400;
+}
+
+/* Service Speed Toggle */
+.service-speed-toggle {
+  display: inline-flex;
+  gap: 0;
+  background: #f3f4f6;
+  border-radius: 8px;
+  padding: 4px;
+  margin-bottom: var(--space-3);
+  border: 1px solid #e5e7eb;
+}
+
+.speed-toggle-btn {
+  padding: 10px 20px;
+  border: none;
+  background: transparent;
+  color: #6b7280;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  outline: none;
+}
+
+.speed-toggle-btn:hover:not(.active) {
+  color: #111827;
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.speed-toggle-btn:focus {
+  outline: 2px solid #ff6b35;
+  outline-offset: 2px;
+}
+
+.speed-toggle-btn.active {
+  background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+  color: white;
+  border: 1px solid #ff6b35;
+  box-shadow: 0 1px 3px rgba(255, 107, 53, 0.2);
+  font-weight: 600;
+}
+
+.speed-toggle-btn.active:hover {
+  background: linear-gradient(135deg, #f55a1f 0%, #e8840d 100%);
+  border-color: #ff5722;
+}
+
+/* Inactive service family styling - subtle opacity */
+.service-group.inactive-family {
+  opacity: 0.6;
+}
+
+/* Disabled service card styling */
+.usps-option.disabled {
+  pointer-events: none;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.usps-option.disabled:hover {
+  border-color: #e5e7eb;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  background: #fafbfc;
+}
+
+.usps-option.disabled.selected {
+  border-color: #e5e7eb;
+  border-width: 1px;
+  background: #fafbfc;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 /* ============================================
@@ -531,12 +685,16 @@
 }
 
 .form-group {
-  margin-bottom: 20px;
+  margin-bottom: var(--space-3);
+}
+
+.form-group:last-child {
+  margin-bottom: 0;
 }
 
 .form-group label {
   display: block;
-  margin-bottom: 8px;
+  margin-bottom: var(--space-1);
   color: #374151;
   font-weight: 500;
   font-size: 0.9rem;
@@ -558,18 +716,23 @@
 /* Address and Package Sections */
 .address-section,
 .package-section {
-  margin-bottom: 0;
+  margin-bottom: var(--space-6);
   padding: 0;
   background: transparent;
   border-radius: 0;
   border: none;
 }
 
+.address-section:last-child,
+.package-section:last-child {
+  margin-bottom: 0;
+}
+
 .section-header-inline {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: var(--space-3);
 }
 
 .section-header-inline h3 {
@@ -581,39 +744,159 @@
 
 .address-section h3,
 .package-section h3 {
-  margin: 0 0 20px 0;
-  font-size: 1.2rem;
-  font-weight: 600;
-  color: #1a1a1a;
+  margin: 0 0 var(--space-3) 0;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #111827;
+  letter-spacing: -0.4px;
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid #e5e7eb;
+}
+
+/* Form Card - Consistent Container */
+.form-card {
+  background: #ffffff;
+  padding: 32px;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  margin-bottom: var(--space-6);
+}
+
+/* Ensure form-card padding is consistent */
+.new-address-form.form-card,
+.new-package-form.form-card {
+  padding: 32px;
 }
 
 .new-address-form,
 .new-package-form {
   background: #ffffff;
-  padding: 24px;
+  padding: 32px;
   border-radius: 12px;
   border: 1px solid #e5e7eb;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
+/* Reusable 2-Column Grid System */
+.form-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  row-gap: 20px;
+}
+
+/* Utility class for full-width fields */
+.col-span-2 {
+  grid-column: 1 / -1;
+}
+
+/* Legacy grid classes (for backward compatibility) */
 .form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px 18px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.form-row:last-child {
+  margin-bottom: 0;
+}
+
+/* Address Grid - 2-column layout for address forms */
+.address-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px 18px;
+}
+
+/* Details Grid - 2-column layout for package details */
+.details-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px 18px;
+}
+
+/* Legacy utility class */
+.span-2 {
+  grid-column: 1 / -1;
+}
+
+.form-field {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  margin-bottom: 16px;
+  gap: var(--space-1);
+}
+
+.form-field label {
+  display: block;
+  margin-bottom: 8px;
+  color: #374151;
+  font-weight: 600;
+  font-size: 0.9rem;
+  letter-spacing: -0.1px;
+}
+
+.form-field label:has(+ input[required]),
+.form-field label:has(+ select[required]) {
+  font-weight: 600;
+  color: #111827;
+}
+
+.form-field label:not(:has(+ input[required])):not(:has(+ select[required])) {
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.form-field input,
+.form-field select {
+  width: 100%;
+  height: 44px;
+  padding: 12px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  transition: all 0.2s;
+  background: #ffffff;
+  box-sizing: border-box;
+}
+
+.form-field input:focus,
+.form-field select:focus {
+  outline: none;
+  border-color: #ff6b35;
+  box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+}
+
+.form-field select {
+  height: 44px;
+  padding: 12px 14px;
+  cursor: pointer;
+}
+
+.form-field .state-select {
+  height: 44px;
+  padding: 12px 14px;
+  cursor: pointer;
 }
 
 /* Name + Company Row - Grouped together */
 .name-company-row {
   display: grid;
   grid-template-columns: 2fr 1fr;
-  gap: 16px;
+  gap: var(--space-3);
 }
 
 .dimensions-row {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
+  gap: var(--space-3);
 }
 
 /* Weight field - same row as dimensions */
@@ -677,7 +960,14 @@
 .form-group input[autoComplete="address-line2"],
 .form-group input[autoComplete="address-level2"],
 .form-group input[id*="street-address"],
-.form-group input[autoComplete="address-level2"] {
+.form-group input[autoComplete="address-level2"],
+.form-field input[autoComplete="name"],
+.form-field input[autoComplete="organization"],
+.form-field input[autoComplete="address-line1"],
+.form-field input[autoComplete="address-line2"],
+.form-field input[autoComplete="address-level2"],
+.form-field input[id*="street-address"],
+.form-field input[autoComplete="address-level2"] {
   text-transform: uppercase;
 }
 
@@ -702,26 +992,26 @@
 .error-message {
   background-color: #fee2e2;
   color: #b91c1c;
-  padding: 12px;
+  padding: var(--space-2);
   border-radius: 8px;
-  margin-bottom: 20px;
+  margin-bottom: var(--space-3);
   border: 1px solid #fecaca;
 }
 
 .success-message {
   background-color: #dcfce7;
   color: #166534;
-  padding: 12px;
+  padding: var(--space-2);
   border-radius: 8px;
-  margin-bottom: 20px;
+  margin-bottom: var(--space-3);
   border: 1px solid #bbf7d0;
 }
 
 .cost-preview {
   background: #f9fafb;
-  padding: 16px;
+  padding: var(--space-3);
   border-radius: 8px;
-  margin-bottom: 24px;
+  margin-bottom: var(--space-4);
   text-align: center;
   font-size: 1rem;
   border: 1px solid #e5e7eb;
@@ -732,8 +1022,8 @@
    ============================================ */
 
 .cta-wrapper {
-  margin-top: 48px;
-  padding-top: 32px;
+  margin-top: var(--space-6);
+  padding-top: var(--space-5);
   border-top: 1px solid #e5e7eb;
 }
 
@@ -912,28 +1202,74 @@
    RESPONSIVE DESIGN
    ============================================ */
 
-@media (max-width: 1200px) {
+@media (max-width: 900px) {
+  .page-shell,
   .create-label-container {
-    padding: 32px;
+    padding: var(--space-4) var(--space-3);
   }
-}
 
-@media (max-width: 968px) {
   .usps-options {
     grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
+    gap: var(--space-2);
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: var(--space-3);
+  }
+
+  .name-company-row {
+    grid-template-columns: 1fr;
+    gap: var(--space-3);
   }
 
   .dimensions-row {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: 1fr;
+    gap: var(--space-3);
+  }
+
+  /* Grid layouts collapse to 1 column on mobile */
+  .form-grid-2,
+  .form-grid,
+  .address-grid,
+  .details-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    row-gap: 16px;
+  }
+
+  .col-span-2,
+  .span-2 {
+    grid-column: auto;
+  }
+
+  .form-group {
+    margin-bottom: var(--space-3);
+  }
+
+  .section {
+    margin-bottom: var(--space-5);
+  }
+
+  .section-title {
+    font-size: 1.2rem;
+    margin-bottom: var(--space-2);
+  }
+
+  .new-address-form,
+  .new-package-form,
+  .form-card {
+    padding: var(--space-3);
+  }
+
+  .form-field input,
+  .form-field select {
+    font-size: 16px; /* Prevents zoom on iOS */
+    min-height: 44px; /* Minimum tap target */
   }
 }
 
 @media (max-width: 768px) {
-  .create-label-container {
-    padding: 16px;
-  }
-
   .create-label h2 {
     font-size: 1.5rem;
     line-height: 1.3;
@@ -942,60 +1278,36 @@
   .subtitle {
     font-size: 0.95rem;
     line-height: 1.5;
-    margin-bottom: 24px;
-  }
-
-  .form-row {
-    grid-template-columns: 1fr;
-    gap: 16px;
-  }
-
-  .form-grid {
-    grid-template-columns: 1fr;
-    gap: 16px;
-  }
-
-  .form-group {
-    margin-bottom: 16px;
+    margin-bottom: var(--space-4);
   }
 
   .form-group label {
     font-size: 0.9rem;
-    margin-bottom: 8px;
+    margin-bottom: var(--space-1);
     line-height: 1.4;
   }
 
   .form-group select,
   .form-group input {
     font-size: 16px; /* Prevents zoom on iOS */
-    padding: 12px;
+    padding: var(--space-2);
     min-height: 44px; /* Minimum tap target */
     line-height: 1.5;
   }
 
-  .name-company-row {
-    grid-template-columns: 1fr;
-    gap: 16px;
-  }
-
-  .dimensions-row {
-    grid-template-columns: 1fr;
-    gap: 16px;
-  }
-
   .usps-options {
     grid-template-columns: 1fr;
-    gap: 12px;
+    gap: var(--space-2);
   }
 
   .usps-option {
     min-height: 100px;
-    padding: 16px;
+    padding: var(--space-3);
   }
 
   .login-prompt-buttons {
     flex-direction: column;
-    gap: 12px;
+    gap: var(--space-2);
   }
 
   .login-prompt-buttons button {
@@ -1007,30 +1319,20 @@
   .section-header-inline {
     flex-direction: column;
     align-items: flex-start;
-    gap: 16px;
+    gap: var(--space-3);
   }
 
   .section-title {
     font-size: 1.2rem;
     line-height: 1.4;
-    margin-bottom: 20px;
-  }
-
-  .address-section,
-  .package-section {
-    padding: 0;
-  }
-
-  .new-address-form,
-  .new-package-form {
-    padding: 16px;
+    margin-bottom: var(--space-3);
   }
 
   .checkbox-label {
     font-size: 0.9rem;
     line-height: 1.5;
     min-height: 44px;
-    padding: 8px 0;
+    padding: var(--space-1) 0;
   }
 
   .checkbox-label input[type="checkbox"] {
@@ -1044,17 +1346,18 @@
     width: 100%;
     min-height: 48px;
     font-size: 1rem;
-    padding: 14px 24px;
+    padding: var(--space-2) var(--space-4);
   }
 }
 
 @media (max-width: 480px) {
+  .page-shell,
   .create-label-container {
-    padding: 20px 16px;
+    padding: var(--space-4) var(--space-3);
   }
 
   .usps-option {
     min-height: 120px;
-    padding: 12px;
+    padding: var(--space-2);
   }
 }
