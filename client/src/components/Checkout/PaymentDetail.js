@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
@@ -9,8 +9,9 @@ import { Shield, Lock, Code, FileText } from 'lucide-react';
 
 const PaymentDetail = () => {
   const [searchParams] = useSearchParams();
-  const paymentId = searchParams.get('paymentId');
-  const { user, fetchUser } = useAuth();
+  // Read invoiceId from URL query params (paymentId is stored as invoiceId in URL)
+  const invoiceId = searchParams.get('invoiceId');
+  const { user, loading: authLoading, fetchUser } = useAuth();
   const navigate = useNavigate();
   const [payment, setPayment] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -18,35 +19,8 @@ const PaymentDetail = () => {
   const [showOnRamp, setShowOnRamp] = useState(false);
   const [polling, setPolling] = useState(true);
 
-  useEffect(() => {
-    if (!user) {
-      navigate('/login');
-      return;
-    }
-
-    if (!paymentId) {
-      setError('Payment ID is required');
-      setLoading(false);
-      return;
-    }
-
-    fetchPayment();
-    
-    // Set up polling if payment is pending
-    let pollInterval;
-    if (polling && paymentId) {
-      pollInterval = setInterval(() => {
-        fetchPayment(true); // Silent fetch
-      }, 5000); // Poll every 5 seconds
-    }
-
-    return () => {
-      if (pollInterval) clearInterval(pollInterval);
-    };
-  }, [paymentId, user, polling]);
-
-  const fetchPayment = async (silent = false) => {
-    if (!paymentId) {
+  const fetchPayment = useCallback(async (silent = false) => {
+    if (!invoiceId) {
       if (!silent) {
         setError('Payment ID is required');
         setLoading(false);
@@ -55,8 +29,9 @@ const PaymentDetail = () => {
     }
 
     try {
+      // Fetch payment details from server using invoiceId (which is actually paymentId)
       const response = await axios.get(
-        `${API_BASE_URL}/payments/${paymentId}`,
+        `${API_BASE_URL}/payments/${invoiceId}`,
         {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -84,11 +59,50 @@ const PaymentDetail = () => {
     } catch (error) {
       console.error('Fetch payment error:', error);
       if (!silent) {
-        setError(error.response?.data?.message || 'Failed to load payment');
-        setLoading(false);
+        if (error.response?.status === 401) {
+          // Auth error - redirect to login
+          navigate('/login');
+        } else {
+          setError(error.response?.data?.message || 'Failed to load payment');
+          setLoading(false);
+        }
       }
     }
-  };
+  }, [invoiceId, navigate, fetchUser]);
+
+  useEffect(() => {
+    // Wait for auth to finish loading before checking
+    if (authLoading) {
+      return;
+    }
+
+    // Check auth - redirect to login if not authenticated
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+
+    // Check if invoiceId exists in URL
+    if (!invoiceId) {
+      setError('Payment ID is required. Please create a payment from the Add Balance page.');
+      setLoading(false);
+      return;
+    }
+
+    fetchPayment();
+    
+    // Set up polling if payment is pending
+    let pollInterval;
+    if (polling && invoiceId) {
+      pollInterval = setInterval(() => {
+        fetchPayment(true); // Silent fetch
+      }, 5000); // Poll every 5 seconds
+    }
+
+    return () => {
+      if (pollInterval) clearInterval(pollInterval);
+    };
+  }, [invoiceId, user, authLoading, polling, fetchPayment, navigate]);
 
   const getStatusBadge = (status) => {
     const statusConfig = {
@@ -107,7 +121,19 @@ const PaymentDetail = () => {
     );
   };
 
-  if (!paymentId) {
+  // Show loading while auth is checking
+  if (authLoading) {
+    return (
+      <div className="payment-detail-page">
+        <div className="payment-container">
+          <div className="loading">Loading...</div>
+        </div>
+      </div>
+    );
+  }
+
+  // Check if invoiceId is missing
+  if (!invoiceId) {
     return (
       <div className="payment-detail-page">
         <div className="payment-container">

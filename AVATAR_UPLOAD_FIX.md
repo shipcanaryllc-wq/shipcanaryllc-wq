@@ -386,3 +386,4 @@ Body (FormData):
 4. **Profile update**: Change name/business → Save → Verify persistence
 5. **Remove avatar**: Click "Remove" → Save → Verify avatar clears
 
+

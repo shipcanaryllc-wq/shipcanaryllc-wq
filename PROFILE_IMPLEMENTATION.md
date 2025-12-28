@@ -263,3 +263,4 @@ SENDGRID_API_KEY=your-sendgrid-api-key
 - Password reset tokens are hashed before storage (SHA-256).
 - All endpoints are protected with JWT authentication middleware.
 
+

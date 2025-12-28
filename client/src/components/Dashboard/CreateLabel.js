@@ -8,7 +8,8 @@ import PackageDetailsModal from './PackageDetailsModal';
 import OrderConfirmation from './OrderConfirmation';
 import AddressFormFields from './AddressFormFields';
 import { useMapboxAutocomplete } from '../../hooks/useMapboxAutocomplete';
-import { useCityAutocomplete } from '../../hooks/useCityAutocomplete';
+// REMOVED: City autocomplete - City/Zip should only be populated from Street Address selection
+// import { useCityAutocomplete } from '../../hooks/useCityAutocomplete';
 import { useZipLookup } from '../../hooks/useZipLookup';
 import { US_STATES } from '../../constants/usStates';
 import './CreateLabel.css';
@@ -554,16 +555,54 @@ const CreateLabel = () => {
     return address;
   };
 
+  // Shared ref to suppress autofill when programmatically setting city/zip
+  const suppressAutofillRef = useRef(false);
+
+  // Shared helper to close ALL dropdowns - defined early so handlers can use it
+  const closeAllDropdowns = useCallback(() => {
+    // Close street address dropdowns
+    if (fromAutocompleteCloseRef.current) {
+      fromAutocompleteCloseRef.current();
+    }
+    if (toAutocompleteCloseRef.current) {
+      toAutocompleteCloseRef.current();
+    }
+    // Blur all inputs to prevent reopening
+    requestAnimationFrame(() => {
+      if (fromStreetRef.current) fromStreetRef.current.blur();
+      if (toStreetRef.current) toStreetRef.current.blur();
+      if (fromCityRef.current) fromCityRef.current.blur();
+      if (toCityRef.current) toCityRef.current.blur();
+      if (fromZipRef.current) fromZipRef.current.blur();
+      if (toZipRef.current) toZipRef.current.blur();
+    });
+  }, []);
+
   // Handle from address autocomplete
   const handleFromAddressSelect = useCallback((feature) => {
     if (DEBUG_AUTOCOMPLETE) {
       console.log('[handleFromAddressSelect] Called with feature:', feature);
     }
     
-    // Immediately close suggestions
+    // CRITICAL: Set suppress flag BEFORE updating state to prevent city autocomplete from reopening
+    suppressAutofillRef.current = true;
+    
+    // Close ALL dropdowns immediately
     if (fromAutocompleteCloseRef.current) {
       fromAutocompleteCloseRef.current();
     }
+    if (toAutocompleteCloseRef.current) {
+      toAutocompleteCloseRef.current();
+    }
+    // Blur all inputs to prevent reopening
+    requestAnimationFrame(() => {
+      if (fromStreetRef.current) fromStreetRef.current.blur();
+      if (toStreetRef.current) toStreetRef.current.blur();
+      if (fromCityRef.current) fromCityRef.current.blur();
+      if (toCityRef.current) toCityRef.current.blur();
+      if (fromZipRef.current) fromZipRef.current.blur();
+      if (toZipRef.current) toZipRef.current.blur();
+    });
     
     const parsed = parseAddress(feature);
     if (DEBUG_AUTOCOMPLETE) {
@@ -591,6 +630,11 @@ const CreateLabel = () => {
       ...prev,
       ...updatedAddress
     }));
+    
+    // Reset suppress flag after state update completes
+    setTimeout(() => {
+      suppressAutofillRef.current = false;
+    }, 100);
   }, []);
 
   // Handle to address autocomplete
@@ -599,10 +643,25 @@ const CreateLabel = () => {
       console.log('[handleToAddressSelect] Called with feature:', feature);
     }
     
-    // Immediately close suggestions
+    // CRITICAL: Set suppress flag BEFORE updating state to prevent city autocomplete from reopening
+    suppressAutofillRef.current = true;
+    
+    // Close ALL dropdowns immediately
+    if (fromAutocompleteCloseRef.current) {
+      fromAutocompleteCloseRef.current();
+    }
     if (toAutocompleteCloseRef.current) {
       toAutocompleteCloseRef.current();
     }
+    // Blur all inputs to prevent reopening
+    requestAnimationFrame(() => {
+      if (fromStreetRef.current) fromStreetRef.current.blur();
+      if (toStreetRef.current) toStreetRef.current.blur();
+      if (fromCityRef.current) fromCityRef.current.blur();
+      if (toCityRef.current) toCityRef.current.blur();
+      if (fromZipRef.current) fromZipRef.current.blur();
+      if (toZipRef.current) toZipRef.current.blur();
+    });
     
     const parsed = parseAddress(feature);
     if (DEBUG_AUTOCOMPLETE) {
@@ -630,6 +689,11 @@ const CreateLabel = () => {
       ...prev,
       ...updatedAddress
     }));
+    
+    // Reset suppress flag after state update completes
+    setTimeout(() => {
+      suppressAutofillRef.current = false;
+    }, 100);
   }, []);
 
   // Initialize autocomplete for from address
@@ -642,32 +706,8 @@ const CreateLabel = () => {
   // Store closeSuggestions function in ref for handler access
   toAutocompleteCloseRef.current = toAutocomplete.closeSuggestions;
 
-  // City autocomplete hooks
-  const fromCityAutocomplete = useCityAutocomplete(
-    newFromAddress.city,
-    newFromAddress.state,
-    (result) => {
-      setNewFromAddress(prev => ({
-        ...prev,
-        city: result.city,
-        state: result.state || prev.state,
-        zip: result.zip || prev.zip
-      }));
-    }
-  );
-
-  const toCityAutocomplete = useCityAutocomplete(
-    newToAddress.city,
-    newToAddress.state,
-    (result) => {
-      setNewToAddress(prev => ({
-        ...prev,
-        city: result.city,
-        state: result.state || prev.state,
-        zip: result.zip || prev.zip
-      }));
-    }
-  );
+  // REMOVED: City autocomplete hooks - City/Zip should only be populated from Street Address selection
+  // City and Zip are now plain inputs that get populated from the selected Street Address feature
 
   // ZIP lookup hooks
   const { lookupZip: lookupFromZip } = useZipLookup();
@@ -1786,7 +1826,7 @@ const CreateLabel = () => {
               address={newFromAddress}
               setAddress={setNewFromAddress}
               autocomplete={fromAutocomplete}
-              cityAutocomplete={fromCityAutocomplete}
+              cityAutocomplete={undefined}
               refs={{
                 streetRef: fromStreetRef,
                 cityRef: fromCityRef,
@@ -1829,7 +1869,7 @@ const CreateLabel = () => {
               address={newToAddress}
               setAddress={setNewToAddress}
               autocomplete={toAutocomplete}
-              cityAutocomplete={toCityAutocomplete}
+              cityAutocomplete={undefined}
               refs={{
                 streetRef: toStreetRef,
                 cityRef: toCityRef,

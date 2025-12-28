@@ -83,6 +83,7 @@ function AppRoutes() {
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
       <Route path="/reset-password" element={<ResetPassword />} />
+      <Route path="/bitcoin-payment" element={<PrivateRoute><PaymentDetail /></PrivateRoute>} />
       <Route path="/checkout" element={<PaymentDetail />} />
     </Routes>
   );

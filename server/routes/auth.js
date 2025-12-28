@@ -149,7 +149,11 @@ router.post('/register',
         user: {
           id: user._id,
           email: user.email,
-          balance: user.balance
+          name: user.name || null,
+          fullName: user.name || null,
+          balance: user.balance,
+          role: user.role || 'User',
+          createdAt: user.createdAt
         }
       });
     } catch (error) {
@@ -230,7 +234,11 @@ router.post('/login',
         user: {
           id: user._id,
           email: user.email,
-          balance: user.balance
+          name: user.name || null,
+          fullName: user.name || null,
+          balance: user.balance,
+          role: user.role || 'User',
+          createdAt: user.createdAt
         }
       });
     } catch (error) {
@@ -264,7 +272,7 @@ router.get('/me', async (req, res) => {
       avatarUrl: user.avatarUrl || user.picture || null,
       balance: user.balance,
       role: user.role || 'User',
-      createdAt: user.createdAt || user.createdAt
+      createdAt: user.createdAt
     });
   } catch (error) {
     res.status(401).json({ message: 'Invalid token' });

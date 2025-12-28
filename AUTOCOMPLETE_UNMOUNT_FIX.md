@@ -243,3 +243,4 @@ else if (e.key === 'Escape') {
 4. ✅ **Proper State Management**: Explicit `open` state instead of derived `showSuggestions`
 5. ✅ **Consistent Behavior**: Both Street Address and City use same pattern
 
+

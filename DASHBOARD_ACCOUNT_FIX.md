@@ -274,3 +274,4 @@ formatJoinDate(user?.createdAt) // Returns "MMM dd, yyyy" or "—" if missing
 - Status pill aligned right
 - Professional empty state
 
+

@@ -66,7 +66,7 @@ router.get('/me', auth, async (req, res) => {
       avatarUrl: user.avatarUrl || user.picture || null,
       balance: user.balance,
       role: user.role || 'User', // Default role if not set
-      createdAt: user.createdAt || user.createdAt // Include createdAt from timestamps
+      createdAt: user.createdAt // Include createdAt from timestamps
     });
   } catch (error) {
     console.error('Error fetching user profile:', error);
@@ -142,7 +142,7 @@ router.put('/me',
         avatarUrl: user.avatarUrl || user.picture || null,
         balance: user.balance,
         role: user.role || 'User',
-        createdAt: user.createdAt || user.createdAt
+        createdAt: user.createdAt
       });
     } catch (error) {
       console.error('Error updating user profile:', error);

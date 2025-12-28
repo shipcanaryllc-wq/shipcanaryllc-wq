@@ -94,3 +94,4 @@ curl -X OPTIONS https://shipcanary.com/api/auth/register \
 **Next Step:** Set environment variables in Vercel and redeploy
 
 
+

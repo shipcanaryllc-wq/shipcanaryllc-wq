@@ -64,9 +64,23 @@ const AddBalance = () => {
         }
       );
 
+      // Validate paymentId exists before opening tab
+      const paymentId = response.data.paymentId;
+      if (!paymentId) {
+        setError('Failed to create payment: Payment ID not received');
+        setLoading(false);
+        return;
+      }
+
+      // Build absolute URL for Bitcoin Payment page
+      const origin = window.location.origin;
+      const url = `${origin}/bitcoin-payment?invoiceId=${encodeURIComponent(paymentId)}`;
+      
+      // Log the URL before opening
+      console.log('Opening payment tab:', url);
+      
       // Open Bitcoin Payment page in a new tab (intermediate page)
-      const paymentUrl = `${window.location.origin}/checkout?paymentId=${response.data.paymentId}`;
-      window.open(paymentUrl, '_blank', 'noopener,noreferrer');
+      window.open(url, '_blank', 'noopener,noreferrer');
 
       // Reset form and show success message
       setAmount('');

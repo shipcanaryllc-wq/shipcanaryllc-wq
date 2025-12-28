@@ -168,50 +168,12 @@
 }
 
 /* ============================================
-   SEARCH AND FILTERS
+   CATEGORY FILTERS
    ============================================ */
 
 .integrations-filters {
   margin-bottom: 40px;
   animation: fadeInUp 0.6s ease-out 0.2s both;
-}
-
-.search-wrapper {
-  position: relative;
-  max-width: 400px;
-  margin: 0 auto 24px;
-}
-
-.search-icon {
-  position: absolute;
-  left: 16px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #9ca3af;
-  pointer-events: none;
-}
-
-.search-input {
-  width: 100%;
-  height: 48px;
-  padding: 12px 16px 12px 48px;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  font-size: 0.95rem;
-  color: #111827;
-  background: #ffffff;
-  transition: all 0.2s ease;
-  box-sizing: border-box;
-}
-
-.search-input:focus {
-  outline: none;
-  border-color: #ff6b35;
-  box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
-}
-
-.search-input::placeholder {
-  color: #9ca3af;
 }
 
 .category-pills {
@@ -338,22 +300,23 @@
 }
 
 .integration-logo-container {
-  width: 56px;
-  height: 56px;
-  border-radius: 10px;
-  background: #f9fafb;
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  background: #ffffff;
   border: 1px solid #e5e7eb;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  padding: 12px;
+  padding: 10px;
   transition: all 0.2s ease;
+  position: relative;
 }
 
 .integration-card:hover:not(.disabled) .integration-logo-container {
-  border-color: #ff6b35;
-  background: rgba(255, 107, 53, 0.05);
+  border-color: #d1d5db;
+  background: #f9fafb;
 }
 
 .integration-logo {
@@ -363,17 +326,20 @@
   display: block;
 }
 
-.integration-logo-placeholder {
+.integration-logo-fallback {
   width: 100%;
   height: 100%;
-  display: flex;
+  display: none;
   align-items: center;
   justify-content: center;
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   font-weight: 700;
   color: #6b7280;
-  background: #e5e7eb;
-  border-radius: 8px;
+  background: #f3f4f6;
+  border-radius: 6px;
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 
 .integration-header-content {
@@ -595,7 +561,4 @@
     padding: 20px;
   }
 
-  .search-wrapper {
-    max-width: 100%;
-  }
 }

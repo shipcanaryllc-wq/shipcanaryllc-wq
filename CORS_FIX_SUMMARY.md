@@ -132,3 +132,4 @@ After deployment, check browser console (F12):
 3. **Better error logging** - Helps debug CORS issues in production
 
 
+

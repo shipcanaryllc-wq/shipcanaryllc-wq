@@ -124,3 +124,4 @@ curl -X OPTIONS https://shipcanary.com/api/auth/register \
 - **500 errors** → Check Function logs for specific error
 
 
+

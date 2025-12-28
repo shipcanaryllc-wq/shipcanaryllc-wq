@@ -1,21 +1,45 @@
 import React, { useState, useMemo } from 'react';
-import { Search, ArrowRight, Loader2 } from 'lucide-react';
+import { ArrowRight, Loader2 } from 'lucide-react';
 import { INTEGRATIONS, CATEGORIES } from '../../config/integrations';
 import './Integrations.css';
 
-const Integrations = () => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('All');
+// Logo URLs - Using Simple Icons CDN (reliable, official brand colors)
+// Format: https://cdn.simpleicons.org/{brand}/{color}
+const LOGO_URLS = {
+  shopify: 'https://cdn.simpleicons.org/shopify/96BF48',
+  etsy: 'https://cdn.simpleicons.org/etsy/F16521',
+  amazon: 'https://cdn.simpleicons.org/amazon/FF9900',
+  ebay: 'https://cdn.simpleicons.org/ebay/E53238',
+  woocommerce: 'https://cdn.simpleicons.org/woocommerce/96588A',
+  bigcommerce: 'https://cdn.simpleicons.org/bigcommerce/121118'
+};
 
-  // Filter integrations based on search and category
+const Integrations = () => {
+  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [logoErrors, setLogoErrors] = useState({});
+
+  // Filter integrations based on category only
   const filteredIntegrations = useMemo(() => {
     return INTEGRATIONS.filter(integration => {
-      const matchesSearch = integration.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                           integration.description.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesCategory = selectedCategory === 'All' || integration.category === selectedCategory;
-      return matchesSearch && matchesCategory;
+      return matchesCategory;
     });
-  }, [searchQuery, selectedCategory]);
+  }, [selectedCategory]);
+
+  // Get logo URL
+  const getLogoSrc = (integrationId) => {
+    return LOGO_URLS[integrationId] || `https://cdn.simpleicons.org/${integrationId}`;
+  };
+
+  // Handle logo load error
+  const handleLogoError = (integrationId, e) => {
+    setLogoErrors(prev => ({ ...prev, [integrationId]: true }));
+    e.target.style.display = 'none';
+    const placeholder = e.target.parentElement.querySelector('.integration-logo-fallback');
+    if (placeholder) {
+      placeholder.style.display = 'flex';
+    }
+  };
 
   const getStatusLabel = (status) => {
     return status === 'in-development' ? 'In development' : 'Planned';
@@ -66,19 +90,8 @@ const Integrations = () => {
           </p>
         </div>
 
-        {/* Search and Filters */}
+        {/* Category Filters */}
         <div className="integrations-filters">
-          <div className="search-wrapper">
-            <Search size={20} className="search-icon" />
-            <input
-              type="text"
-              placeholder="Search integrations..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="search-input"
-            />
-          </div>
-          
           <div className="category-pills">
             {CATEGORIES.map(category => (
               <button
@@ -96,7 +109,8 @@ const Integrations = () => {
         <div className="integrations-grid">
           {filteredIntegrations.length > 0 ? (
             filteredIntegrations.map((integration, index) => {
-              const logoSrc = `/integrations/${integration.id}.svg`;
+              const logoSrc = getLogoSrc(integration.id);
+              const hasError = logoErrors[integration.id];
               
               return (
                 <div
@@ -113,16 +127,21 @@ const Integrations = () => {
                   
                   <div className="integration-card-header">
                     <div className="integration-logo-container">
-                      <img
-                        src={logoSrc}
-                        alt={`${integration.name} logo`}
-                        className="integration-logo"
-                        onError={(e) => {
-                          // Fallback to placeholder if image fails to load
-                          e.target.style.display = 'none';
-                          e.target.parentElement.innerHTML = `<div class="integration-logo-placeholder">${integration.name.charAt(0)}</div>`;
-                        }}
-                      />
+                      {!hasError ? (
+                        <img
+                          src={logoSrc}
+                          alt={`${integration.name} logo`}
+                          className="integration-logo"
+                          onError={(e) => handleLogoError(integration.id, e)}
+                          loading="lazy"
+                        />
+                      ) : null}
+                      <div 
+                        className="integration-logo-fallback"
+                        style={{ display: hasError ? 'flex' : 'none' }}
+                      >
+                        {integration.name.charAt(0)}
+                      </div>
                     </div>
                     <div className="integration-header-content">
                       <h3 className="integration-name">{integration.name}</h3>
@@ -153,7 +172,7 @@ const Integrations = () => {
             })
           ) : (
             <div className="integrations-empty">
-              <p>No integrations found matching your search.</p>
+              <p>No integrations found in this category.</p>
             </div>
           )}
         </div>

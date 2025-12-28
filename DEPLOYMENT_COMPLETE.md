@@ -253,3 +253,4 @@ curl -X OPTIONS https://shipcanary.com/api/auth/register \
 **Ready for:** Vercel deployment with correct environment variables
 
 
+

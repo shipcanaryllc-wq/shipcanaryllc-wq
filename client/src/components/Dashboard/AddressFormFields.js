@@ -108,7 +108,10 @@ const AddressFormFields = ({
         />
         {/* CRITICAL: Only render dropdown when open AND (loading OR has items) */}
         {/* This ensures dropdown is UNMOUNTED when closed, not just hidden */}
-        {autocomplete && autocomplete.open && (autocomplete.loading || autocomplete.items.length > 0) && (
+        {/* Filter out any falsy items to prevent ghost rows */}
+        {autocomplete && 
+         autocomplete.open && 
+         (autocomplete.loading || (autocomplete.items && autocomplete.items.length > 0)) && (
           <div 
             ref={autocomplete.rootRef}
             className="mapbox-suggestions"
@@ -118,25 +121,27 @@ const AddressFormFields = ({
                 <div className="suggestion-title">Searching…</div>
               </div>
             )}
-            {autocomplete.items.map((suggestion, index) => (
-              <div
-                key={suggestion.id}
-                className={`suggestion-item ${index === autocomplete.selectedIndex ? 'selected' : ''}`}
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  if (onAddressSelect) {
-                    onAddressSelect(suggestion);
-                  }
-                }}
-                onMouseDown={(e) => {
-                  e.preventDefault();
-                }}
-              >
-                <div className="suggestion-title">{suggestion.text}</div>
-                <div className="suggestion-address">{suggestion.place_name}</div>
-              </div>
-            ))}
+            {autocomplete.items && autocomplete.items
+              .filter(item => item != null) // Filter out falsy items
+              .map((suggestion, index) => (
+                <div
+                  key={suggestion.id || `suggestion-${index}`}
+                  className={`suggestion-item ${index === autocomplete.selectedIndex ? 'selected' : ''}`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (onAddressSelect && suggestion) {
+                      onAddressSelect(suggestion);
+                    }
+                  }}
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                  }}
+                >
+                  <div className="suggestion-title">{suggestion.text || ''}</div>
+                  <div className="suggestion-address">{suggestion.place_name || ''}</div>
+                </div>
+              ))}
           </div>
         )}
       </div>

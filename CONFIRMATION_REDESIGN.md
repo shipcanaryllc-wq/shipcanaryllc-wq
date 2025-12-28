@@ -344,3 +344,4 @@ const skuDescription = getSkuDescription();
 - If description missing: Shows "Custom package" (professional fallback)
 - All fallback logic checks for empty strings and "N/A" values
 
+

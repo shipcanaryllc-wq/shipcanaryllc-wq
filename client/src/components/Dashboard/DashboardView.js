@@ -331,7 +331,13 @@ const DashboardView = () => {
               <div className="info-row">
                 <span className="info-label">JOINED</span>
                 <span className="info-value">
-                  {formatJoinDate(user?.createdAt)}
+                  {(() => {
+                    if (!user?.createdAt) {
+                      console.warn('[Dashboard] User createdAt missing for user:', user?.id || user?.email);
+                      return '—';
+                    }
+                    return formatJoinDate(user.createdAt);
+                  })()}
                 </span>
               </div>
             </div>
@@ -387,7 +393,7 @@ const DashboardView = () => {
             <div className="card-header-with-link">
               <h3 className="card-title">Recent Deposits</h3>
             </div>
-            <div className="deposits-list">
+            <div className="deposits-list-container">
               {loadingDeposits ? (
                 <div className="deposits-empty-state">
                   <div className="empty-state-text">Loading deposits...</div>
@@ -401,59 +407,65 @@ const DashboardView = () => {
               ) : deposits.length === 0 ? (
                 <div className="deposits-empty-state">
                   <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginBottom: '12px' }}>
-                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                    <line x1="16" y1="2" x2="16" y2="6"/>
-                    <line x1="8" y1="2" x2="8" y2="6"/>
-                    <line x1="3" y1="10" x2="21" y2="10"/>
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
+                    <path d="M9.5 8.5C9.5 7.67 10.17 7 11 7H13C13.83 7 14.5 7.67 14.5 8.5C14.5 9.33 13.83 10 13 10H11C10.17 10 9.5 9.33 9.5 8.5Z" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+                    <path d="M9.5 15.5C9.5 14.67 10.17 14 11 14H13C13.83 14 14.5 14.67 14.5 15.5C14.5 16.33 13.83 17 13 17H11C10.17 17 9.5 16.33 9.5 15.5Z" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+                    <path d="M12 7V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
                   </svg>
                   <div className="empty-state-text">No deposits yet</div>
                 </div>
               ) : (
-                deposits.map((deposit) => {
-                  // Determine payment method icon and label
-                  const isBTCPay = deposit.paymentMethod?.toLowerCase().includes('btcpay') || 
-                                  deposit.paymentMethod?.toLowerCase().includes('bitcoin') ||
-                                  !deposit.paymentMethod;
-                  const methodLabel = deposit.paymentMethod || 'BTCPay';
-                  
-                  return (
-                    <div key={deposit.id} className="deposit-item">
-                      <div className="deposit-left">
-                        <div className="deposit-icon-wrapper">
-                          {isBTCPay ? (
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                              <circle cx="12" cy="12" r="10"/>
-                              <path d="M12 6v6l4 2"/>
-                            </svg>
-                          ) : (
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                              <line x1="16" y1="2" x2="16" y2="6"/>
-                              <line x1="8" y1="2" x2="8" y2="6"/>
-                              <line x1="3" y1="10" x2="21" y2="10"/>
-                            </svg>
-                          )}
-                        </div>
-                        <div className="deposit-details">
-                          <div className="deposit-amount-row">
-                            <span className="deposit-amount">${deposit.amountUsd?.toFixed(2) || '0.00'}</span>
-                            <span className="deposit-method-label">{methodLabel}</span>
+                <div className="deposits-list">
+                  {deposits.map((deposit) => {
+                    // Determine payment method icon and label
+                    const isBTCPay = deposit.paymentMethod?.toLowerCase().includes('btcpay') || 
+                                    deposit.paymentMethod?.toLowerCase().includes('bitcoin') ||
+                                    !deposit.paymentMethod;
+                    const methodLabel = isBTCPay ? 'Bitcoin (BTCPay)' : (deposit.paymentMethod || 'Payment');
+                    const depositDate = deposit.createdAt 
+                      ? format(new Date(deposit.createdAt), 'MMM dd, yyyy • h:mm a')
+                      : 'N/A';
+                    
+                    return (
+                      <div key={deposit.id} className="deposit-row">
+                        {/* LEFT: Icon */}
+                        <div className="deposit-icon-column">
+                          <div className="deposit-icon-badge">
+                            {isBTCPay ? (
+                              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
+                                <path d="M9.5 8.5C9.5 7.67 10.17 7 11 7H13C13.83 7 14.5 7.67 14.5 8.5C14.5 9.33 13.83 10 13 10H11C10.17 10 9.5 9.33 9.5 8.5Z" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+                                <path d="M9.5 15.5C9.5 14.67 10.17 14 11 14H13C13.83 14 14.5 14.67 14.5 15.5C14.5 16.33 13.83 17 13 17H11C10.17 17 9.5 16.33 9.5 15.5Z" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+                                <path d="M12 7V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                              </svg>
+                            ) : (
+                              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                                <line x1="16" y1="2" x2="16" y2="6"/>
+                                <line x1="8" y1="2" x2="8" y2="6"/>
+                                <line x1="3" y1="10" x2="21" y2="10"/>
+                              </svg>
+                            )}
                           </div>
-                          <div className="deposit-date-time">
-                            {deposit.createdAt 
-                              ? format(new Date(deposit.createdAt), 'MMM dd, yyyy • h:mm a')
-                              : 'N/A'}
+                        </div>
+                        
+                        {/* CENTER: Amount, Method, Date */}
+                        <div className="deposit-content-column">
+                          <div className="deposit-amount">${deposit.amountUsd?.toFixed(2) || '0.00'}</div>
+                          <div className="deposit-method">{methodLabel}</div>
+                          <div className="deposit-date">{depositDate}</div>
+                        </div>
+                        
+                        {/* RIGHT: Status */}
+                        <div className="deposit-status-column">
+                          <div className={`deposit-status-pill status-${deposit.status}`}>
+                            {deposit.status === 'completed' ? 'Completed' : deposit.status === 'pending' ? 'Pending' : 'Failed'}
                           </div>
                         </div>
                       </div>
-                      <div className="deposit-right">
-                        <div className={`deposit-status status-${deposit.status}`}>
-                          {deposit.status === 'completed' ? 'Completed' : deposit.status === 'pending' ? 'Pending' : 'Failed'}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })
+                    );
+                  })}
+                </div>
               )}
             </div>
           </div>
