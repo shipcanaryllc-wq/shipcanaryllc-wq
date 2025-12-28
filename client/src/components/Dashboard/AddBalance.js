@@ -64,8 +64,14 @@ const AddBalance = () => {
         }
       );
 
-      // Redirect to payment detail page
-      navigate(`/checkout/${response.data.paymentId}`);
+      // Open Bitcoin Payment page in a new tab (intermediate page)
+      const paymentUrl = `${window.location.origin}/checkout?paymentId=${response.data.paymentId}`;
+      window.open(paymentUrl, '_blank', 'noopener,noreferrer');
+
+      // Reset form and show success message
+      setAmount('');
+      setLoading(false);
+      // Optionally show a success message that the payment page opened in a new tab
     } catch (error) {
       console.error('Create payment error:', error);
       

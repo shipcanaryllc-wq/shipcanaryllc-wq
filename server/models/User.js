@@ -28,6 +28,18 @@ const userSchema = new mongoose.Schema({
   picture: {
     type: String
   },
+  businessName: {
+    type: String
+  },
+  avatarUrl: {
+    type: String
+  },
+  passwordResetToken: {
+    type: String
+  },
+  passwordResetExpires: {
+    type: Date
+  },
   balance: {
     type: Number,
     default: 10.00, // $10 free credit for new users
@@ -60,7 +72,12 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
-  flagReason: String
+  flagReason: String,
+  role: {
+    type: String,
+    default: 'User',
+    enum: ['User', 'Admin', 'Moderator']
+  }
 }, {
   timestamps: true
 });

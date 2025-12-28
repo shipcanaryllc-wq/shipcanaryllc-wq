@@ -141,12 +141,22 @@ const Dashboard = () => {
               className="user-profile"
               onClick={() => setProfileMenuOpen(!profileMenuOpen)}
             >
-              <div className="user-avatar-small">
-                {user?.email?.charAt(0).toUpperCase() || 'U'}
-              </div>
+              {user?.avatarUrl ? (
+                <img 
+                  src={user.avatarUrl} 
+                  alt={user.name || user.email} 
+                  className="user-avatar-small"
+                  style={{ borderRadius: '50%', width: '32px', height: '32px', objectFit: 'cover' }}
+                />
+              ) : (
+                <div className="user-avatar-small">
+                  {(user?.name || user?.email)?.charAt(0).toUpperCase() || 'U'}
+                </div>
+              )}
               <div className="user-info-small">
-                <div className="user-name-small">{user?.email?.split('@')[0] || 'User'}</div>
-                <div className="user-username-small">{user?.email?.split('@')[0] || 'user'}</div>
+                <div className="user-name-small">
+                  {user?.name || user?.email?.split('@')[0] || 'User'}
+                </div>
               </div>
             </div>
             {profileMenuOpen && (
@@ -155,7 +165,7 @@ const Dashboard = () => {
                   className="profile-menu-item"
                   onClick={() => {
                     setProfileMenuOpen(false);
-                    // Profile action - UI only placeholder
+                    navigate('/profile');
                   }}
                 >
                   Profile

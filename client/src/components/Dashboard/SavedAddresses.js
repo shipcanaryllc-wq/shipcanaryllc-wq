@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
 import { useMapboxAutocomplete } from '../../hooks/useMapboxAutocomplete';
+import AddressFormFields from './AddressFormFields';
 import './SavedAddresses.css';
 import API_BASE_URL from '../../config/api';
 
@@ -292,118 +293,29 @@ const SavedAddresses = () => {
         )}
 
       {showForm && (
-        <form onSubmit={handleSubmit} className="address-form">
+        <form onSubmit={handleSubmit} className="address-form form-card">
           <div className="form-header-row">
             <h3>{editingAddress ? 'Edit Address' : 'Add New Address'}</h3>
             <button type="button" onClick={resetForm} className="cancel-button-header">
               Cancel
             </button>
           </div>
-          <div className="form-grid-2">
-            <div className="form-field">
-              <label>Label (e.g., Home, Office)*</label>
-              <input
-                type="text"
-                value={formData.label}
-                onChange={(e) => setFormData({ ...formData, label: e.target.value })}
-                required
-                placeholder="Home"
-              />
-            </div>
-            <div className="form-field">
-              <label>Full Name*</label>
-              <input
-                type="text"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                required
-              />
-            </div>
-            <div className="form-field" style={{ position: 'relative' }}>
-              <label>Street Address*</label>
-              <input
-                ref={streetAddressRef}
-                type="text"
-                value={formData.street1}
-                onChange={(e) => setFormData({ ...formData, street1: e.target.value })}
-                required
-                autoComplete="off"
-                placeholder="123 Main St"
-                id="saved-address-street"
-              />
-              {autocomplete.showSuggestions && autocomplete.suggestions.length > 0 && (
-                <div 
-                  ref={autocomplete.suggestionsRef}
-                  className="mapbox-suggestions"
-                >
-                  {autocomplete.suggestions.map((suggestion, index) => (
-                    <div
-                      key={suggestion.id}
-                      className={`suggestion-item ${index === autocomplete.selectedIndex ? 'selected' : ''}`}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        handleAddressSelect(suggestion);
-                      }}
-                      onMouseDown={(e) => {
-                        e.preventDefault();
-                      }}
-                    >
-                      <div className="suggestion-title">{suggestion.text}</div>
-                      <div className="suggestion-address">{suggestion.place_name}</div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-            <div className="form-field">
-              <label>Apartment / Unit (optional)</label>
-              <input
-                type="text"
-                value={formData.street2}
-                onChange={(e) => setFormData({ ...formData, street2: e.target.value })}
-              />
-            </div>
-            <div className="form-field">
-              <label>City*</label>
-              <input
-                type="text"
-                value={formData.city}
-                onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                required
-              />
-            </div>
-            <div className="form-field">
-              <label>State*</label>
-              <input
-                type="text"
-                value={formData.state}
-                onChange={(e) => setFormData({ ...formData, state: e.target.value.toUpperCase() })}
-                required
-                maxLength={2}
-                placeholder="CA"
-              />
-            </div>
-            <div className="form-field">
-              <label>ZIP Code*</label>
-              <input
-                type="text"
-                value={formData.zip}
-                onChange={(e) => setFormData({ ...formData, zip: e.target.value })}
-                required
-                pattern="\d{5}(-\d{4})?"
-                placeholder="12345"
-              />
-            </div>
-            <div className="form-field">
-              <label>Phone (optional)</label>
-              <input
-                type="tel"
-                value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-              />
-            </div>
-          </div>
+          <AddressFormFields
+            prefix="saved"
+            address={formData}
+            setAddress={setFormData}
+            autocomplete={autocomplete}
+            cityAutocomplete={undefined}
+            refs={{
+              streetRef: streetAddressRef,
+              cityRef: null,
+              zipRef: null
+            }}
+            onAddressSelect={handleAddressSelect}
+            onZipBlur={undefined}
+            showLabel={true}
+            streetPlaceholder="123 Main St"
+          />
           <div className="form-actions">
             <button type="submit" className="save-button">
               {editingAddress ? 'Update Address' : 'Save Address'}

@@ -3,13 +3,17 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 const DEBUG_AUTOCOMPLETE = false;
 
 export const useMapboxAutocomplete = (inputRef, onPlaceSelect) => {
-  const [suggestions, setSuggestions] = useState([]);
-  const [showSuggestions, setShowSuggestions] = useState(false);
+  // Explicit controlled state
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [items, setItems] = useState([]);
   const [selectedIndex, setSelectedIndex] = useState(-1);
-  const suggestionsRef = useRef(null);
+  
+  const abortRef = useRef(null);
+  const rootRef = useRef(null);
   const timeoutRef = useRef(null);
   const onPlaceSelectRef = useRef(onPlaceSelect);
-  const suggestionsStateRef = useRef([]);
+  const itemsStateRef = useRef([]);
   const cleanupRef = useRef(null);
   const skipNextSearchRef = useRef(false);
 
@@ -18,10 +22,29 @@ export const useMapboxAutocomplete = (inputRef, onPlaceSelect) => {
     onPlaceSelectRef.current = onPlaceSelect;
   }, [onPlaceSelect]);
 
-  // Keep suggestions ref updated
+  // Keep items ref updated
   useEffect(() => {
-    suggestionsStateRef.current = suggestions;
-  }, [suggestions]);
+    itemsStateRef.current = items;
+  }, [items]);
+
+  // Hard close function - must be used on select, escape, outside click, blur
+  const closeDropdown = useCallback(() => {
+    if (DEBUG_AUTOCOMPLETE) {
+      console.log('[Mapbox] closeDropdown() called');
+    }
+    
+    // Abort any pending requests
+    if (abortRef.current) {
+      abortRef.current.abort();
+      abortRef.current = null;
+    }
+    
+    // Clear state - this ensures dropdown is UNMOUNTED
+    setItems([]);
+    setLoading(false);
+    setOpen(false);
+    setSelectedIndex(-1);
+  }, []);
 
   useEffect(() => {
     let retryTimeout = null;
@@ -30,7 +53,6 @@ export const useMapboxAutocomplete = (inputRef, onPlaceSelect) => {
     const setupAutocomplete = () => {
       const input = inputRef?.current;
       if (!input) {
-        // Retry after a short delay if ref isn't ready yet
         if (isMounted) {
           retryTimeout = setTimeout(setupAutocomplete, 100);
         }
@@ -40,7 +62,6 @@ export const useMapboxAutocomplete = (inputRef, onPlaceSelect) => {
       const accessToken = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN;
       if (!accessToken) {
         console.error('Mapbox access token not found!');
-        console.error('Make sure REACT_APP_MAPBOX_ACCESS_TOKEN is set in client/.env');
         return null;
       }
       
@@ -51,52 +72,50 @@ export const useMapboxAutocomplete = (inputRef, onPlaceSelect) => {
       const handleSelect = (feature) => {
         if (DEBUG_AUTOCOMPLETE) {
           console.log('[Mapbox] handleSelect called with feature:', feature);
-          console.log('[Mapbox] Feature properties:', feature.properties);
-          console.log('[Mapbox] Feature place_name:', feature.place_name);
-          console.log('[Mapbox] Feature text:', feature.text);
         }
         
-        // Immediately close suggestions to prevent re-opening
-        setShowSuggestions(false);
-        setSuggestions([]);
-        setSelectedIndex(-1);
-        
-        // Skip next search to prevent dropdown from reopening
-        skipNextSearchRef.current = true;
-        setTimeout(() => {
-          skipNextSearchRef.current = false;
-        }, 500);
-        
-        // Call the callback to update React state
+        // CRITICAL: Apply selected value FIRST, then close
         if (onPlaceSelectRef.current) {
-          if (DEBUG_AUTOCOMPLETE) {
-            console.log('[Mapbox] Calling onPlaceSelect callback');
-          }
           try {
             onPlaceSelectRef.current(feature);
-            if (DEBUG_AUTOCOMPLETE) {
-              console.log('[Mapbox] onPlaceSelect callback completed');
-            }
           } catch (error) {
             console.error('[Mapbox] Error in onPlaceSelect callback:', error);
           }
-        } else {
-          console.warn('[Mapbox] onPlaceSelect callback is not set');
         }
+        
+        // THEN close dropdown (this unmounts it)
+        closeDropdown();
+        
+        // Blur input after closing
+        requestAnimationFrame(() => {
+          if (input && input.blur) {
+            input.blur();
+          }
+        });
       };
 
       const performSearch = async (query) => {
         if (!query || query.trim().length < 2) {
-          setSuggestions([]);
-          setShowSuggestions(false);
+          setItems([]);
+          setLoading(false);
+          setOpen(false);
           setSelectedIndex(-1);
           return;
         }
 
+        // Abort previous request
+        if (abortRef.current) {
+          abortRef.current.abort();
+        }
+
+        // Create new AbortController
+        const abortController = new AbortController();
+        abortRef.current = abortController;
+
         const trimmedQuery = query.trim();
+        setLoading(true);
         
         try {
-          // Use Mapbox Geocoding v5 API
           const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(trimmedQuery)}.json?` +
             `access_token=${accessToken}&` +
             `country=us&` +
@@ -108,45 +127,66 @@ export const useMapboxAutocomplete = (inputRef, onPlaceSelect) => {
             console.log('[Mapbox] API call for:', trimmedQuery);
           }
           
-          const response = await fetch(url);
+          const response = await fetch(url, {
+            signal: abortController.signal
+          });
+
+          // Check if aborted BEFORE processing response
+          if (abortController.signal.aborted) {
+            if (DEBUG_AUTOCOMPLETE) {
+              console.log('[Mapbox] Request aborted');
+            }
+            return;
+          }
 
           if (!response.ok) {
-            const errorText = await response.text();
-            let errorData;
-            try {
-              errorData = JSON.parse(errorText);
-            } catch {
-              errorData = { message: errorText };
-            }
-            console.error('Mapbox API error:', response.status, errorData);
-            if (response.status === 401) {
-              console.error('Authentication failed. Check your access token is correct.');
-            } else if (response.status === 403) {
-              console.error('Access forbidden. Make sure your token has geocoding permissions.');
-            }
-            throw new Error(errorData.message || `HTTP ${response.status}`);
+            throw new Error(`HTTP ${response.status}`);
           }
 
           const data = await response.json();
           
-          // v5 API returns features in data.features array
-          const features = data.features || [];
-          if (DEBUG_AUTOCOMPLETE) {
-            console.log('[Mapbox] Found', features.length, 'suggestions for:', trimmedQuery);
+          // Check if aborted AFTER fetch completes
+          if (abortController.signal.aborted) {
+            if (DEBUG_AUTOCOMPLETE) {
+              console.log('[Mapbox] Request aborted after fetch');
+            }
+            return;
           }
-          setSuggestions(features);
-          setShowSuggestions(features.length > 0);
-          setSelectedIndex(-1);
+          
+          const features = data.features || [];
+          
+          // CRITICAL: Only update state if NOT aborted
+          if (!abortController.signal.aborted) {
+            setItems(features);
+            setOpen(features.length > 0);
+            setLoading(false);
+            setSelectedIndex(-1);
+          }
         } catch (error) {
+          // Don't log aborted errors
+          if (error.name === 'AbortError') {
+            if (DEBUG_AUTOCOMPLETE) {
+              console.log('[Mapbox] Request aborted (expected)');
+            }
+            return;
+          }
           console.error('Mapbox geocoding error:', error);
-          setSuggestions([]);
-          setShowSuggestions(false);
-          setSelectedIndex(-1);
+          // Only update state if NOT aborted
+          if (!abortController.signal.aborted) {
+            setItems([]);
+            setLoading(false);
+            setOpen(false);
+            setSelectedIndex(-1);
+          }
+        } finally {
+          // Clear abort controller if this was the active request
+          if (abortRef.current === abortController) {
+            abortRef.current = null;
+          }
         }
       };
 
       const handleInput = async (e) => {
-        // Skip search if we just selected a suggestion
         if (skipNextSearchRef.current) {
           if (DEBUG_AUTOCOMPLETE) {
             console.log('[Mapbox] Skipping search after selection');
@@ -154,7 +194,6 @@ export const useMapboxAutocomplete = (inputRef, onPlaceSelect) => {
           return;
         }
         
-        // Get value from event target, or fallback to input.value (for controlled inputs)
         const query = (e && e.target && e.target.value) || input.value || '';
         if (DEBUG_AUTOCOMPLETE) {
           console.log('[Mapbox] Input event fired, query:', query);
@@ -171,20 +210,12 @@ export const useMapboxAutocomplete = (inputRef, onPlaceSelect) => {
         }, 300);
       };
 
-      // Also listen to React onChange events (for controlled inputs)
       const handleChange = (e) => {
-        // Skip search if we just selected a suggestion
         if (skipNextSearchRef.current) {
-          if (DEBUG_AUTOCOMPLETE) {
-            console.log('[Mapbox] Skipping change search after selection');
-          }
           return;
         }
         
         const query = (e && e.target && e.target.value) || input.value || '';
-        if (DEBUG_AUTOCOMPLETE) {
-          console.log('[Mapbox] Change event fired, query:', query);
-        }
         if (timeoutRef.current) {
           clearTimeout(timeoutRef.current);
         }
@@ -197,7 +228,7 @@ export const useMapboxAutocomplete = (inputRef, onPlaceSelect) => {
         if (e.key === 'ArrowDown') {
           e.preventDefault();
           setSelectedIndex(prev => {
-            const current = suggestionsStateRef.current;
+            const current = itemsStateRef.current;
             return prev < current.length - 1 ? prev + 1 : prev;
           });
         } else if (e.key === 'ArrowUp') {
@@ -205,39 +236,48 @@ export const useMapboxAutocomplete = (inputRef, onPlaceSelect) => {
           setSelectedIndex(prev => prev > 0 ? prev - 1 : -1);
         } else if (e.key === 'Enter') {
           e.preventDefault();
-          const current = suggestionsStateRef.current;
+          const current = itemsStateRef.current;
           if (selectedIndex >= 0 && current[selectedIndex]) {
-            if (DEBUG_AUTOCOMPLETE) {
-              console.log('[Mapbox] Enter key pressed, selecting suggestion at index:', selectedIndex);
-            }
             handleSelect(current[selectedIndex]);
           }
         } else if (e.key === 'Escape') {
-          setShowSuggestions(false);
-          setSelectedIndex(-1);
+          e.preventDefault();
+          closeDropdown();
+          if (input && input.blur) {
+            input.blur();
+          }
         }
       };
 
+      // Outside click handler
       const handleClickOutside = (e) => {
         if (
-          suggestionsRef.current &&
-          !suggestionsRef.current.contains(e.target) &&
+          rootRef.current &&
+          !rootRef.current.contains(e.target) &&
           input !== e.target &&
           !input.contains(e.target)
         ) {
-          setShowSuggestions(false);
+          closeDropdown();
         }
       };
 
-      // Listen to native input events (works for both controlled and uncontrolled)
-      // React controlled inputs should still fire native 'input' events when user types
-      input.addEventListener('input', handleInput, true); // Use capture phase
-      input.addEventListener('change', handleChange, true); // Also listen to change
+      // Blur handler
+      const handleBlur = () => {
+        // Small delay to allow click events on suggestions to fire first
+        setTimeout(() => {
+          closeDropdown();
+        }, 200);
+      };
+
+      // Listen to native input events
+      input.addEventListener('input', handleInput, true);
+      input.addEventListener('change', handleChange, true);
       input.addEventListener('keydown', handleKeyDown);
-      document.addEventListener('click', handleClickOutside);
+      input.addEventListener('blur', handleBlur);
+      document.addEventListener('mousedown', handleClickOutside);
 
       if (DEBUG_AUTOCOMPLETE) {
-        console.log('[Mapbox] Event listeners attached to:', input.id || 'unnamed input');
+        console.log('[Mapbox] Event listeners attached');
       }
 
       // Return cleanup function
@@ -245,14 +285,19 @@ export const useMapboxAutocomplete = (inputRef, onPlaceSelect) => {
         input.removeEventListener('input', handleInput, true);
         input.removeEventListener('change', handleChange, true);
         input.removeEventListener('keydown', handleKeyDown);
-        document.removeEventListener('click', handleClickOutside);
+        input.removeEventListener('blur', handleBlur);
+        document.removeEventListener('mousedown', handleClickOutside);
         if (timeoutRef.current) {
           clearTimeout(timeoutRef.current);
+          timeoutRef.current = null;
+        }
+        if (abortRef.current) {
+          abortRef.current.abort();
+          abortRef.current = null;
         }
       };
     };
 
-    // Start checking for input
     const cleanup = setupAutocomplete();
     cleanupRef.current = cleanup;
     
@@ -264,27 +309,34 @@ export const useMapboxAutocomplete = (inputRef, onPlaceSelect) => {
       if (cleanupRef.current) {
         cleanupRef.current();
       }
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
+      if (abortRef.current) {
+        abortRef.current.abort();
+        abortRef.current = null;
       }
     };
-  }, [inputRef]); // Only depend on inputRef
+  }, [inputRef, closeDropdown]);
 
-  // Function to close suggestions programmatically
+  // Expose closeDropdown for external use
   const closeSuggestions = useCallback(() => {
-    if (DEBUG_AUTOCOMPLETE) {
-      console.log('[Mapbox] closeSuggestions() called');
+    closeDropdown();
+    if (inputRef?.current && inputRef.current.blur) {
+      requestAnimationFrame(() => {
+        inputRef.current?.blur();
+      });
     }
-    setShowSuggestions(false);
-    setSuggestions([]);
-    setSelectedIndex(-1);
-  }, []);
+  }, [closeDropdown, inputRef]);
 
   return {
-    suggestions,
-    showSuggestions,
+    suggestions: items, // Keep for backward compatibility
+    showSuggestions: open, // Keep for backward compatibility
+    isLoading: loading,
     selectedIndex,
-    suggestionsRef,
-    closeSuggestions
+    suggestionsRef: rootRef, // Keep for backward compatibility
+    closeSuggestions,
+    // New explicit API
+    open,
+    loading,
+    items,
+    rootRef
   };
 };

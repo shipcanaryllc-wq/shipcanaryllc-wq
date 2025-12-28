@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
 import OnRampWidget from './OnRampWidget';
 import './PaymentDetail.css';
 import API_BASE_URL from '../../config/api';
-import { Shield, Lock, Code, Eye } from 'lucide-react';
+import { Shield, Lock, Code, FileText } from 'lucide-react';
 
 const PaymentDetail = () => {
-  const { paymentId } = useParams();
+  const [searchParams] = useSearchParams();
+  const paymentId = searchParams.get('paymentId');
   const { user, fetchUser } = useAuth();
   const navigate = useNavigate();
   const [payment, setPayment] = useState(null);
@@ -23,11 +24,17 @@ const PaymentDetail = () => {
       return;
     }
 
+    if (!paymentId) {
+      setError('Payment ID is required');
+      setLoading(false);
+      return;
+    }
+
     fetchPayment();
     
     // Set up polling if payment is pending
     let pollInterval;
-    if (polling) {
+    if (polling && paymentId) {
       pollInterval = setInterval(() => {
         fetchPayment(true); // Silent fetch
       }, 5000); // Poll every 5 seconds
@@ -39,6 +46,14 @@ const PaymentDetail = () => {
   }, [paymentId, user, polling]);
 
   const fetchPayment = async (silent = false) => {
+    if (!paymentId) {
+      if (!silent) {
+        setError('Payment ID is required');
+        setLoading(false);
+      }
+      return;
+    }
+
     try {
       const response = await axios.get(
         `${API_BASE_URL}/payments/${paymentId}`,
@@ -92,6 +107,21 @@ const PaymentDetail = () => {
     );
   };
 
+  if (!paymentId) {
+    return (
+      <div className="payment-detail-page">
+        <div className="payment-container">
+          <div className="error-message">
+            Payment ID is required. Please create a payment from the Add Balance page.
+          </div>
+          <button onClick={() => navigate('/dashboard?tab=balance')} className="btn-secondary">
+            Back to Dashboard
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   if (loading) {
     return (
       <div className="payment-detail-page">
@@ -109,7 +139,7 @@ const PaymentDetail = () => {
           <div className="error-message">
             {error || 'Payment not found'}
           </div>
-          <button onClick={() => navigate('/dashboard')} className="btn-secondary">
+          <button onClick={() => navigate('/dashboard?tab=balance')} className="btn-secondary">
             Back to Dashboard
           </button>
         </div>
@@ -122,8 +152,16 @@ const PaymentDetail = () => {
       <div className="payment-container">
         {/* Header Section */}
         <div className="payment-header-section">
-          <h1>Complete Bitcoin Payment</h1>
-          <p className="payment-subtitle">Secure Bitcoin payment processed via BTCPay Server</p>
+          <div className="header-icon-wrapper">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="bitcoin-logo-header">
+              <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
+              <path d="M9.5 8.5C9.5 7.67 10.17 7 11 7H13C13.83 7 14.5 7.67 14.5 8.5C14.5 9.33 13.83 10 13 10H11C10.17 10 9.5 9.33 9.5 8.5Z" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+              <path d="M9.5 15.5C9.5 14.67 10.17 14 11 14H13C13.83 14 14.5 14.67 14.5 15.5C14.5 16.33 13.83 17 13 17H11C10.17 17 9.5 16.33 9.5 15.5Z" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+              <path d="M12 7V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+            </svg>
+          </div>
+          <h1>Bitcoin Payment</h1>
+          <p className="payment-subtitle">Processed securely via BTCPay Server</p>
         </div>
         
         <div className="payment-info-card">
@@ -138,8 +176,7 @@ const PaymentDetail = () => {
               {getStatusBadge(payment.status)}
               {(payment.status === 'PENDING' || payment.status === 'PAID') && (
                 <p className="status-helper-text">
-                  Bitcoin payments typically take 5–10 minutes to confirm.
-                  Your ShipCanary balance will update automatically once the network confirmation is received.
+                  Confirmations usually take 5–10 minutes.
                 </p>
               )}
             </div>
@@ -152,7 +189,7 @@ const PaymentDetail = () => {
                 <div className="payment-method-card bitcoin-payment">
                   <div className="method-header">
                     <div className="method-icon">
-                      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
                         <path d="M9.5 8.5C9.5 7.67 10.17 7 11 7H13C13.83 7 14.5 7.67 14.5 8.5C14.5 9.33 13.83 10 13 10H11C10.17 10 9.5 9.33 9.5 8.5Z" stroke="currentColor" strokeWidth="1.5" fill="none"/>
                         <path d="M9.5 15.5C9.5 14.67 10.17 14 11 14H13C13.83 14 14.5 14.67 14.5 15.5C14.5 16.33 13.83 17 13 17H11C10.17 17 9.5 16.33 9.5 15.5Z" stroke="currentColor" strokeWidth="1.5" fill="none"/>
@@ -164,31 +201,20 @@ const PaymentDetail = () => {
                       <p>Send Bitcoin directly to the invoice address using your wallet or exchange.</p>
                     </div>
                   </div>
-                  <div className="method-features">
-                    <div className="feature-item">
-                      <span className="feature-icon">✓</span>
-                      <span>Bitcoin-only</span>
-                    </div>
-                    <div className="feature-item">
-                      <span className="feature-icon">✓</span>
-                      <span>On-chain confirmation</span>
-                    </div>
-                    <div className="feature-item">
-                      <span className="feature-icon">✓</span>
-                      <span>Non-custodial, secure settlement</span>
-                    </div>
-                  </div>
-                  <a
-                    href={payment.btcpayCheckoutUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      if (payment.btcpayCheckoutUrl) {
+                        window.open(payment.btcpayCheckoutUrl, '_blank', 'noopener,noreferrer');
+                      }
+                    }}
                     className="btn-primary btn-bitcoin"
                   >
                     <span>Open Bitcoin Payment Portal</span>
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
-                  </a>
+                  </button>
                 </div>
 
                 <div className="divider">
@@ -199,7 +225,7 @@ const PaymentDetail = () => {
                 <div className="payment-method-card card-payment">
                   <div className="method-header">
                     <div className="method-icon">
-                      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <rect x="1" y="4" width="22" height="16" rx="2" ry="2" stroke="currentColor" strokeWidth="2"/>
                         <line x1="1" y1="10" x2="23" y2="10" stroke="currentColor" strokeWidth="2"/>
                       </svg>
@@ -207,20 +233,6 @@ const PaymentDetail = () => {
                     <div className="method-info">
                       <h3>Buy Bitcoin with Card (External Exchanges)</h3>
                       <p>If you don't already have Bitcoin, you can purchase it through a trusted exchange and send it to the invoice address.</p>
-                    </div>
-                  </div>
-                  <div className="method-features">
-                    <div className="feature-item">
-                      <span className="feature-icon">✓</span>
-                      <span>Trusted exchange partners</span>
-                    </div>
-                    <div className="feature-item">
-                      <span className="feature-icon">✓</span>
-                      <span>Credit and debit cards accepted</span>
-                    </div>
-                    <div className="feature-item">
-                      <span className="feature-icon">✓</span>
-                      <span>Secure identity verification</span>
                     </div>
                   </div>
                   <button
@@ -242,31 +254,31 @@ const PaymentDetail = () => {
                   <h3 className="security-title">Security & Transparency</h3>
                   <div className="security-grid">
                     <div className="security-item">
-                      <Shield size={20} className="security-icon" />
+                      <Code size={20} className="security-icon" />
                       <div className="security-content">
-                        <h4>Non-Custodial Payments</h4>
-                        <p>Bitcoin payments are non-custodial. ShipCanary never holds your Bitcoin.</p>
+                        <h4>BTCPay Server (self-hosted)</h4>
+                        <p>Open-source payment processor hosted on our infrastructure.</p>
                       </div>
                     </div>
                     <div className="security-item">
-                      <Code size={20} className="security-icon" />
+                      <FileText size={20} className="security-icon" />
                       <div className="security-content">
-                        <h4>Open-Source Infrastructure</h4>
-                        <p>BTCPay Server is open-source and self-hosted. No third-party payment processors.</p>
+                        <h4>Invoice-based checkout</h4>
+                        <p>Each payment uses a unique, time-limited invoice address.</p>
+                      </div>
+                    </div>
+                    <div className="security-item">
+                      <Shield size={20} className="security-icon" />
+                      <div className="security-content">
+                        <h4>Payments verified on-chain</h4>
+                        <p>All transactions are confirmed on the Bitcoin blockchain.</p>
                       </div>
                     </div>
                     <div className="security-item">
                       <Lock size={20} className="security-icon" />
                       <div className="security-content">
-                        <h4>No Stored Credentials</h4>
+                        <h4>No stored payment credentials</h4>
                         <p>We do not store payment credentials or sensitive financial information.</p>
-                      </div>
-                    </div>
-                    <div className="security-item">
-                      <Eye size={20} className="security-icon" />
-                      <div className="security-content">
-                        <h4>No KYC Required</h4>
-                        <p>ShipCanary does not perform KYC verification. Payments are processed directly via BTCPay.</p>
                       </div>
                     </div>
                   </div>

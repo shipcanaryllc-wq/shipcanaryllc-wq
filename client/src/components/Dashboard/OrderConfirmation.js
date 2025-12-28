@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { Download, Plus, Eye } from 'lucide-react';
 import './OrderConfirmation.css';
 import API_BASE_URL from '../../config/api';
 
@@ -26,11 +28,16 @@ const normalizeAddressForDisplay = (address) => {
 };
 
 const OrderConfirmation = ({ order, onClose }) => {
+  const navigate = useNavigate();
   const [copySuccess, setCopySuccess] = useState(false);
   const [downloadingLabel, setDownloadingLabel] = useState(false);
+  const [checkmarkAnimated, setCheckmarkAnimated] = useState(false);
   const copyTimeoutRef = useRef(null);
 
   useEffect(() => {
+    // Trigger checkmark animation on mount
+    setTimeout(() => setCheckmarkAnimated(true), 100);
+    
     return () => {
       if (copyTimeoutRef.current) {
         clearTimeout(copyTimeoutRef.current);
@@ -129,11 +136,44 @@ const OrderConfirmation = ({ order, onClose }) => {
   const weight = pkg.weight || order.weight || 0;
   const price = order.cost || order.price || 0;
   const trackingNumber = order.trackingNumber || order.tracking_id || '';
-  const skuDescription = pkg.description || order.description || 'N/A';
+  
+  // Professional fallback for SKU/Description (never show "N/A")
+  const getSkuDescription = () => {
+    const desc = pkg.description || order.description || order.packageData?.description;
+    if (desc && desc.trim() && desc.trim() !== 'N/A') {
+      return desc.trim();
+    }
+    return 'Custom package'; // Professional fallback
+  };
+  const skuDescription = getSkuDescription();
+  
+  // Format date/time if available
+  const createdAt = order.createdAt ? new Date(order.createdAt) : null;
+  const formattedDate = createdAt ? createdAt.toLocaleDateString('en-US', { 
+    month: 'short', 
+    day: 'numeric', 
+    year: 'numeric' 
+  }) : null;
+  const formattedTime = createdAt ? createdAt.toLocaleTimeString('en-US', { 
+    hour: 'numeric', 
+    minute: '2-digit',
+    hour12: true 
+  }) : null;
 
   const trackPackageUrl = trackingNumber 
     ? `https://tools.usps.com/go/TrackConfirmAction?qtc_tLabels1=${trackingNumber}`
     : '#';
+
+  const handleCreateAnother = () => {
+    if (onClose) {
+      onClose();
+    }
+    // Reset form state handled by parent component
+  };
+
+  const handleViewDetails = () => {
+    navigate(`/dashboard?tab=history`);
+  };
 
   return (
     <div className="confirmation-wrapper">
@@ -141,44 +181,101 @@ const OrderConfirmation = ({ order, onClose }) => {
         {/* Success Header */}
         <div className="success-header">
           <div className="success-icon-wrapper">
-            <svg className="success-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="12" cy="12" r="10" fill="#10B981" />
-              <path d="M8 12L11 15L16 9" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
+            <div className="success-icon-container">
+              {/* Animated orange checkmark with gradient */}
+              <svg 
+                className={`success-icon ${checkmarkAnimated ? 'animated' : ''}`} 
+                viewBox="0 0 80 80" 
+                fill="none" 
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                {/* Outer glow ring */}
+                <circle 
+                  cx="40" 
+                  cy="40" 
+                  r="38" 
+                  fill="url(#orangeGradient)" 
+                  className="success-circle"
+                />
+                {/* Checkmark path with stroke animation */}
+                <path 
+                  d="M24 40 L36 52 L56 28" 
+                  stroke="white" 
+                  strokeWidth="4" 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round"
+                  className="success-checkmark"
+                  style={{
+                    strokeDasharray: checkmarkAnimated ? '44' : '0',
+                    strokeDashoffset: checkmarkAnimated ? '0' : '44',
+                    transition: 'stroke-dashoffset 0.5s ease-out'
+                  }}
+                />
+                {/* Gradient definition */}
+                <defs>
+                  <linearGradient id="orangeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#ff6b35" />
+                    <stop offset="100%" stopColor="#f7931e" />
+                  </linearGradient>
+                </defs>
+              </svg>
+              {/* Pulse ring effect */}
+              <div className="success-pulse-ring"></div>
+            </div>
           </div>
-          <h1 className="success-title">Shipping Label Created Successfully</h1>
-          <p className="success-subtitle">Your shipment is now ready.</p>
+          <h1 className="success-title">Label created</h1>
+          <p className="success-subtitle">Your shipment is ready to download.</p>
         </div>
 
-        {/* Summary Card */}
+        {/* Summary Card with 2-column grid */}
         <div className="summary-card">
-          <div className="summary-content">
-            <div className="summary-left">
-              <div className="summary-row">
-                <span className="summary-label">Order #</span>
-                <span className="summary-value">{confirmationNumber}</span>
-              </div>
-              <div className="summary-row">
-                <span className="summary-label">Service</span>
-                <span className="summary-value">{serviceDisplay}</span>
-              </div>
-              <div className="summary-row">
-                <span className="summary-label">Label Cost</span>
-                <span className="summary-value price-value">${price.toFixed(2)}</span>
-              </div>
+          <div className="summary-grid">
+            <div className="summary-item">
+              <span className="summary-label">Order #</span>
+              <span className="summary-value">{confirmationNumber}</span>
             </div>
-            <div className="summary-right">
+            <div className="summary-item">
+              <span className="summary-label">Service</span>
+              <span className="summary-value">{serviceDisplay}</span>
+            </div>
+            <div className="summary-item">
+              <span className="summary-label">Label Cost</span>
+              <span className="summary-value price-value">${price.toFixed(2)}</span>
+            </div>
+            {formattedDate && (
+              <div className="summary-item">
+                <span className="summary-label">Date</span>
+                <span className="summary-value">{formattedDate} {formattedTime}</span>
+              </div>
+            )}
+          </div>
+          
+          {/* Primary CTA */}
+          <div className="summary-actions">
+            <button
+              onClick={() => handleDownloadLabel(order._id || order.id)}
+              disabled={downloadingLabel}
+              className="download-button-primary"
+            >
+              <Download size={18} />
+              {downloadingLabel ? 'Downloading...' : 'Download Label'}
+            </button>
+            
+            {/* Secondary Actions */}
+            <div className="secondary-actions">
               <button
-                onClick={() => handleDownloadLabel(order._id || order.id)}
-                disabled={downloadingLabel}
-                className="download-button"
+                onClick={handleCreateAnother}
+                className="secondary-button"
               >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                  <polyline points="7 10 12 15 17 10"></polyline>
-                  <line x1="12" y1="15" x2="12" y2="3"></line>
-                </svg>
-                {downloadingLabel ? 'Loading...' : 'Download Label PDF'}
+                <Plus size={16} />
+                Create another label
+              </button>
+              <button
+                onClick={handleViewDetails}
+                className="secondary-button"
+              >
+                <Eye size={16} />
+                View order details
               </button>
             </div>
           </div>

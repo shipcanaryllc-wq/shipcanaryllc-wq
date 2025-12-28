@@ -34,11 +34,22 @@ export const AuthProvider = ({ children }) => {
         return;
       }
       
-      const response = await axios.get(`${API_BASE_URL}/auth/me`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      // Try /api/users/me first (new endpoint), fallback to /auth/me
+      let response;
+      try {
+        response = await axios.get(`${API_BASE_URL}/users/me`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+      } catch (err) {
+        // Fallback to /auth/me if /users/me doesn't exist
+        response = await axios.get(`${API_BASE_URL}/auth/me`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+      }
       setUser(response.data);
     } catch (error) {
       console.error('Fetch user error:', error.response?.status, error.response?.data?.message || error.message);

@@ -4,11 +4,24 @@ const mongoose = require('mongoose');
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const { body, validationResult } = require('express-validator');
+const crypto = require('crypto');
+const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 const { registrationLimiter, loginLimiter, handleLoginAttempt, checkSuspiciousActivity, trackRegistrationAttempt, generateFingerprint } = require('../middleware/fraudPrevention');
+const { sendPasswordResetEmail } = require('../services/emailService');
+const rateLimit = require('express-rate-limit');
 
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
+
+// Rate limiter for password reset requests
+const passwordResetLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 3, // 3 requests per hour
+  message: 'Too many password reset requests. Please try again later.',
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 
 // Configure Passport Google OAuth Strategy
 if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
@@ -245,7 +258,13 @@ router.get('/me', async (req, res) => {
     res.json({
       id: user._id,
       email: user.email,
-      balance: user.balance
+      name: user.name || null,
+      fullName: user.name || null, // Alias for consistency
+      businessName: user.businessName || null,
+      avatarUrl: user.avatarUrl || user.picture || null,
+      balance: user.balance,
+      role: user.role || 'User',
+      createdAt: user.createdAt || user.createdAt
     });
   } catch (error) {
     res.status(401).json({ message: 'Invalid token' });
@@ -339,6 +358,100 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
     res.redirect(`${frontendUrl}/login?error=google_oauth_not_configured`);
   });
 }
+
+// Request password reset
+router.post('/request-password-reset',
+  passwordResetLimiter,
+  [
+    body('email').isEmail().normalizeEmail()
+  ],
+  async (req, res) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+
+      const { email } = req.body;
+      const user = await User.findOne({ email: email.toLowerCase() });
+
+      // Always return success to prevent email enumeration
+      // But only send email if user exists
+      if (user) {
+        // Generate secure random token
+        const resetToken = crypto.randomBytes(32).toString('hex');
+        const hashedToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+        
+        // Set token and expiration (1 hour)
+        user.passwordResetToken = hashedToken;
+        user.passwordResetExpires = Date.now() + 60 * 60 * 1000; // 1 hour
+        await user.save();
+
+        try {
+          await sendPasswordResetEmail(user.email, resetToken);
+        } catch (emailError) {
+          console.error('Error sending password reset email:', emailError);
+          // Don't fail the request if email fails - token is still set
+        }
+      }
+
+      // Always return success message
+      res.json({ 
+        message: 'If an account with that email exists, a password reset link has been sent.' 
+      });
+    } catch (error) {
+      console.error('Password reset request error:', error);
+      res.status(500).json({ message: 'Server error' });
+    }
+  }
+);
+
+// Reset password with token
+router.post('/reset-password',
+  [
+    body('token').notEmpty().withMessage('Reset token is required'),
+    body('password').isLength({ min: 8 }).matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/)
+      .withMessage('Password must be at least 8 characters and contain uppercase, lowercase, and a number')
+  ],
+  async (req, res) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+
+      const { token, password } = req.body;
+      
+      // Hash the token to compare with stored hash
+      const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+      
+      // Find user with valid token
+      const user = await User.findOne({
+        passwordResetToken: hashedToken,
+        passwordResetExpires: { $gt: Date.now() }
+      });
+
+      if (!user) {
+        return res.status(400).json({ 
+          message: 'Invalid or expired password reset token' 
+        });
+      }
+
+      // Update password
+      user.password = password;
+      user.passwordResetToken = undefined;
+      user.passwordResetExpires = undefined;
+      await user.save();
+
+      res.json({ 
+        message: 'Password has been reset successfully. You can now log in with your new password.' 
+      });
+    } catch (error) {
+      console.error('Password reset error:', error);
+      res.status(500).json({ message: 'Server error' });
+    }
+  }
+);
 
 module.exports = router;
 

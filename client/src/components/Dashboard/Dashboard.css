@@ -103,10 +103,10 @@
   position: absolute;
   top: calc(100% + 8px);
   right: 0;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
   border-radius: 8px;
-  box-shadow: var(--shadow-md);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   min-width: 200px;
   z-index: 1000;
   overflow: hidden;
@@ -191,14 +191,14 @@
   text-align: left;
   cursor: pointer;
   font-size: 0.9rem;
-  color: var(--text-primary);
+  color: #111827;
   transition: all 0.2s;
   font-weight: 500;
 }
 
 .profile-menu-item:hover {
-  background: var(--bg-tertiary);
-  color: var(--accent-color);
+  background: #f3f4f6;
+  color: #ff6b35;
 }
 
 .user-avatar-small {
@@ -226,12 +226,10 @@
   font-weight: 600;
   color: #ffffff;
   line-height: 1.2;
-}
-
-.user-username-small {
-  font-size: 0.75rem;
-  color: #cccccc;
-  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 150px;
 }
 
 /* Dashboard Content */

@@ -26,6 +26,18 @@
   border-bottom: 1px solid #374151;
 }
 
+.header-icon-wrapper {
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: center;
+}
+
+.bitcoin-logo-header {
+  width: 32px;
+  height: 32px;
+  color: #f59e0b;
+}
+
 .payment-header-section h1 {
   margin: 0 0 12px 0;
   font-size: 2rem;
@@ -180,8 +192,8 @@
 }
 
 .bitcoin-payment .method-icon {
-  background: #f59e0b;
-  color: white;
+  background: #fef3c7;
+  color: #f59e0b;
 }
 
 .card-payment .method-icon {
@@ -275,14 +287,14 @@
 }
 
 .btn-bitcoin {
-  background: #111827;
+  background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
   color: white;
-  border: 1px solid #111827;
+  border: 1px solid #ff6b35;
 }
 
 .btn-bitcoin:hover {
-  background: #1f2937;
-  border-color: #1f2937;
+  background: linear-gradient(135deg, #e55a2b 0%, #e0821a 100%);
+  border-color: #e55a2b;
 }
 
 .btn-secondary {

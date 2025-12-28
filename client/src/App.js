@@ -9,6 +9,8 @@ import Support from './components/Support/Support';
 import Careers from './components/Careers/Careers';
 import Checkout from './components/Checkout/Checkout';
 import PaymentDetail from './components/Checkout/PaymentDetail';
+import Profile from './components/Dashboard/Profile';
+import ResetPassword from './components/Auth/ResetPassword';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import './styles/theme.css';
@@ -79,8 +81,9 @@ function AppRoutes() {
       <Route path="/register" element={user ? <Navigate to="/dashboard" /> : <Register />} />
       <Route path="/auth/callback" element={<AuthCallback />} />
       <Route path="/dashboard" element={<Dashboard />} />
-      <Route path="/checkout" element={<Checkout />} />
-      <Route path="/checkout/:paymentId" element={<PaymentDetail />} />
+      <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
+      <Route path="/reset-password" element={<ResetPassword />} />
+      <Route path="/checkout" element={<PaymentDetail />} />
     </Routes>
   );
 }

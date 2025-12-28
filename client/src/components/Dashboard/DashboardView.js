@@ -316,7 +316,9 @@ const DashboardView = () => {
             <div className="account-info">
               <div className="info-row">
                 <span className="info-label">NAME</span>
-                <span className="info-value">{user?.email?.split('@')[0] || 'User'}</span>
+                <span className="info-value">
+                  {user?.fullName || user?.name || user?.email?.split('@')[0] || 'User'}
+                </span>
               </div>
               <div className="info-row">
                 <span className="info-label">ROLE</span>
@@ -382,39 +384,76 @@ const DashboardView = () => {
 
           {/* Recent Deposits Card */}
           <div className="dashboard-card deposits-card">
-            <h3 className="card-title">Recent Deposits</h3>
+            <div className="card-header-with-link">
+              <h3 className="card-title">Recent Deposits</h3>
+            </div>
             <div className="deposits-list">
               {loadingDeposits ? (
-                <div className="empty-state">Loading deposits...</div>
+                <div className="deposits-empty-state">
+                  <div className="empty-state-text">Loading deposits...</div>
+                </div>
               ) : errorDeposits ? (
-                <div className="empty-state" style={{ color: '#dc3545', fontSize: '13px' }}>
-                  {errorDeposits}
+                <div className="deposits-empty-state">
+                  <div className="empty-state-text" style={{ color: '#dc3545' }}>
+                    {errorDeposits}
+                  </div>
                 </div>
               ) : deposits.length === 0 ? (
-                <div className="empty-state">No deposits yet</div>
+                <div className="deposits-empty-state">
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginBottom: '12px' }}>
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                    <line x1="16" y1="2" x2="16" y2="6"/>
+                    <line x1="8" y1="2" x2="8" y2="6"/>
+                    <line x1="3" y1="10" x2="21" y2="10"/>
+                  </svg>
+                  <div className="empty-state-text">No deposits yet</div>
+                </div>
               ) : (
-                deposits.map((deposit) => (
-                  <div key={deposit.id} className="deposit-item">
-                    <div className="deposit-row-top">
-                      <div className="deposit-amount" style={{ color: '#28a745', fontWeight: 600 }}>
-                        ${deposit.amountUsd?.toFixed(2) || '0.00'}
+                deposits.map((deposit) => {
+                  // Determine payment method icon and label
+                  const isBTCPay = deposit.paymentMethod?.toLowerCase().includes('btcpay') || 
+                                  deposit.paymentMethod?.toLowerCase().includes('bitcoin') ||
+                                  !deposit.paymentMethod;
+                  const methodLabel = deposit.paymentMethod || 'BTCPay';
+                  
+                  return (
+                    <div key={deposit.id} className="deposit-item">
+                      <div className="deposit-left">
+                        <div className="deposit-icon-wrapper">
+                          {isBTCPay ? (
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <circle cx="12" cy="12" r="10"/>
+                              <path d="M12 6v6l4 2"/>
+                            </svg>
+                          ) : (
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                              <line x1="16" y1="2" x2="16" y2="6"/>
+                              <line x1="8" y1="2" x2="8" y2="6"/>
+                              <line x1="3" y1="10" x2="21" y2="10"/>
+                            </svg>
+                          )}
+                        </div>
+                        <div className="deposit-details">
+                          <div className="deposit-amount-row">
+                            <span className="deposit-amount">${deposit.amountUsd?.toFixed(2) || '0.00'}</span>
+                            <span className="deposit-method-label">{methodLabel}</span>
+                          </div>
+                          <div className="deposit-date-time">
+                            {deposit.createdAt 
+                              ? format(new Date(deposit.createdAt), 'MMM dd, yyyy • h:mm a')
+                              : 'N/A'}
+                          </div>
+                        </div>
                       </div>
-                      <div className={`deposit-status status-${deposit.status}`}>
-                        {deposit.status === 'completed' ? 'Completed' : deposit.status === 'pending' ? 'Pending' : 'Failed'}
+                      <div className="deposit-right">
+                        <div className={`deposit-status status-${deposit.status}`}>
+                          {deposit.status === 'completed' ? 'Completed' : deposit.status === 'pending' ? 'Pending' : 'Failed'}
+                        </div>
                       </div>
                     </div>
-                    <div className="deposit-row-bottom">
-                      <div className="deposit-date">
-                        {deposit.createdAt 
-                          ? format(new Date(deposit.createdAt), 'MMM dd, yyyy h:mm a')
-                          : 'N/A'}
-                      </div>
-                      <div className="deposit-method" style={{ fontSize: '12px', color: '#6b7280' }}>
-                        {deposit.paymentMethod || 'Bitcoin via BTCPay'}
-                      </div>
-                    </div>
-                  </div>
-                ))
+                  );
+                })
               )}
             </div>
           </div>

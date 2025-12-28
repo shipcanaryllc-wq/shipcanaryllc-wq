@@ -2,9 +2,11 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import ReactDOM from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { Ban } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import PackageDetailsModal from './PackageDetailsModal';
 import OrderConfirmation from './OrderConfirmation';
+import AddressFormFields from './AddressFormFields';
 import { useMapboxAutocomplete } from '../../hooks/useMapboxAutocomplete';
 import { useCityAutocomplete } from '../../hooks/useCityAutocomplete';
 import { useZipLookup } from '../../hooks/useZipLookup';
@@ -124,36 +126,36 @@ const SmartTooltip = ({ maxDimensions, maxWeight, apiId }) => {
   }, [isVisible, calculatePosition]);
 
   const tooltipElement = isVisible && iconRef.current ? (
-    <div
-      ref={tooltipRef}
-      className={`tooltip tooltip-${position.placement}`}
-      style={{
-        left: `${iconRef.current.getBoundingClientRect().left + iconRef.current.getBoundingClientRect().width / 2}px`,
-        top: `${iconRef.current.getBoundingClientRect().top + iconRef.current.getBoundingClientRect().height / 2}px`,
-        transform: `translate(${position.x}px, ${position.y}px)`,
-      }}
-    >
-      <div className="tooltip-content">
-        <div className="tooltip-row">
-          <span className="tooltip-label">Max Dimensions:</span>
-          <span className="tooltip-value">{maxDimensions}" total</span>
-        </div>
-        <div className="tooltip-row">
-          <span className="tooltip-label">Max Weight:</span>
+        <div
+          ref={tooltipRef}
+          className={`tooltip tooltip-${position.placement}`}
+          style={{
+            left: `${iconRef.current.getBoundingClientRect().left + iconRef.current.getBoundingClientRect().width / 2}px`,
+            top: `${iconRef.current.getBoundingClientRect().top + iconRef.current.getBoundingClientRect().height / 2}px`,
+            transform: `translate(${position.x}px, ${position.y}px)`,
+          }}
+        >
+          <div className="tooltip-content">
+            <div className="tooltip-row">
+              <span className="tooltip-label">Max Dimensions:</span>
+              <span className="tooltip-value">{maxDimensions}" total</span>
+            </div>
+            <div className="tooltip-row">
+              <span className="tooltip-label">Max Weight:</span>
           <span className="tooltip-value">≤ {maxWeight} lbs</span>
-        </div>
-        <div className="tooltip-row">
-          <span className="tooltip-label">Estimated Delivery:</span>
+            </div>
+            <div className="tooltip-row">
+              <span className="tooltip-label">Estimated Delivery:</span>
           <span className="tooltip-value">{apiId === 373 ? '1-3 business days' : '2-5 business days'}</span>
+            </div>
+          </div>
+          <div 
+            className={`tooltip-arrow tooltip-arrow-${position.placement}`}
+            style={{
+              left: position.arrowOffset !== undefined ? `calc(50% + ${position.arrowOffset}px)` : '50%',
+            }}
+          ></div>
         </div>
-      </div>
-      <div 
-        className={`tooltip-arrow tooltip-arrow-${position.placement}`}
-        style={{
-          left: position.arrowOffset !== undefined ? `calc(50% + ${position.arrowOffset}px)` : '50%',
-        }}
-      ></div>
-    </div>
   ) : null;
 
   return (
@@ -168,6 +170,94 @@ const SmartTooltip = ({ maxDimensions, maxWeight, apiId }) => {
       </span>
       {tooltipElement && ReactDOM.createPortal(tooltipElement, document.body)}
     </div>
+  );
+};
+
+// Unavailable Badge Component with Tooltip
+const UnavailableBadge = ({ disabledReason }) => {
+  const [isTooltipVisible, setIsTooltipVisible] = useState(false);
+  const badgeRef = useRef(null);
+  const tooltipRef = useRef(null);
+
+  const calculateTooltipPosition = useCallback(() => {
+    if (!badgeRef.current || !tooltipRef.current) return;
+
+    const badgeRect = badgeRef.current.getBoundingClientRect();
+    const tooltipRect = tooltipRef.current.getBoundingClientRect();
+    const viewport = {
+      width: window.innerWidth,
+      height: window.innerHeight,
+    };
+
+    const tooltipWidth = tooltipRect.width || 200;
+    const spacing = 8;
+    const minSpacingFromEdge = 8;
+
+    // Position tooltip above the badge
+    let x = badgeRect.left + badgeRect.width / 2 - tooltipWidth / 2;
+    let y = badgeRect.top - tooltipRect.height - spacing;
+
+    // Adjust if tooltip would overflow viewport
+    if (x < minSpacingFromEdge) {
+      x = minSpacingFromEdge;
+    }
+    if (x + tooltipWidth > viewport.width - minSpacingFromEdge) {
+      x = viewport.width - minSpacingFromEdge - tooltipWidth;
+    }
+
+    // If not enough space above, position below
+    if (y < minSpacingFromEdge) {
+      y = badgeRect.bottom + spacing;
+    }
+
+    return { x, y };
+  }, []);
+
+  useEffect(() => {
+    if (isTooltipVisible) {
+      const position = calculateTooltipPosition();
+      if (tooltipRef.current && position) {
+        tooltipRef.current.style.left = `${position.x}px`;
+        tooltipRef.current.style.top = `${position.y}px`;
+      }
+      window.addEventListener('scroll', calculateTooltipPosition, true);
+      window.addEventListener('resize', calculateTooltipPosition);
+      return () => {
+        window.removeEventListener('scroll', calculateTooltipPosition, true);
+        window.removeEventListener('resize', calculateTooltipPosition);
+      };
+    }
+  }, [isTooltipVisible, calculateTooltipPosition]);
+
+  const tooltipElement = isTooltipVisible && badgeRef.current ? (
+    <div
+      ref={tooltipRef}
+      className="unavailable-tooltip"
+      style={{
+        position: 'fixed',
+        zIndex: 10000,
+      }}
+    >
+      <div className="unavailable-tooltip-content">
+        {disabledReason || 'Unavailable for this service selection'}
+      </div>
+      <div className="unavailable-tooltip-arrow"></div>
+    </div>
+  ) : null;
+
+  return (
+    <>
+      <div
+        ref={badgeRef}
+        className="unavailable-badge"
+        onMouseEnter={() => setIsTooltipVisible(true)}
+        onMouseLeave={() => setIsTooltipVisible(false)}
+      >
+        <Ban size={14} />
+        <span>Unavailable</span>
+      </div>
+      {tooltipElement && ReactDOM.createPortal(tooltipElement, document.body)}
+    </>
   );
 };
 
@@ -211,22 +301,20 @@ const CreateLabel = () => {
   const [newToAddress, setNewToAddress] = useState({
     label: 'New To Address',
     name: '',
-    company: '',
     street1: '',
     street2: '',
     city: '',
     state: '',
     zip: '',
     phone: '',
-    email: '',
     country: 'US'
   });
   const [newPackage, setNewPackage] = useState({
     label: 'New Package',
-    length: '',
-    width: '',
-    height: '',
-    weight: '',
+    length: '0',
+    width: '0',
+    height: '0',
+    weight: '0',
     description: ''
   });
   
@@ -701,16 +789,26 @@ const CreateLabel = () => {
       if (pkg) {
         setNewPackage({
           label: pkg.label || 'New Package',
-          length: pkg.length?.toString() || '',
-          width: pkg.width?.toString() || '',
-          height: pkg.height?.toString() || '',
-          weight: pkg.weight?.toString() || '',
+          length: pkg.length?.toString() || '0',
+          width: pkg.width?.toString() || '0',
+          height: pkg.height?.toString() || '0',
+          weight: pkg.weight?.toString() || '0',
           description: pkg.description || ''
         });
         // Trigger auto-selection when saved package is selected
         // Reset user selection since package changed
         setUserSelectedServiceId(null);
       }
+    } else {
+      // Reset to 0 when no package is selected
+      setNewPackage({
+        label: 'New Package',
+        length: '0',
+        width: '0',
+        height: '0',
+        weight: '0',
+        description: ''
+      });
     }
   }, [selectedPackageId, packages]);
 
@@ -770,14 +868,12 @@ const CreateLabel = () => {
         setNewToAddress({
           label: addr.label || 'New To Address',
           name: (addr.name || '').toUpperCase().trim(),
-          company: addr.company ? (addr.company || '').toUpperCase().trim() : '',
           street1: (addr.street1 || '').toUpperCase().trim(),
           street2: addr.street2 ? (addr.street2 || '').toUpperCase().trim() : '',
           city: (addr.city || '').toUpperCase().trim(),
           state: (addr.state || '').toUpperCase().trim(),
           zip: (addr.zip || '').trim(),
           phone: (addr.phone || '').trim(),
-          email: (addr.email || '').trim(),
           country: (addr.country || 'US').toUpperCase().trim()
         });
       }
@@ -1042,7 +1138,6 @@ const CreateLabel = () => {
       const normalizedToAddress = toAddrId ? toAddr : {
         ...newToAddress,
         name: newToAddress.name.toUpperCase().trim(),
-        company: newToAddress.company ? newToAddress.company.toUpperCase().trim() : '',
         street1: newToAddress.street1.toUpperCase().trim(),
         street2: newToAddress.street2 ? newToAddress.street2.toUpperCase().trim() : '',
         city: newToAddress.city.toUpperCase().trim(),
@@ -1149,22 +1244,20 @@ const CreateLabel = () => {
       setNewToAddress({
         label: 'New To Address',
         name: '',
-        company: '',
         street1: '',
         street2: '',
         city: '',
         state: '',
         zip: '',
         phone: '',
-        email: '',
         country: 'US'
       });
       setNewPackage({
         label: 'New Package',
-        length: '',
-        width: '',
-        height: '',
-        weight: '',
+        length: '0',
+        width: '0',
+        height: '0',
+        weight: '0',
         description: ''
       });
     } catch (error) {
@@ -1197,6 +1290,16 @@ const CreateLabel = () => {
                         errorData.error ||
                         error.message || 
                         'Failed to create label';
+      
+      // Handle insufficient balance (402)
+      if (error.response?.status === 402) {
+        const shortfall = errorData.shortfall || (errorData.required - errorData.balance);
+        errorMessage = `Insufficient balance. You have $${(errorData.balance || 0).toFixed(2)}, but need $${(errorData.required || 0).toFixed(2)}. Please add funds to continue.`;
+        setError(errorMessage);
+        isPurchaseInProgressRef.current = false;
+        setLoading(false);
+        return;
+      }
       
       // Handle authentication errors - ONLY if it's a real 401 from OUR auth middleware
       if (error.response?.status === 401) {
@@ -1316,7 +1419,7 @@ const CreateLabel = () => {
         {/* Select Service Section */}
         <div className="form-section section">
           <div className="section-header">
-            <h3 className="section-title">Select Service</h3>
+          <h3 className="section-title">Select Service</h3>
           </div>
           
           {/* Service Speed Toggle */}
@@ -1365,7 +1468,7 @@ const CreateLabel = () => {
             </div>
           )}
           
-          {labelTypes.length > 0 ? (
+        {labelTypes.length > 0 ? (
             <>
               {/* Helper function to render a service card */}
               {(() => {
@@ -1388,80 +1491,90 @@ const CreateLabel = () => {
                   
                   // Determine if this card is disabled (not in active family)
                   const isDisabled = (serviceFamily === 'ground' && option.apiId === 373) || (serviceFamily === 'priority' && option.apiId === 126);
+                  const disabledReason = isDisabled 
+                    ? (serviceFamily === 'ground' 
+                        ? 'Switch to Priority Mail to select this service' 
+                        : 'Switch to Ground Advantage to select this service')
+                    : null;
                   
                   return (
-                    <div
-                      key={option.id}
+            <div
+              key={option.id}
                       className={`usps-option ${effectiveServiceId === option.id && !isDisabled ? 'selected' : ''} ${isDisabled ? 'disabled' : ''}`}
-                      onClick={() => {
+              onClick={() => {
                         // Prevent selection if disabled
                         if (isDisabled) return;
                         
-                        // User explicitly selected this service
-                        setUserSelectedServiceId(option.id);
-                        setDimensionError(''); // Clear dimension error when service changes
-                        // Re-validate dimensions if package is already entered
-                        if (newPackage.length || newPackage.width || newPackage.height) {
-                          validateDimensions(newPackage.length, newPackage.width, newPackage.height);
-                        } else if (selectedPackageId) {
-                          const pkg = packages.find(p => p._id === selectedPackageId);
-                          if (pkg && option.maxDimensions) {
-                            const totalDimensions = (parseFloat(pkg.length) || 0) + (parseFloat(pkg.width) || 0) + (parseFloat(pkg.height) || 0);
-                            if (totalDimensions > option.maxDimensions) {
-                              setDimensionError(`Total dimensions: ${totalDimensions.toFixed(1)} inches (exceeds ${option.maxDimensions} inches limit)`);
-                            } else {
-                              setDimensionError('');
-                            }
-                          }
-                        }
-                      }}
+                // User explicitly selected this service
+                setUserSelectedServiceId(option.id);
+                setDimensionError(''); // Clear dimension error when service changes
+                // Re-validate dimensions if package is already entered
+                if (newPackage.length || newPackage.width || newPackage.height) {
+                  validateDimensions(newPackage.length, newPackage.width, newPackage.height);
+                } else if (selectedPackageId) {
+                  const pkg = packages.find(p => p._id === selectedPackageId);
+                  if (pkg && option.maxDimensions) {
+                    const totalDimensions = (parseFloat(pkg.length) || 0) + (parseFloat(pkg.width) || 0) + (parseFloat(pkg.height) || 0);
+                    if (totalDimensions > option.maxDimensions) {
+                      setDimensionError(`Total dimensions: ${totalDimensions.toFixed(1)} inches (exceeds ${option.maxDimensions} inches limit)`);
+                    } else {
+                      setDimensionError('');
+                    }
+                  }
+                }
+              }}
                       aria-disabled={isDisabled}
                       tabIndex={isDisabled ? -1 : 0}
-                    >
-                      <div className="option-select-indicator">
+            >
+              {isDisabled && (
+                <div className="unavailable-badge-wrapper">
+                  <UnavailableBadge disabledReason={disabledReason} />
+                </div>
+              )}
+              <div className="option-select-indicator">
                         {effectiveServiceId === option.id && !isDisabled ? (
-                          <div className="selected-checkmark">✓</div>
-                        ) : (
-                          <div className="select-arrow">→</div>
-                        )}
-                      </div>
-                      <div className="option-main-content">
-                        <div className="option-service-header">
-                          <div className="w-10 h-10 flex items-center justify-center overflow-hidden">
-                            <img 
-                              src="https://1000logos.net/wp-content/uploads/2020/09/USPS-Logo.png"
-                              alt="USPS" 
-                              className="max-w-full max-h-full object-contain"
-                              onError={(e) => {
-                                // Fallback to official USPS SVG if PNG doesn't work
-                                if (!e.target.src.includes('.svg')) {
-                                  e.target.src = 'https://assets.usps.com/images/logo_usps_eagle.svg';
-                                }
-                              }}
-                            />
-                          </div>
-                          <h3 className="option-service-name">{option.name}</h3>
-                        </div>
-                        
-                        <div className="option-max-info">
-                          <SmartTooltip
+                  <div className="selected-checkmark">✓</div>
+                ) : (
+                  <div className="select-arrow">→</div>
+                )}
+              </div>
+              <div className="option-main-content">
+                <div className="option-service-header">
+                  <div className="w-10 h-10 flex items-center justify-center overflow-hidden">
+                    <img 
+                      src="https://1000logos.net/wp-content/uploads/2020/09/USPS-Logo.png"
+                      alt="USPS" 
+                      className="max-w-full max-h-full object-contain"
+                      onError={(e) => {
+                        // Fallback to official USPS SVG if PNG doesn't work
+                        if (!e.target.src.includes('.svg')) {
+                          e.target.src = 'https://assets.usps.com/images/logo_usps_eagle.svg';
+                        }
+                      }}
+                    />
+                  </div>
+                  <h3 className="option-service-name">{option.name}</h3>
+                </div>
+                
+                <div className="option-max-info">
+                  <SmartTooltip
                             maxDimensions={displayDimensions}
                             maxWeight={displayWeight}
                             apiId={option.apiId}
-                          />
-                        </div>
-                        
-                        <div className="option-savings">
-                          <span className="savings-badge">Save up to 90%</span>
-                          <span className="savings-text">• Best value available</span>
-                        </div>
+                  />
+                </div>
+                
+                <div className="option-savings">
+                  <span className="savings-badge">Save up to 90%</span>
+                  <span className="savings-text">• Best value available</span>
+                </div>
 
-                        <div className="option-price">
-                          <span className="price-label">Price:</span>
-                          <span className="price-value">${option.price.toFixed(2)}</span>
-                        </div>
-                      </div>
-                    </div>
+                <div className="option-price">
+                  <span className="price-label">Price:</span>
+                  <span className="price-value">${option.price.toFixed(2)}</span>
+                </div>
+              </div>
+            </div>
                   );
                 };
                 
@@ -1492,7 +1605,7 @@ const CreateLabel = () => {
                 );
               })()}
             </>
-          ) : (
+        ) : (
             <p>Loading available services...</p>
           )}
         </div>
@@ -1504,29 +1617,29 @@ const CreateLabel = () => {
           {/* Package Section */}
           <div className="form-section package-section section">
             <div className="section-header">
-              <h3 className="section-title">Package Details</h3>
+            <h3 className="section-title">Package Details</h3>
             </div>
           
           {/* Saved packages dropdown - full width above card */}
           <div className="section-controls">
             <div className="form-field col-span-2">
-              <label>Saved packages (optional)</label>
-              <select
-                value={selectedPackageId}
-                onChange={(e) => {
-                  setSelectedPackageId(e.target.value);
-                  setDimensionError(''); // Clear error when package changes
-                  // Reset user selection when saved package changes to allow auto-selection
-                  setUserSelectedServiceId(null);
-                }}
-              >
-                <option value="">Select a saved package</option>
-                {packages.map(pkg => (
-                  <option key={pkg._id} value={pkg._id}>
-                    {pkg.label} - {pkg.length}" × {pkg.width}" × {pkg.height}" ({pkg.weight} lbs)
-                  </option>
-                ))}
-              </select>
+            <label>Saved packages (optional)</label>
+            <select
+              value={selectedPackageId}
+              onChange={(e) => {
+                setSelectedPackageId(e.target.value);
+                setDimensionError(''); // Clear error when package changes
+                // Reset user selection when saved package changes to allow auto-selection
+                setUserSelectedServiceId(null);
+              }}
+            >
+              <option value="">Select a saved package</option>
+              {packages.map(pkg => (
+                <option key={pkg._id} value={pkg._id}>
+                  {pkg.label} - {pkg.length}" × {pkg.width}" × {pkg.height}" ({pkg.weight} lbs)
+                </option>
+              ))}
+            </select>
             </div>
           </div>
 
@@ -1534,70 +1647,67 @@ const CreateLabel = () => {
             <div className="form-grid-2">
               <div className="form-field">
                 <label>Length (inches)*</label>
-                <input
-                  type="number"
-                  step="0.1"
-                  min="0.1"
-                  value={newPackage.length}
-                  onChange={(e) => {
-                    const newLength = e.target.value;
-                    setNewPackage({ ...newPackage, length: newLength });
-                    validateDimensions(newLength, newPackage.width, newPackage.height);
-                    // Reset user selection when package changes to allow auto-selection
-                    setUserSelectedServiceId(null);
-                  }}
-                  onBlur={() => {
-                    // Trigger auto-selection when user finishes editing
-                    autoSelectBestService();
-                  }}
-                  required
-                  placeholder="12"
-                />
-              </div>
+                  <input
+                    type="number"
+                    step="0.1"
+                    min="0.1"
+                    value={newPackage.length}
+                    onChange={(e) => {
+                    const newLength = e.target.value === '' ? '0' : e.target.value;
+                      setNewPackage({ ...newPackage, length: newLength });
+                      validateDimensions(newLength, newPackage.width, newPackage.height);
+                      // Reset user selection when package changes to allow auto-selection
+                      setUserSelectedServiceId(null);
+                    }}
+                    onBlur={() => {
+                      // Trigger auto-selection when user finishes editing
+                      autoSelectBestService();
+                    }}
+                    required
+                  />
+                </div>
               <div className="form-field">
                 <label>Width (inches)*</label>
-                <input
-                  type="number"
-                  step="0.1"
-                  min="0.1"
-                  value={newPackage.width}
-                  onChange={(e) => {
-                    const newWidth = e.target.value;
-                    setNewPackage({ ...newPackage, width: newWidth });
-                    validateDimensions(newPackage.length, newWidth, newPackage.height);
-                    // Reset user selection when package changes to allow auto-selection
-                    setUserSelectedServiceId(null);
-                  }}
-                  onBlur={() => {
-                    // Trigger auto-selection when user finishes editing
-                    autoSelectBestService();
-                  }}
-                  required
-                  placeholder="10"
-                />
-              </div>
+                  <input
+                    type="number"
+                    step="0.1"
+                    min="0.1"
+                    value={newPackage.width}
+                    onChange={(e) => {
+                    const newWidth = e.target.value === '' ? '0' : e.target.value;
+                      setNewPackage({ ...newPackage, width: newWidth });
+                      validateDimensions(newPackage.length, newWidth, newPackage.height);
+                      // Reset user selection when package changes to allow auto-selection
+                      setUserSelectedServiceId(null);
+                    }}
+                    onBlur={() => {
+                      // Trigger auto-selection when user finishes editing
+                      autoSelectBestService();
+                    }}
+                    required
+                  />
+                </div>
               <div className="form-field">
                 <label>Height (inches)*</label>
-                <input
-                  type="number"
-                  step="0.1"
-                  min="0.1"
-                  value={newPackage.height}
-                  onChange={(e) => {
-                    const newHeight = e.target.value;
-                    setNewPackage({ ...newPackage, height: newHeight });
-                    validateDimensions(newPackage.length, newPackage.width, newHeight);
-                    // Reset user selection when package changes to allow auto-selection
-                    setUserSelectedServiceId(null);
-                  }}
-                  onBlur={() => {
-                    // Trigger auto-selection when user finishes editing
-                    autoSelectBestService();
-                  }}
-                  required
-                  placeholder="8"
-                />
-              </div>
+                  <input
+                    type="number"
+                    step="0.1"
+                    min="0.1"
+                    value={newPackage.height}
+                    onChange={(e) => {
+                    const newHeight = e.target.value === '' ? '0' : e.target.value;
+                      setNewPackage({ ...newPackage, height: newHeight });
+                      validateDimensions(newPackage.length, newPackage.width, newHeight);
+                      // Reset user selection when package changes to allow auto-selection
+                      setUserSelectedServiceId(null);
+                    }}
+                    onBlur={() => {
+                      // Trigger auto-selection when user finishes editing
+                      autoSelectBestService();
+                    }}
+                    required
+                  />
+                </div>
               <div className="form-field">
                 <label>Weight (lbs)*</label>
                 <input
@@ -1607,7 +1717,8 @@ const CreateLabel = () => {
                   max="70"
                   value={newPackage.weight}
                   onChange={(e) => {
-                    setNewPackage({ ...newPackage, weight: e.target.value });
+                    const newWeight = e.target.value === '' ? '0' : e.target.value;
+                    setNewPackage({ ...newPackage, weight: newWeight });
                     // Reset user selection when package changes to allow auto-selection
                     setUserSelectedServiceId(null);
                   }}
@@ -1616,7 +1727,6 @@ const CreateLabel = () => {
                     autoSelectBestService();
                   }}
                   required
-                  placeholder="2.5"
                 />
               </div>
               <div className="form-field col-span-2">
@@ -1649,346 +1759,86 @@ const CreateLabel = () => {
           {/* From Address Section */}
           <div className="form-section address-section section">
             <div className="section-header">
-              <h3 className="section-title">From Address</h3>
+            <h3 className="section-title">From Address</h3>
             </div>
           
           {/* Saved addresses dropdown - full width above card */}
           <div className="section-controls">
             <div className="form-field col-span-2">
-              <label>Saved addresses (optional)</label>
-              <select
-                value={selectedFromAddressId}
-                onChange={(e) => setSelectedFromAddressId(e.target.value)}
-              >
-                <option value="">Select a saved address</option>
-                {addresses.map(addr => (
-                  <option key={addr._id} value={addr._id}>
-                    {addr.label} - {addr.city}, {addr.state}
-                  </option>
-                ))}
-              </select>
-            </div>
+            <label>Saved addresses (optional)</label>
+            <select
+              value={selectedFromAddressId}
+              onChange={(e) => setSelectedFromAddressId(e.target.value)}
+            >
+              <option value="">Select a saved address</option>
+              {addresses.map(addr => (
+                <option key={addr._id} value={addr._id}>
+                  {addr.label} - {addr.city}, {addr.state}
+                </option>
+              ))}
+            </select>
           </div>
+                  </div>
 
           <div className="form-card">
-              <div className="form-grid-2">
-                <div className="form-field col-span-2">
-                  <label>Full Name*</label>
-                  <input
-                    type="text"
-                    value={newFromAddress.name}
-                    onChange={(e) => setNewFromAddress({ ...newFromAddress, name: e.target.value.toUpperCase() })}
-                    onBlur={(e) => setNewFromAddress({ ...newFromAddress, name: e.target.value.toUpperCase().trim() })}
-                    required
-                    autoComplete="name"
-                  />
-                </div>
-                <div className="form-field" style={{ position: 'relative' }}>
-                  <label>Street Address*</label>
-                  <input
-                    ref={fromStreetRef}
-                    type="text"
-                    value={newFromAddress.street1}
-                    onChange={(e) => setNewFromAddress({ ...newFromAddress, street1: e.target.value.toUpperCase() })}
-                    onBlur={(e) => setNewFromAddress({ ...newFromAddress, street1: e.target.value.toUpperCase().trim() })}
-                    required
-                    autoComplete="off"
-                    placeholder="START TYPING ADDRESS (E.G., 123 MAIN ST)"
-                    id="from-street-address"
-                  />
-                  {fromAutocomplete.showSuggestions && fromAutocomplete.suggestions.length > 0 && (
-                    <div 
-                      ref={fromAutocomplete.suggestionsRef}
-                      className="mapbox-suggestions"
-                    >
-                      {fromAutocomplete.suggestions.map((suggestion, index) => (
-                        <div
-                          key={suggestion.id}
-                          className={`suggestion-item ${index === fromAutocomplete.selectedIndex ? 'selected' : ''}`}
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            if (DEBUG_AUTOCOMPLETE) {
-                              console.log('[CreateLabel] From address suggestion clicked:', suggestion);
-                            }
-                            handleFromAddressSelect(suggestion);
-                          }}
-                          onMouseDown={(e) => {
-                            // Prevent input blur before click
-                            e.preventDefault();
-                          }}
-                        >
-                          <div className="suggestion-title">{suggestion.text}</div>
-                          <div className="suggestion-address">{suggestion.place_name}</div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-                <div className="form-field">
-                  <label>Apartment / Unit (optional)</label>
-                  <input
-                    type="text"
-                    value={newFromAddress.street2}
-                    onChange={(e) => setNewFromAddress({ ...newFromAddress, street2: e.target.value.toUpperCase() })}
-                    onBlur={(e) => setNewFromAddress({ ...newFromAddress, street2: e.target.value ? e.target.value.toUpperCase().trim() : '' })}
-                    autoComplete="address-line2"
-                  />
-                </div>
-                <div className="form-field" style={{ position: 'relative' }}>
-                  <label>City*</label>
-                  <input
-                    ref={fromCityRef}
-                    type="text"
-                    value={newFromAddress.city}
-                    onChange={(e) => setNewFromAddress({ ...newFromAddress, city: e.target.value.toUpperCase() })}
-                    onBlur={(e) => {
-                      setNewFromAddress({ ...newFromAddress, city: e.target.value.toUpperCase().trim() });
-                      setTimeout(() => fromCityAutocomplete.setShowSuggestions(false), 200);
-                    }}
-                    onKeyDown={fromCityAutocomplete.handleKeyDown}
-                    required
-                    autoComplete="address-level2"
-                  />
-                  {fromCityAutocomplete.showSuggestions && fromCityAutocomplete.suggestions.length > 0 && (
-                    <div 
-                      ref={fromCityAutocomplete.suggestionsRef}
-                      className="mapbox-suggestions"
-                      style={{ top: '100%', marginTop: '4px' }}
-                    >
-                      {fromCityAutocomplete.suggestions.map((suggestion, index) => (
-                        <div
-                          key={suggestion.id}
-                          className={`suggestion-item ${index === fromCityAutocomplete.selectedIndex ? 'selected' : ''}`}
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            fromCityAutocomplete.handleSelect(suggestion);
-                          }}
-                          onMouseDown={(e) => e.preventDefault()}
-                        >
-                          {suggestion.formattedText}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-                <div className="form-field">
-                  <label>State*</label>
-                  <select
-                    value={newFromAddress.state}
-                    onChange={(e) => setNewFromAddress({ ...newFromAddress, state: e.target.value })}
-                    required
-                    autoComplete="address-level1"
-                    className="state-select"
-                  >
-                    <option value="">Select State</option>
-                    {US_STATES.map(state => (
-                      <option key={state.value} value={state.value}>
-                        {state.value} - {state.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div className="form-field">
-                  <label>ZIP Code*</label>
-                  <input
-                    ref={fromZipRef}
-                    type="text"
-                    value={newFromAddress.zip}
-                    onChange={(e) => {
-                      const value = e.target.value.replace(/\D/g, '').slice(0, 5);
-                      setNewFromAddress({ ...newFromAddress, zip: value });
-                    }}
-                    onBlur={handleFromZipBlur}
-                    required
-                    autoComplete="postal-code"
-                    maxLength={5}
-                  />
-                </div>
-                <div className="form-field">
-                  <label>Phone (optional)</label>
-                  <input
-                    type="tel"
-                    value={newFromAddress.phone}
-                    onChange={(e) => setNewFromAddress({ ...newFromAddress, phone: e.target.value })}
-                    autoComplete="tel"
-                  />
-                </div>
-              </div>
+            <AddressFormFields
+              prefix="from"
+              address={newFromAddress}
+              setAddress={setNewFromAddress}
+              autocomplete={fromAutocomplete}
+              cityAutocomplete={fromCityAutocomplete}
+              refs={{
+                streetRef: fromStreetRef,
+                cityRef: fromCityRef,
+                zipRef: fromZipRef
+              }}
+              onAddressSelect={handleFromAddressSelect}
+              onZipBlur={handleFromZipBlur}
+              streetPlaceholder="START TYPING ADDRESS (E.G., 123 MAIN ST)"
+            />
             </div>
         </div>
 
           {/* To Address Section */}
           <div className="form-section address-section section">
             <div className="section-header">
-              <h3 className="section-title">To Address</h3>
+            <h3 className="section-title">To Address</h3>
             </div>
           
           {/* Saved addresses dropdown - full width above card */}
           <div className="section-controls">
             <div className="form-field col-span-2">
-              <label>Saved addresses (optional)</label>
-              <select
-                value={selectedToAddressId}
-                onChange={(e) => setSelectedToAddressId(e.target.value)}
-              >
-                <option value="">Select a saved address</option>
-                {addresses.map(addr => (
-                  <option key={addr._id} value={addr._id}>
-                    {addr.label} - {addr.city}, {addr.state}
-                  </option>
-                ))}
-              </select>
-            </div>
+            <label>Saved addresses (optional)</label>
+            <select
+              value={selectedToAddressId}
+              onChange={(e) => setSelectedToAddressId(e.target.value)}
+            >
+              <option value="">Select a saved address</option>
+              {addresses.map(addr => (
+                <option key={addr._id} value={addr._id}>
+                  {addr.label} - {addr.city}, {addr.state}
+                </option>
+              ))}
+            </select>
           </div>
+                  </div>
 
           <div className="form-card">
-              <div className="form-grid-2">
-                <div className="form-field">
-                  <label>Full Name*</label>
-                  <input
-                    type="text"
-                    value={newToAddress.name}
-                    onChange={(e) => setNewToAddress({ ...newToAddress, name: e.target.value.toUpperCase() })}
-                    onBlur={(e) => setNewToAddress({ ...newToAddress, name: e.target.value.toUpperCase().trim() })}
-                    required
-                    autoComplete="name"
-                  />
-                </div>
-                <div className="form-field" style={{ position: 'relative' }}>
-                  <label>Street Address*</label>
-                  <input
-                    ref={toStreetRef}
-                    type="text"
-                    value={newToAddress.street1}
-                    onChange={(e) => setNewToAddress({ ...newToAddress, street1: e.target.value.toUpperCase() })}
-                    onBlur={(e) => setNewToAddress({ ...newToAddress, street1: e.target.value.toUpperCase().trim() })}
-                    required
-                    autoComplete="off"
-                    placeholder="START TYPING ADDRESS (E.G., 123 MAIN ST)"
-                    id="to-street-address"
-                  />
-                  {toAutocomplete.showSuggestions && toAutocomplete.suggestions.length > 0 && (
-                    <div 
-                      ref={toAutocomplete.suggestionsRef}
-                      className="mapbox-suggestions"
-                    >
-                      {toAutocomplete.suggestions.map((suggestion, index) => (
-                        <div
-                          key={suggestion.id}
-                          className={`suggestion-item ${index === toAutocomplete.selectedIndex ? 'selected' : ''}`}
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            if (DEBUG_AUTOCOMPLETE) {
-                              console.log('[CreateLabel] To address suggestion clicked:', suggestion);
-                            }
-                            handleToAddressSelect(suggestion);
-                          }}
-                          onMouseDown={(e) => {
-                            // Prevent input blur before click
-                            e.preventDefault();
-                          }}
-                        >
-                          <div className="suggestion-title">{suggestion.text}</div>
-                          <div className="suggestion-address">{suggestion.place_name}</div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-                <div className="form-field">
-                  <label>Apartment / Unit (optional)</label>
-                  <input
-                    type="text"
-                    value={newToAddress.street2}
-                    onChange={(e) => setNewToAddress({ ...newToAddress, street2: e.target.value.toUpperCase() })}
-                    onBlur={(e) => setNewToAddress({ ...newToAddress, street2: e.target.value ? e.target.value.toUpperCase().trim() : '' })}
-                    autoComplete="address-line2"
-                  />
-                </div>
-                <div className="form-field" style={{ position: 'relative' }}>
-                  <label>City*</label>
-                  <input
-                    ref={toCityRef}
-                    type="text"
-                    value={newToAddress.city}
-                    onChange={(e) => setNewToAddress({ ...newToAddress, city: e.target.value.toUpperCase() })}
-                    onBlur={(e) => {
-                      setNewToAddress({ ...newToAddress, city: e.target.value.toUpperCase().trim() });
-                      setTimeout(() => toCityAutocomplete.setShowSuggestions(false), 200);
-                    }}
-                    onKeyDown={toCityAutocomplete.handleKeyDown}
-                    required
-                    autoComplete="address-level2"
-                  />
-                  {toCityAutocomplete.showSuggestions && toCityAutocomplete.suggestions.length > 0 && (
-                    <div 
-                      ref={toCityAutocomplete.suggestionsRef}
-                      className="mapbox-suggestions"
-                      style={{ top: '100%', marginTop: '4px' }}
-                    >
-                      {toCityAutocomplete.suggestions.map((suggestion, index) => (
-                        <div
-                          key={suggestion.id}
-                          className={`suggestion-item ${index === toCityAutocomplete.selectedIndex ? 'selected' : ''}`}
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            toCityAutocomplete.handleSelect(suggestion);
-                          }}
-                          onMouseDown={(e) => e.preventDefault()}
-                        >
-                          {suggestion.formattedText}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-                <div className="form-field">
-                  <label>State*</label>
-                  <select
-                    value={newToAddress.state}
-                    onChange={(e) => setNewToAddress({ ...newToAddress, state: e.target.value })}
-                    required
-                    autoComplete="address-level1"
-                    className="state-select"
-                  >
-                    <option value="">Select State</option>
-                    {US_STATES.map(state => (
-                      <option key={state.value} value={state.value}>
-                        {state.value} - {state.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div className="form-field">
-                  <label>ZIP Code*</label>
-                  <input
-                    ref={toZipRef}
-                    type="text"
-                    value={newToAddress.zip}
-                    onChange={(e) => {
-                      const value = e.target.value.replace(/\D/g, '').slice(0, 5);
-                      setNewToAddress({ ...newToAddress, zip: value });
-                    }}
-                    onBlur={handleToZipBlur}
-                    required
-                    autoComplete="postal-code"
-                    maxLength={5}
-                  />
-                </div>
-                <div className="form-field">
-                  <label>Phone (optional)</label>
-                  <input
-                    type="tel"
-                    value={newToAddress.phone}
-                    onChange={(e) => setNewToAddress({ ...newToAddress, phone: e.target.value })}
-                    autoComplete="tel"
-                  />
-                </div>
-              </div>
+            <AddressFormFields
+              prefix="to"
+              address={newToAddress}
+              setAddress={setNewToAddress}
+              autocomplete={toAutocomplete}
+              cityAutocomplete={toCityAutocomplete}
+              refs={{
+                streetRef: toStreetRef,
+                cityRef: toCityRef,
+                zipRef: toZipRef
+              }}
+              onAddressSelect={handleToAddressSelect}
+              onZipBlur={handleToZipBlur}
+              streetPlaceholder="START TYPING ADDRESS (E.G., 123 MAIN ST)"
+            />
             </div>
           </div>
 
@@ -2021,6 +1871,7 @@ const CreateLabel = () => {
           toAddress={getToAddressForModal()}
           service={selectedService}
           price={selectedService?.price || 0}
+          userBalance={user?.balance || 0}
           loading={loading}
         />
       )}

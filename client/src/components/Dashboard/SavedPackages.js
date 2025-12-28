@@ -14,10 +14,10 @@ const SavedPackages = () => {
   const [editingPackage, setEditingPackage] = useState(null);
   const [formData, setFormData] = useState({
     label: '',
-    length: '',
-    width: '',
-    height: '',
-    weight: '',
+    length: '0',
+    width: '0',
+    height: '0',
+    weight: '0',
     unit: 'inches',
     weightUnit: 'lbs'
   });
@@ -103,10 +103,10 @@ const SavedPackages = () => {
   const resetForm = () => {
     setFormData({
       label: '',
-      length: '',
-      width: '',
-      height: '',
-      weight: '',
+      length: '0',
+      width: '0',
+      height: '0',
+      weight: '0',
       unit: 'inches',
       weightUnit: 'lbs'
     });
@@ -176,9 +176,8 @@ const SavedPackages = () => {
                 step="0.1"
                 min="0.1"
                 value={formData.length}
-                onChange={(e) => setFormData({ ...formData, length: e.target.value })}
+                onChange={(e) => setFormData({ ...formData, length: e.target.value === '' ? '0' : e.target.value })}
                 required
-                placeholder="6"
               />
             </div>
             <div className="form-field">
@@ -188,9 +187,8 @@ const SavedPackages = () => {
                 step="0.1"
                 min="0.1"
                 value={formData.width}
-                onChange={(e) => setFormData({ ...formData, width: e.target.value })}
+                onChange={(e) => setFormData({ ...formData, width: e.target.value === '' ? '0' : e.target.value })}
                 required
-                placeholder="6"
               />
             </div>
             <div className="form-field">
@@ -200,9 +198,8 @@ const SavedPackages = () => {
                 step="0.1"
                 min="0.1"
                 value={formData.height}
-                onChange={(e) => setFormData({ ...formData, height: e.target.value })}
+                onChange={(e) => setFormData({ ...formData, height: e.target.value === '' ? '0' : e.target.value })}
                 required
-                placeholder="6"
               />
             </div>
             <div className="form-field">
@@ -213,9 +210,8 @@ const SavedPackages = () => {
                 min="0.1"
                 max="70"
                 value={formData.weight}
-                onChange={(e) => setFormData({ ...formData, weight: e.target.value })}
+                onChange={(e) => setFormData({ ...formData, weight: e.target.value === '' ? '0' : e.target.value })}
                 required
-                placeholder="0.90"
               />
               {formData.weight && parseFloat(formData.weight) > 70 && (
                 <span className="error-text">Maximum weight is 70 lbs</span>

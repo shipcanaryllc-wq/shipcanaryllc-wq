@@ -288,7 +288,12 @@ router.post('/', auth, async (req, res) => {
       // Check balance (use original label type price for validation)
       const estimatedCost = labelType.price;
       if (req.user.balance < estimatedCost) {
-        return res.status(400).json({ message: 'Insufficient balance' });
+        return res.status(402).json({ 
+          message: 'Insufficient balance',
+          balance: req.user.balance,
+          required: estimatedCost,
+          shortfall: estimatedCost - req.user.balance
+        });
       }
 
       // Note: We'll use ShipLabel API for actual label creation, but keep original pricing

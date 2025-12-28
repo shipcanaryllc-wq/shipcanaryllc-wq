@@ -192,6 +192,14 @@ app.use('/api/orders', (req, res, next) => {
   next();
 });
 
+// Static file serving for uploads (local storage fallback)
+// WARNING: This won't persist on Railway/Render unless using persistent volumes
+const uploadsPath = path.join(__dirname, 'uploads');
+if (require('fs').existsSync(uploadsPath)) {
+  app.use('/uploads', express.static(uploadsPath));
+  console.log('[STARTUP] Static uploads folder enabled:', uploadsPath);
+}
+
 // Routes
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/addresses', require('./routes/addresses'));

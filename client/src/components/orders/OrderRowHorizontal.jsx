@@ -25,8 +25,31 @@ const OrderRowHorizontal = ({
 
   const orderId = order._id || order.id;
   
+  // Normalize service name for display (ensure "USPS" prefix for consistency)
+  const normalizeServiceName = (serviceName) => {
+    if (!serviceName) return 'USPS Service';
+    
+    const normalized = serviceName.trim();
+    
+    // If it already starts with "USPS", return as-is
+    if (normalized.toLowerCase().startsWith('usps')) {
+      return normalized;
+    }
+    
+    // Map common service names to full display names
+    if (normalized.toLowerCase().includes('priority')) {
+      return 'USPS Priority Mail';
+    }
+    if (normalized.toLowerCase().includes('ground')) {
+      return 'USPS Ground Advantage';
+    }
+    
+    // Default: add "USPS" prefix if missing
+    return `USPS ${normalized}`;
+  };
+  
   // Extract label name and ID
-  const labelName = order.uspsService || 'USPS Service';
+  const labelName = normalizeServiceName(order.uspsService);
   const labelId = order.labelId || order.labelTypeId || '';
   const cost = order.cost || parseFloat(order.price?.replace('$', '') || 0);
   
@@ -198,4 +221,5 @@ const OrderRowHorizontal = ({
 };
 
 export default OrderRowHorizontal;
+
 

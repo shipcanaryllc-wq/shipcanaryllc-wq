@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import axios from 'axios';
 import API_BASE_URL from '../../config/api';
 import Logo from '../Logo/Logo';
 import './Auth.css';
@@ -10,6 +11,8 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [resetLoading, setResetLoading] = useState(false);
+  const [resetSuccess, setResetSuccess] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
 
@@ -17,6 +20,7 @@ const Login = () => {
     e.preventDefault();
     setError('');
     setLoading(true);
+    setResetSuccess(false);
 
     const result = await login(email, password);
     
@@ -27,6 +31,34 @@ const Login = () => {
     }
     
     setLoading(false);
+  };
+
+  const handlePasswordReset = async (e) => {
+    e.preventDefault();
+    if (!email) {
+      setError('Please enter your email address first');
+      return;
+    }
+
+    setResetLoading(true);
+    setError('');
+    setResetSuccess(false);
+
+    try {
+      await axios.post(`${API_BASE_URL}/auth/request-password-reset`, {
+        email: email.trim()
+      });
+
+      setResetSuccess(true);
+      setTimeout(() => {
+        setResetSuccess(false);
+      }, 5000);
+    } catch (error) {
+      console.error('Error requesting password reset:', error);
+      setError(error.response?.data?.message || 'Failed to send password reset email');
+    } finally {
+      setResetLoading(false);
+    }
   };
 
   return (
@@ -50,7 +82,17 @@ const Login = () => {
             />
           </div>
           <div className="form-group">
-            <label>Password</label>
+            <div className="password-reset-container">
+              <label>Password</label>
+              <button
+                type="button"
+                onClick={handlePasswordReset}
+                disabled={resetLoading || !email}
+                className="forgot-password-link"
+              >
+                {resetLoading ? 'Sending...' : 'Forgot password?'}
+              </button>
+            </div>
             <input
               type="password"
               value={password}
@@ -59,6 +101,11 @@ const Login = () => {
               placeholder="••••••••"
             />
           </div>
+          {resetSuccess && (
+            <div className="success-message">
+              Password reset email sent! Check your inbox.
+            </div>
+          )}
           <button type="submit" disabled={loading} className="auth-button">
             {loading ? 'Logging in...' : 'Login'}
           </button>

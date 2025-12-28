@@ -35,8 +35,13 @@ const Checkout = () => {
         }
       );
 
-      // Redirect to payment detail page
-      navigate(`/checkout/${response.data.paymentId}`);
+      // Open Bitcoin Payment page in a new tab
+      const paymentUrl = `${window.location.origin}/checkout?paymentId=${response.data.paymentId}`;
+      window.open(paymentUrl, '_blank', 'noopener,noreferrer');
+      
+      // Reset form
+      setAmount(10.00);
+      setLoading(false);
     } catch (error) {
       console.error('Create payment error:', error);
       setError(error.response?.data?.message || 'Failed to create payment. Please try again.');

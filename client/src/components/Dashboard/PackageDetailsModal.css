@@ -99,6 +99,27 @@
   margin: 5px 0;
 }
 
+.service-info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.service-label {
+  font-size: 1rem;
+  color: #666;
+  font-weight: 500;
+}
+
+.service-value {
+  font-size: 1.1rem;
+  color: #333;
+  font-weight: 600;
+}
+
 .price-section {
   display: flex;
   justify-content: space-between;
@@ -107,6 +128,34 @@
   padding: 15px;
   background: #f5f7fa;
   border-radius: 6px;
+}
+
+.price-section.insufficient-balance {
+  flex-direction: column;
+  align-items: flex-start;
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+}
+
+.insufficient-balance-header {
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.insufficient-label {
+  font-size: 1.1rem;
+  color: #b91c1c;
+  font-weight: 600;
+}
+
+.insufficient-balance-details {
+  width: 100%;
+}
+
+.balance-breakdown {
+  font-size: 0.95rem;
+  color: #991b1b;
+  font-weight: 500;
 }
 
 .price-label {
@@ -155,8 +204,30 @@
   transition: all 0.2s;
 }
 
-.purchase-button:hover {
+.purchase-button:hover:not(:disabled) {
   background: #1a1a1a;
+}
+
+.purchase-button:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.add-funds-button {
+  padding: 12px 24px;
+  background: #ff6b35;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.add-funds-button:hover {
+  background: #e55a2b;
 }
 
 @media (max-width: 768px) {
@@ -170,7 +241,8 @@
   }
 
   .cancel-modal-button,
-  .purchase-button {
+  .purchase-button,
+  .add-funds-button {
     width: 100%;
   }
 }

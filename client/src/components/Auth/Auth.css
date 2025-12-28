@@ -171,3 +171,46 @@
   flex-shrink: 0;
 }
 
+.password-reset-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.password-reset-container label {
+  margin-bottom: 0;
+}
+
+.forgot-password-link {
+  background: none;
+  border: none;
+  color: #ff6b35;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 0;
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+
+.forgot-password-link:hover:not(:disabled) {
+  text-decoration: underline;
+  opacity: 0.8;
+}
+
+.forgot-password-link:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.success-message {
+  background: #d1fae5;
+  color: #065f46;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 0.9rem;
+  text-align: center;
+}
+

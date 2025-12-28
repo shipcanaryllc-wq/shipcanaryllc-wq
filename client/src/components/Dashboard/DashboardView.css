@@ -294,8 +294,23 @@
 }
 
 /* ============================================
-   RECENT DEPOSITS CARD
+   RECENT DEPOSITS CARD - Fintech Activity Feed
    ============================================ */
+
+.card-header-with-link {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.card-header-with-link .card-title {
+  margin: 0;
+  padding: 0;
+  border: none;
+}
 
 .deposits-list {
   display: flex;
@@ -304,8 +319,12 @@
 }
 
 .deposit-item {
-  padding: 12px 0;
-  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 0;
+  border-bottom: 1px solid #f3f4f6;
+  gap: 16px;
 }
 
 .deposit-item:last-child {
@@ -316,40 +335,78 @@
   padding-top: 0;
 }
 
-.deposit-row-top {
+.deposit-left {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 6px;
+  align-items: flex-start;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
 }
 
-.deposit-row-bottom {
+.deposit-icon-wrapper {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: #f3f4f6;
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: center;
+  color: #6b7280;
+  flex-shrink: 0;
+}
+
+.deposit-icon-wrapper svg {
+  width: 20px;
+  height: 20px;
+}
+
+.deposit-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+
+.deposit-amount-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 .deposit-amount {
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 16px;
+  font-weight: 700;
+  color: #111827;
+  line-height: 1.2;
 }
 
-.deposit-date {
+.deposit-method-label {
   font-size: 12px;
   color: #6b7280;
+  font-weight: 500;
 }
 
-.deposit-method {
+.deposit-date-time {
   font-size: 12px;
-  color: #6b7280;
+  color: #9ca3af;
+  line-height: 1.4;
+}
+
+.deposit-right {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
 }
 
 .deposit-status {
   font-size: 11px;
-  padding: 2px 8px;
+  padding: 4px 10px;
   border-radius: 12px;
-  font-weight: 500;
+  font-weight: 600;
   text-transform: capitalize;
+  white-space: nowrap;
 }
 
 .deposit-status.status-completed {
@@ -365,6 +422,26 @@
 .deposit-status.status-failed {
   background-color: #fee2e2;
   color: #b91c1c;
+}
+
+.deposits-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 20px;
+  text-align: center;
+}
+
+.deposits-empty-state svg {
+  opacity: 0.5;
+  margin-bottom: 12px;
+}
+
+.empty-state-text {
+  color: #9ca3af;
+  font-size: 14px;
+  font-weight: 500;
 }
 
 .empty-state {
