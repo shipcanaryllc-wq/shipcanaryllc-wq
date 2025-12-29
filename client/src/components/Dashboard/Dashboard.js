@@ -117,7 +117,7 @@ const Dashboard = () => {
   ];
 
   return (
-    <div className="dashboard">
+    <div className="dashboard" data-sidebar-collapsed={sidebarCollapsed}>
       {/* Header */}
       <header className="dashboard-header">
         <div className="header-left">
