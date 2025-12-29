@@ -55,7 +55,13 @@ const Login = () => {
       }, 5000);
     } catch (error) {
       console.error('Error requesting password reset:', error);
-      setError(error.response?.data?.message || 'Failed to send password reset email');
+      
+      // Handle rate limiting (429) specifically
+      if (error.response?.status === 429) {
+        setError(error.response?.data?.message || 'Too many password reset requests. Please try again in an hour.');
+      } else {
+        setError(error.response?.data?.message || 'Failed to send password reset email');
+      }
     } finally {
       setResetLoading(false);
     }

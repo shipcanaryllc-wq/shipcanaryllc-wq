@@ -17,10 +17,16 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-producti
 // Rate limiter for password reset requests
 const passwordResetLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
-  max: 3, // 3 requests per hour
+  max: 5, // 5 requests per hour (increased from 3)
   message: 'Too many password reset requests. Please try again later.',
   standardHeaders: true,
   legacyHeaders: false,
+  handler: (req, res) => {
+    res.status(429).json({
+      message: 'Too many password reset requests. Please try again in an hour.',
+      error: 'RATE_LIMIT_EXCEEDED'
+    });
+  },
 });
 
 // Configure Passport Google OAuth Strategy
