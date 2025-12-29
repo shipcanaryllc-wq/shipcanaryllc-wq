@@ -6,6 +6,7 @@ import OnRampWidget from './OnRampWidget';
 import './PaymentDetail.css';
 import API_BASE_URL from '../../config/api';
 import { Shield, Lock, Code, FileText } from 'lucide-react';
+import BitcoinLogo from '../BitcoinLogo/BitcoinLogo';
 
 const PaymentDetail = () => {
   const [searchParams] = useSearchParams();
@@ -179,12 +180,7 @@ const PaymentDetail = () => {
         {/* Header Section */}
         <div className="payment-header-section">
           <div className="header-icon-wrapper">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="bitcoin-logo-header">
-              <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
-              <path d="M9.5 8.5C9.5 7.67 10.17 7 11 7H13C13.83 7 14.5 7.67 14.5 8.5C14.5 9.33 13.83 10 13 10H11C10.17 10 9.5 9.33 9.5 8.5Z" stroke="currentColor" strokeWidth="1.5" fill="none"/>
-              <path d="M9.5 15.5C9.5 14.67 10.17 14 11 14H13C13.83 14 14.5 14.67 14.5 15.5C14.5 16.33 13.83 17 13 17H11C10.17 17 9.5 16.33 9.5 15.5Z" stroke="currentColor" strokeWidth="1.5" fill="none"/>
-              <path d="M12 7V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-            </svg>
+            <BitcoinLogo size={32} className="bitcoin-logo-header" />
           </div>
           <h1>Bitcoin Payment</h1>
           <p className="payment-subtitle">Processed securely via BTCPay Server</p>
@@ -215,12 +211,7 @@ const PaymentDetail = () => {
                 <div className="payment-method-card bitcoin-payment">
                   <div className="method-header">
                     <div className="method-icon">
-                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
-                        <path d="M9.5 8.5C9.5 7.67 10.17 7 11 7H13C13.83 7 14.5 7.67 14.5 8.5C14.5 9.33 13.83 10 13 10H11C10.17 10 9.5 9.33 9.5 8.5Z" stroke="currentColor" strokeWidth="1.5" fill="none"/>
-                        <path d="M9.5 15.5C9.5 14.67 10.17 14 11 14H13C13.83 14 14.5 14.67 14.5 15.5C14.5 16.33 13.83 17 13 17H11C10.17 17 9.5 16.33 9.5 15.5Z" stroke="currentColor" strokeWidth="1.5" fill="none"/>
-                        <path d="M12 7V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                      </svg>
+                      <BitcoinLogo size={24} />
                     </div>
                     <div className="method-info">
                       <h3>Pay with Bitcoin</h3>

@@ -7,7 +7,7 @@ import './Integrations.css';
 const LOGO_URLS = {
   shopify: 'https://cdn.simpleicons.org/shopify/96BF48',
   etsy: 'https://cdn.simpleicons.org/etsy/F16521',
-  // Amazon logo - official brand logo (Amazon smile with arrow)
+  // Amazon logo - full logo with smile arrow (lowercase "a" with orange arrow)
   amazon: 'https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg',
   // eBay logo - official colorful brand logo
   ebay: 'https://upload.wikimedia.org/wikipedia/commons/1/1b/EBay_logo.svg',
@@ -127,12 +127,12 @@ const Integrations = () => {
                   )}
                   
                   <div className="integration-card-header">
-                    <div className="integration-logo-container">
+                    <div className={`integration-logo-container ${integration.id === 'amazon' || integration.id === 'ebay' || integration.id === 'woocommerce' ? 'logo-large' : ''}`}>
                       {!hasError ? (
                         <img
                           src={logoSrc}
                           alt={`${integration.name} logo`}
-                          className="integration-logo"
+                          className={`integration-logo ${integration.id === 'amazon' || integration.id === 'ebay' || integration.id === 'woocommerce' ? 'logo-large-img' : ''}`}
                           onError={(e) => handleLogoError(integration.id, e)}
                           loading="lazy"
                         />

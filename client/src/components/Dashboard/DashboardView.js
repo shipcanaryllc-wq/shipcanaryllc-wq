@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { format } from 'date-fns';
+import BitcoinLogo from '../BitcoinLogo/BitcoinLogo';
 import { useAuth } from '../../context/AuthContext';
 import './DashboardView.css';
 import API_BASE_URL from '../../config/api';
@@ -406,12 +407,7 @@ const DashboardView = () => {
                 </div>
               ) : deposits.length === 0 ? (
                 <div className="deposits-empty-state">
-                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginBottom: '12px' }}>
-                    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
-                    <path d="M9.5 8.5C9.5 7.67 10.17 7 11 7H13C13.83 7 14.5 7.67 14.5 8.5C14.5 9.33 13.83 10 13 10H11C10.17 10 9.5 9.33 9.5 8.5Z" stroke="currentColor" strokeWidth="1.5" fill="none"/>
-                    <path d="M9.5 15.5C9.5 14.67 10.17 14 11 14H13C13.83 14 14.5 14.67 14.5 15.5C14.5 16.33 13.83 17 13 17H11C10.17 17 9.5 16.33 9.5 15.5Z" stroke="currentColor" strokeWidth="1.5" fill="none"/>
-                    <path d="M12 7V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                  </svg>
+                  <BitcoinLogo size={48} style={{ marginBottom: '12px', opacity: 0.5 }} />
                   <div className="empty-state-text">No deposits yet</div>
                 </div>
               ) : (
@@ -421,7 +417,7 @@ const DashboardView = () => {
                     const isBTCPay = deposit.paymentMethod?.toLowerCase().includes('btcpay') || 
                                     deposit.paymentMethod?.toLowerCase().includes('bitcoin') ||
                                     !deposit.paymentMethod;
-                    const methodLabel = isBTCPay ? 'Bitcoin (BTCPay)' : (deposit.paymentMethod || 'Payment');
+                    const methodLabel = isBTCPay ? 'BTC-Pay' : (deposit.paymentMethod || 'Payment');
                     const depositDate = deposit.createdAt 
                       ? format(new Date(deposit.createdAt), 'MMM dd, yyyy • h:mm a')
                       : 'N/A';
@@ -432,12 +428,7 @@ const DashboardView = () => {
                         <div className="deposit-icon-column">
                           <div className="deposit-icon-badge">
                             {isBTCPay ? (
-                              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
-                                <path d="M9.5 8.5C9.5 7.67 10.17 7 11 7H13C13.83 7 14.5 7.67 14.5 8.5C14.5 9.33 13.83 10 13 10H11C10.17 10 9.5 9.33 9.5 8.5Z" stroke="currentColor" strokeWidth="1.5" fill="none"/>
-                                <path d="M9.5 15.5C9.5 14.67 10.17 14 11 14H13C13.83 14 14.5 14.67 14.5 15.5C14.5 16.33 13.83 17 13 17H11C10.17 17 9.5 16.33 9.5 15.5Z" stroke="currentColor" strokeWidth="1.5" fill="none"/>
-                                <path d="M12 7V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                              </svg>
+                              <BitcoinLogo size={24} />
                             ) : (
                               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                 <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>

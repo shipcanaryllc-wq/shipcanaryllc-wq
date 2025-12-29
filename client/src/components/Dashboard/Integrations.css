@@ -314,6 +314,13 @@
   position: relative;
 }
 
+/* Larger logos for Amazon, eBay, and WooCommerce */
+.integration-logo-container.logo-large {
+  width: 64px;
+  height: 64px;
+  padding: 8px;
+}
+
 .integration-card:hover:not(.disabled) .integration-logo-container {
   border-color: #d1d5db;
   background: #f9fafb;
@@ -324,6 +331,13 @@
   height: 100%;
   object-fit: contain;
   display: block;
+}
+
+/* Larger logo images for Amazon, eBay, and WooCommerce */
+.integration-logo.logo-large-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
 .integration-logo-fallback {

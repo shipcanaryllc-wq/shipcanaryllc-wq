@@ -1,0 +1,6 @@
+.bitcoin-logo {
+  display: inline-block;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+

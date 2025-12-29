@@ -35,7 +35,7 @@
 .bitcoin-logo-header {
   width: 32px;
   height: 32px;
-  color: #f59e0b;
+  object-fit: contain;
 }
 
 .payment-header-section h1 {
