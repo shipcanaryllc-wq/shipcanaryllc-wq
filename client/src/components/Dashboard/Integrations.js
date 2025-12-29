@@ -3,13 +3,14 @@ import { ArrowRight, Loader2 } from 'lucide-react';
 import { INTEGRATIONS, CATEGORIES } from '../../config/integrations';
 import './Integrations.css';
 
-// Logo URLs - Using Simple Icons CDN (reliable, official brand colors)
-// Format: https://cdn.simpleicons.org/{brand}/{color}
+// Logo URLs - Using official brand logos
 const LOGO_URLS = {
   shopify: 'https://cdn.simpleicons.org/shopify/96BF48',
   etsy: 'https://cdn.simpleicons.org/etsy/F16521',
-  amazon: 'https://cdn.simpleicons.org/amazon/FF9900',
-  ebay: 'https://cdn.simpleicons.org/ebay/E53238',
+  // Amazon logo - official brand logo (Amazon smile with arrow)
+  amazon: 'https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg',
+  // eBay logo - official colorful brand logo
+  ebay: 'https://upload.wikimedia.org/wikipedia/commons/1/1b/EBay_logo.svg',
   woocommerce: 'https://cdn.simpleicons.org/woocommerce/96588A',
   bigcommerce: 'https://cdn.simpleicons.org/bigcommerce/121118'
 };

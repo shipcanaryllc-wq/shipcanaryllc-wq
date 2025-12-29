@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { ChevronDown } from 'lucide-react';
+import { getDisplayName, getInitials } from '../../utils/userDisplay';
 import Logo from '../Logo/Logo';
 import { DashboardIcon, PackageIcon, HistoryIcon, BulkOrdersIcon, BatchesListIcon, LocationIcon, RulerIcon, WalletIcon, IntegrationsIcon } from '../Icons/Icons';
 import CreateLabel from './CreateLabel';
@@ -23,7 +25,13 @@ const Dashboard = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [avatarError, setAvatarError] = useState(false);
   const profileMenuRef = useRef(null);
+
+  // Reset avatar error when user avatar changes
+  useEffect(() => {
+    setAvatarError(false);
+  }, [user?.avatarUrl]);
 
   useEffect(() => {
     // Handle payment success
@@ -140,24 +148,37 @@ const Dashboard = () => {
             <div 
               className="user-profile"
               onClick={() => setProfileMenuOpen(!profileMenuOpen)}
+              title={getDisplayName(user)} // Tooltip with full display name
             >
-              {user?.avatarUrl ? (
-                <img 
-                  src={user.avatarUrl} 
-                  alt={user.name || user.email} 
-                  className="user-avatar-small"
-                  style={{ borderRadius: '50%', width: '32px', height: '32px', objectFit: 'cover' }}
-                />
-              ) : (
-                <div className="user-avatar-small">
-                  {(user?.name || user?.email)?.charAt(0).toUpperCase() || 'U'}
-                </div>
-              )}
+              <div className="user-avatar-small">
+                {user?.avatarUrl && !avatarError ? (
+                  <img 
+                    src={user.avatarUrl} 
+                    alt={getDisplayName(user)} 
+                    style={{ 
+                      width: '100%', 
+                      height: '100%', 
+                      borderRadius: '50%', 
+                      objectFit: 'cover',
+                      display: 'block'
+                    }}
+                    onError={() => {
+                      // Show initials if image fails to load
+                      setAvatarError(true);
+                    }}
+                  />
+                ) : (
+                  <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%' }}>
+                    {getInitials(user)}
+                  </span>
+                )}
+              </div>
               <div className="user-info-small">
-                <div className="user-name-small">
-                  {user?.name || user?.email?.split('@')[0] || 'User'}
+                <div className="user-name-small" title={getDisplayName(user)}>
+                  {getDisplayName(user)}
                 </div>
               </div>
+              <ChevronDown size={16} className="user-chevron" />
             </div>
             {profileMenuOpen && (
               <div className="profile-dropdown">
