@@ -26,6 +26,87 @@ const upload = multer({
   }
 });
 
+// Upload avatar endpoint - dedicated endpoint for avatar uploads
+router.post('/profile/avatar', 
+  auth,
+  upload.single('avatar'),
+  async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: 'No file uploaded' });
+      }
+
+      // Validate file size
+      if (req.file.size > 2 * 1024 * 1024) {
+        return res.status(400).json({ message: 'File size exceeds 2MB limit' });
+      }
+
+      // Validate mimetype
+      const allowedMimes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+      if (!allowedMimes.includes(req.file.mimetype)) {
+        return res.status(400).json({ message: 'Invalid file type. Only JPEG, PNG, and WebP images are allowed.' });
+      }
+
+      const user = await User.findById(req.user._id);
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+
+      // Upload to Cloudinary
+      try {
+        const uploadResult = await uploadImage(req.file.buffer, req.file.mimetype, user._id.toString());
+        user.avatarUrl = uploadResult.secure_url;
+        
+        // Store public_id for future deletion
+        if (uploadResult.public_id) {
+          user.avatarPublicId = uploadResult.public_id;
+        }
+      } catch (uploadError) {
+        console.error('Cloudinary upload error:', uploadError);
+        // Check if it's a configuration error - return 503
+        if (uploadError.message === 'AVATAR_UPLOAD_NOT_CONFIGURED') {
+          return res.status(503).json({ 
+            error: 'AVATAR_UPLOAD_NOT_CONFIGURED',
+            message: 'Avatar upload service is not configured. Please contact support.'
+          });
+        }
+        // Re-throw other errors to be caught by outer catch
+        throw uploadError;
+      }
+
+      await user.save();
+
+      // Return updated user object
+      res.json({
+        id: user._id,
+        email: user.email,
+        name: user.name || null,
+        fullName: user.name || null,
+        businessName: user.businessName || null,
+        avatarUrl: user.avatarUrl || null,
+        balance: user.balance,
+        role: user.role || 'User',
+        createdAt: user.createdAt
+      });
+    } catch (error) {
+      console.error('Error uploading avatar:', error);
+      
+      // Check if Cloudinary is not configured
+      if (error.message && error.message.includes('Cloudinary is not configured')) {
+        return res.status(500).json({ 
+          message: 'Avatar upload service is not configured. Please contact support.',
+          error: process.env.NODE_ENV === 'development' ? error.message : undefined
+        });
+      }
+      
+      res.status(500).json({ 
+        message: error.message || 'Failed to upload avatar image',
+        error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      });
+    }
+  }
+);
+
 // Get user balance (local balance only - ShippFast disabled)
 router.get('/balance', auth, async (req, res) => {
   try {
@@ -63,7 +144,7 @@ router.get('/me', auth, async (req, res) => {
       name: user.name || null,
       fullName: user.name || null, // Alias for consistency
       businessName: user.businessName || null,
-      avatarUrl: user.avatarUrl || user.picture || null,
+      avatarUrl: user.avatarUrl || null, // Only return avatarUrl, not picture fallback
       balance: user.balance,
       role: user.role || 'User', // Default role if not set
       createdAt: user.createdAt // Include createdAt from timestamps
@@ -121,12 +202,28 @@ router.put('/me',
             return res.status(400).json({ message: 'Invalid file type. Only JPEG, PNG, and WebP images are allowed.' });
           }
 
-          // Upload image and get URL
-          const avatarUrl = await uploadImage(req.file.buffer, req.file.mimetype, user._id.toString());
-          user.avatarUrl = avatarUrl;
-        } catch (uploadError) {
-          console.error('Error uploading avatar:', uploadError);
-          return res.status(500).json({ message: 'Failed to upload avatar image' });
+          // Upload image to Cloudinary and get URL
+          try {
+            const uploadResult = await uploadImage(req.file.buffer, req.file.mimetype, user._id.toString());
+            user.avatarUrl = uploadResult.secure_url;
+            // Store public_id for future deletion
+            if (uploadResult.public_id) {
+              user.avatarPublicId = uploadResult.public_id;
+            }
+          } catch (uploadError) {
+            console.error('Error uploading avatar:', uploadError);
+            // Check if it's a configuration error - return 503
+            if (uploadError.message === 'AVATAR_UPLOAD_NOT_CONFIGURED') {
+              return res.status(503).json({ 
+                error: 'AVATAR_UPLOAD_NOT_CONFIGURED',
+                message: 'Avatar upload service is not configured. Please contact support.'
+              });
+            }
+            return res.status(500).json({ message: 'Failed to upload avatar image' });
+          }
+        } catch (error) {
+          console.error('Error processing avatar upload:', error);
+          return res.status(500).json({ message: 'Failed to process avatar upload' });
         }
       }
 
@@ -139,7 +236,7 @@ router.put('/me',
         name: user.name || null,
         fullName: user.name || null, // Alias for consistency
         businessName: user.businessName || null,
-        avatarUrl: user.avatarUrl || user.picture || null,
+        avatarUrl: user.avatarUrl || null, // Only return avatarUrl, not picture fallback
         balance: user.balance,
         role: user.role || 'User',
         createdAt: user.createdAt

@@ -1,12 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { ArrowLeft } from 'lucide-react';
 import axios from 'axios';
+import DashboardLayout from './DashboardLayout';
+import AvatarCropper from './AvatarCropper';
 import API_BASE_URL from '../../config/api';
 import './Profile.css';
+import './DashboardCard.css';
 
 const Profile = () => {
-  const { user, fetchUser } = useAuth();
+  const { user, fetchUser, updateUser } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -22,18 +26,21 @@ const Profile = () => {
   
   const [avatarPreview, setAvatarPreview] = useState(null);
   const [avatarFile, setAvatarFile] = useState(null);
+  const [showCropper, setShowCropper] = useState(false);
+  const [imageToCrop, setImageToCrop] = useState(null);
   const fileInputRef = useRef(null);
 
   useEffect(() => {
     if (user) {
+      // Update form data when user changes (e.g., after fetchUser)
       setFormData({
         name: user.name || '',
         businessName: user.businessName || ''
       });
-      setAvatarPreview(user.avatarUrl || user.picture || null);
+      setAvatarPreview(null); // Don't set preview from user data - let it render from user.avatarUrl
       setAvatarFile(null); // Reset file selection when user changes
     }
-  }, [user]);
+  }, [user?.name, user?.businessName, user?.avatarUrl]); // Only update when these specific fields change
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -61,16 +68,91 @@ const Profile = () => {
       return;
     }
 
-    // Store file object for upload
-    setAvatarFile(file);
-    
-    // Create preview URL for display
+    // Read file and show cropper
     const reader = new FileReader();
     reader.onloadend = () => {
-      setAvatarPreview(reader.result);
-      setError('');
+      setImageToCrop(reader.result);
+      setShowCropper(true);
     };
     reader.readAsDataURL(file);
+    
+    // Clear any previous errors
+    setError('');
+  };
+
+  const handleCropComplete = async (croppedBlob) => {
+    setShowCropper(false);
+    setSaving(true);
+    setError('');
+    setSuccess('');
+
+    try {
+      const token = localStorage.getItem('token');
+      const formData = new FormData();
+      
+      // Convert blob to file
+      const croppedFile = new File([croppedBlob], 'avatar.jpg', { type: 'image/jpeg' });
+      formData.append('avatar', croppedFile);
+
+      const response = await axios.post(`${API_BASE_URL}/users/profile/avatar`, formData, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+
+      // Update user in context immediately for instant UI update
+      if (response.data) {
+        // Clear preview immediately - avatar will render from user.avatarUrl
+        setAvatarPreview(null);
+        setImageToCrop(null);
+        
+        // Update user state IMMEDIATELY from response data (no waiting)
+        if (updateUser && response.data) {
+          updateUser({
+            avatarUrl: response.data.avatarUrl,
+            name: response.data.name,
+            fullName: response.data.fullName,
+            businessName: response.data.businessName
+          });
+        }
+        
+        // Also refresh from server in background to ensure sync
+        if (fetchUser) {
+          fetchUser().catch(err => console.error('Error refreshing user:', err));
+        }
+        
+        setSuccess('Avatar updated successfully!');
+        setTimeout(() => setSuccess(''), 3000);
+      }
+    } catch (error) {
+      console.error('Error uploading avatar:', error);
+      
+      // Handle 503 AVATAR_UPLOAD_NOT_CONFIGURED
+      if (error.response?.status === 503 && error.response?.data?.error === 'AVATAR_UPLOAD_NOT_CONFIGURED') {
+        setError('Avatar upload service is not configured. Please contact support.');
+      } else {
+        const errorMessage = error.response?.data?.message || 
+                            (error.response?.status === 404 ? 'Avatar upload endpoint not found. Please check server configuration.' : 'Failed to upload avatar');
+        setError(errorMessage);
+      }
+      setAvatarPreview(null);
+      setImageToCrop(null);
+    } finally {
+      setSaving(false);
+      // Clear file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
+  const handleCropperClose = () => {
+    setShowCropper(false);
+    setImageToCrop(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -99,8 +181,34 @@ const Profile = () => {
         }
       });
 
-      // Update user in context (this will refresh header avatar/name)
-      await fetchUser();
+      // Update user in context immediately for instant UI update
+      if (response.data) {
+        // Update local form data FIRST for instant UI feedback
+        if (response.data.name !== undefined) {
+          setFormData(prev => ({ ...prev, name: response.data.name || '' }));
+        }
+        if (response.data.businessName !== undefined) {
+          setFormData(prev => ({ ...prev, businessName: response.data.businessName || '' }));
+        }
+        if (response.data.avatarUrl !== undefined) {
+          setAvatarPreview(null); // Use server URL - will render from user.avatarUrl
+        }
+        
+        // Update user state IMMEDIATELY from response data (no waiting)
+        if (updateUser && response.data) {
+          updateUser({
+            avatarUrl: response.data.avatarUrl,
+            name: response.data.name,
+            fullName: response.data.fullName,
+            businessName: response.data.businessName
+          });
+        }
+        
+        // Also refresh from server in background to ensure sync
+        if (fetchUser) {
+          fetchUser().catch(err => console.error('Error refreshing user:', err));
+        }
+      }
       
       // Clear file selection after successful upload
       setAvatarFile(null);
@@ -153,21 +261,41 @@ const Profile = () => {
 
   if (!user) {
     return (
-      <div className="profile-page">
-        <div className="profile-container">
+      <DashboardLayout>
+        <div className="profile-page-content">
           <p>Please log in to view your profile.</p>
         </div>
-      </div>
+      </DashboardLayout>
     );
   }
 
   return (
-    <div className="profile-page">
-      <div className="profile-container">
-        <div className="profile-header">
-          <h1>Profile Settings</h1>
-          <p>Manage your account information and security</p>
-        </div>
+    <DashboardLayout>
+      {showCropper && imageToCrop && (
+        <AvatarCropper
+          imageSrc={imageToCrop}
+          onClose={handleCropperClose}
+          onCropComplete={handleCropComplete}
+        />
+      )}
+      <div className="profile-page-content">
+        <div className="profile-card">
+          <div className="profile-header">
+            <div className="profile-header-top">
+              <button 
+                className="profile-back-button"
+                onClick={() => navigate('/dashboard')}
+                aria-label="Back to dashboard"
+              >
+                <ArrowLeft size={20} />
+                <span>Back</span>
+              </button>
+            </div>
+            <div className="profile-header-content">
+              <h1>Profile Settings</h1>
+              <p>Manage your account information and security</p>
+            </div>
+          </div>
 
         <div className="profile-tabs">
           <button
@@ -193,13 +321,27 @@ const Profile = () => {
               <h2>Profile Picture</h2>
               <div className="avatar-section">
                 <div className="avatar-preview">
-                  {avatarPreview ? (
-                    <img src={avatarPreview} alt="Avatar" />
-                  ) : (
-                    <div className="avatar-placeholder">
-                      {(formData.name || user.email)?.charAt(0).toUpperCase() || 'U'}
-                    </div>
-                  )}
+                  {(avatarPreview || user?.avatarUrl) ? (
+                    <img 
+                      src={avatarPreview || user?.avatarUrl} 
+                      alt="Avatar"
+                      onError={(e) => {
+                        // Fallback to default avatar icon on image load error
+                        e.target.style.display = 'none';
+                        const placeholder = e.target.parentElement.querySelector('.avatar-placeholder-default');
+                        if (placeholder) {
+                          placeholder.style.display = 'flex';
+                        }
+                      }}
+                    />
+                  ) : null}
+                  <div className="avatar-placeholder-default" style={{ display: (avatarPreview || user?.avatarUrl) ? 'none' : 'flex' }}>
+                    {/* Default avatar icon */}
+                    <svg width="60" height="60" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <circle cx="12" cy="8" r="4" fill="#9ca3af"/>
+                      <path d="M6 21c0-3.314 2.686-6 6-6s6 2.686 6 6" fill="#9ca3af"/>
+                    </svg>
+                  </div>
                 </div>
                 <div className="avatar-actions">
                   <input
@@ -213,22 +355,10 @@ const Profile = () => {
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
                     className="btn-secondary"
+                    disabled={saving}
                   >
-                    {avatarPreview ? 'Change Picture' : 'Upload Picture'}
+                    {saving ? 'Uploading...' : (avatarPreview || user?.avatarUrl) ? 'Change Picture' : 'Upload Picture'}
                   </button>
-                  {avatarPreview && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setAvatarFile(null);
-                        setAvatarPreview(user?.avatarUrl || user?.picture || null);
-                        if (fileInputRef.current) fileInputRef.current.value = '';
-                      }}
-                      className="btn-text"
-                    >
-                      Remove
-                    </button>
-                  )}
                 </div>
                 <p className="avatar-hint">Max size: 2MB. Supported formats: JPEG, PNG, WebP</p>
               </div>
@@ -311,8 +441,9 @@ const Profile = () => {
             )}
           </div>
         )}
+        </div>
       </div>
-    </div>
+    </DashboardLayout>
   );
 };
 

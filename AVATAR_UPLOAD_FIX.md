@@ -387,3 +387,4 @@ Body (FormData):
 5. **Remove avatar**: Click "Remove" → Save → Verify avatar clears
 
 
+

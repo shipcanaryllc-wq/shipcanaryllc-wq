@@ -264,3 +264,4 @@ SENDGRID_API_KEY=your-sendgrid-api-key
 - All endpoints are protected with JWT authentication middleware.
 
 
+

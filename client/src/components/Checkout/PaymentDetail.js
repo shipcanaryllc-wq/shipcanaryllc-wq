@@ -3,6 +3,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
 import OnRampWidget from './OnRampWidget';
+import PaymentLogos from './PaymentLogos';
 import './PaymentDetail.css';
 import API_BASE_URL from '../../config/api';
 import { Shield, Lock, Code, FileText } from 'lucide-react';
@@ -64,10 +65,10 @@ const PaymentDetail = () => {
           // Auth error - redirect to login
           navigate('/login');
         } else {
-          setError(error.response?.data?.message || 'Failed to load payment');
-          setLoading(false);
-        }
+        setError(error.response?.data?.message || 'Failed to load payment');
+        setLoading(false);
       }
+    }
     }
   }, [invoiceId, navigate, fetchUser]);
 
@@ -183,7 +184,7 @@ const PaymentDetail = () => {
             <BitcoinLogo size={32} className="bitcoin-logo-header" />
           </div>
           <h1>Bitcoin Payment</h1>
-          <p className="payment-subtitle">Processed securely via BTCPay Server</p>
+          <p className="payment-subtitle">Secure payment processing</p>
         </div>
         
         <div className="payment-info-card">
@@ -215,7 +216,7 @@ const PaymentDetail = () => {
                     </div>
                     <div className="method-info">
                       <h3>Pay with Bitcoin</h3>
-                      <p>Send Bitcoin directly to the invoice address using your wallet or exchange.</p>
+                      <p>If you already have Bitcoin, send it directly to complete your payment using your wallet or exchange.</p>
                     </div>
                   </div>
                   <button
@@ -248,8 +249,9 @@ const PaymentDetail = () => {
                       </svg>
                     </div>
                     <div className="method-info">
-                      <h3>Buy Bitcoin with Card (External Exchanges)</h3>
-                      <p>If you don't already have Bitcoin, you can purchase it through a trusted exchange and send it to the invoice address.</p>
+                      <h3>Buy Bitcoin with Credit or Debit Card</h3>
+                      <p>Don't already have Bitcoin? You can instantly purchase it using your credit or debit card (Visa, Mastercard, and supported cards) through a trusted exchange.</p>
+                      <PaymentLogos />
                     </div>
                   </div>
                   <button
@@ -262,26 +264,31 @@ const PaymentDetail = () => {
                     </svg>
                   </button>
                   <p className="method-note">
-                    After purchasing Bitcoin, return here and send it to the BTCPay invoice address to complete payment.
+                    After purchasing Bitcoin, return to this page and use the <strong>Bitcoin Payment Portal above</strong> to complete your payment.
                   </p>
+                  
+                  {/* Step-by-step instructions */}
+                  <div className="payment-instructions">
+                    <h4>How to Complete Your Payment</h4>
+                    <ol className="instructions-list">
+                      <li>Select a trusted exchange below to buy Bitcoin using your credit or debit card.</li>
+                      <li>Complete any required identity verification with the exchange (handled securely by them).</li>
+                      <li>Receive Bitcoin in your wallet or exchange account.</li>
+                      <li>Return to this page and open the <strong>Bitcoin Payment Portal above</strong> to view the payment address.</li>
+                      <li>Send the purchased Bitcoin to complete your payment.</li>
+                    </ol>
+                  </div>
                 </div>
 
-                {/* Security & Transparency Section */}
+                {/* Secure & Trusted Payments Section */}
                 <div className="security-section">
-                  <h3 className="security-title">Security & Transparency</h3>
+                  <h3 className="security-title">Secure & Trusted Payments</h3>
                   <div className="security-grid">
                     <div className="security-item">
                       <Code size={20} className="security-icon" />
                       <div className="security-content">
-                        <h4>BTCPay Server (self-hosted)</h4>
+                        <h4>BTCPay Server</h4>
                         <p>Open-source payment processor hosted on our infrastructure.</p>
-                      </div>
-                    </div>
-                    <div className="security-item">
-                      <FileText size={20} className="security-icon" />
-                      <div className="security-content">
-                        <h4>Invoice-based checkout</h4>
-                        <p>Each payment uses a unique, time-limited invoice address.</p>
                       </div>
                     </div>
                     <div className="security-item">
@@ -289,6 +296,13 @@ const PaymentDetail = () => {
                       <div className="security-content">
                         <h4>Payments verified on-chain</h4>
                         <p>All transactions are confirmed on the Bitcoin blockchain.</p>
+                      </div>
+                    </div>
+                    <div className="security-item">
+                      <FileText size={20} className="security-icon" />
+                      <div className="security-content">
+                        <h4>Invoice-based checkout</h4>
+                        <p>Each payment uses a unique, time-limited invoice address.</p>
                       </div>
                     </div>
                     <div className="security-item">

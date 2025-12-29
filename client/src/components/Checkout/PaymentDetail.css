@@ -320,6 +320,54 @@
   font-weight: 400;
 }
 
+.method-note strong {
+  color: #111827;
+  font-weight: 600;
+}
+
+.payment-instructions {
+  margin-top: 24px;
+  padding: 20px;
+  background: #f9fafb;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.payment-instructions h4 {
+  margin: 0 0 16px 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.instructions-list {
+  margin: 0;
+  padding-left: 24px;
+  color: #374151;
+  font-size: 0.875rem;
+  line-height: 1.8;
+}
+
+.instructions-list li {
+  margin-bottom: 12px;
+}
+
+.instructions-list li:last-child {
+  margin-bottom: 0;
+}
+
+.instructions-list strong {
+  color: #111827;
+  font-weight: 600;
+}
+
+.security-intro {
+  margin: 0 0 20px 0;
+  color: #4b5563;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+}
+
 .divider {
   text-align: center;
   margin: 32px 0;

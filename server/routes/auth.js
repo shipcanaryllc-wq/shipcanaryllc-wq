@@ -269,7 +269,7 @@ router.get('/me', async (req, res) => {
       name: user.name || null,
       fullName: user.name || null, // Alias for consistency
       businessName: user.businessName || null,
-      avatarUrl: user.avatarUrl || user.picture || null,
+      avatarUrl: user.avatarUrl || null, // Only return avatarUrl, not picture fallback
       balance: user.balance,
       role: user.role || 'User',
       createdAt: user.createdAt
@@ -395,15 +395,22 @@ router.post('/request-password-reset',
         user.passwordResetExpires = Date.now() + 60 * 60 * 1000; // 1 hour
         await user.save();
 
+        // Build reset link using FRONTEND_URL
+        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+        const resetUrl = `${frontendUrl}/reset-password?token=${resetToken}`;
+
+        // Send email and log result
         try {
-          await sendPasswordResetEmail(user.email, resetToken);
+          const emailResult = await sendPasswordResetEmail(user.email, resetToken);
+          console.log(`✅ Password reset email sent successfully to ${user.email}. Resend ID: ${emailResult.messageId}`);
         } catch (emailError) {
-          console.error('Error sending password reset email:', emailError);
+          console.error(`❌ Failed to send password reset email to ${user.email}:`, emailError.message);
+          console.error('   Reset URL (for manual testing):', resetUrl);
           // Don't fail the request if email fails - token is still set
         }
       }
 
-      // Always return success message
+      // Always return success message (security: prevent email enumeration)
       res.json({ 
         message: 'If an account with that email exists, a password reset link has been sent.' 
       });

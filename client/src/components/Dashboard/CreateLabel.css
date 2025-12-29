@@ -80,21 +80,21 @@
 
 /* Page Shell - Consistent Layout Wrapper */
 .page-shell {
-  max-width: 1200px;
+  max-width: 1280px;
   margin: 0 auto;
-  padding: var(--space-5) var(--space-4);
+  padding: 24px 32px 48px 32px;
 }
 
 .create-label-container {
-  max-width: 1200px;
+  max-width: 1280px;
   margin: 0 auto;
-  padding: var(--space-5) var(--space-4);
+  padding: 24px 32px 48px 32px;
 }
 
 @media (max-width: 900px) {
   .page-shell,
   .create-label-container {
-    padding: var(--space-4) var(--space-3);
+    padding: 20px 24px 40px 24px;
   }
 }
 

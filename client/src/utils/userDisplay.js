@@ -73,3 +73,4 @@ export const getInitials = (user) => {
   return 'A';
 };
 
+

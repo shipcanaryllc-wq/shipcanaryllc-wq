@@ -23,9 +23,9 @@
 }
 
 .integrations-container {
-  max-width: 1200px;
+  max-width: 1280px;
   margin: 0 auto;
-  padding: 80px 32px;
+  padding: 24px 32px 48px 32px;
   position: relative;
   z-index: 1;
 }

@@ -1,14 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { ChevronDown } from 'lucide-react';
-import { getDisplayName, getInitials } from '../../utils/userDisplay';
-import Logo from '../Logo/Logo';
-import { DashboardIcon, PackageIcon, HistoryIcon, BulkOrdersIcon, BatchesListIcon, LocationIcon, RulerIcon, WalletIcon, IntegrationsIcon } from '../Icons/Icons';
+import DashboardLayout from './DashboardLayout';
 import CreateLabel from './CreateLabel';
 import SavedAddresses from './SavedAddresses';
 import SavedPackages from './SavedPackages';
-//import OrderHistory from './OrderHistory';
 import OrdersHistoryHorizontal from '../orders/OrdersHistoryHorizontal';
 import AddBalance from './AddBalance';
 import BulkOrders from './BulkOrders';
@@ -18,20 +14,9 @@ import BatchesList from './BatchesList';
 import './Dashboard.css';
 
 const Dashboard = () => {
-  const { user, fetchUser, logout } = useAuth();
-  const navigate = useNavigate();
+  const { user, fetchUser } = useAuth();
   const [searchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState('create-label');
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
-  const [mobileNavOpen, setMobileNavOpen] = useState(false);
-  const [avatarError, setAvatarError] = useState(false);
-  const profileMenuRef = useRef(null);
-
-  // Reset avatar error when user avatar changes
-  useEffect(() => {
-    setAvatarError(false);
-  }, [user?.avatarUrl]);
 
   useEffect(() => {
     // Handle payment success
@@ -41,238 +26,43 @@ const Dashboard = () => {
       fetchUser(); // Refresh user balance
       setActiveTab('balance');
       // Remove query params
-      navigate('/dashboard', { replace: true });
+      window.history.replaceState({}, '', '/dashboard');
     }
     if (tab === 'balance') {
       setActiveTab('balance');
-      navigate('/dashboard', { replace: true });
+      window.history.replaceState({}, '', '/dashboard');
     }
-  }, [searchParams, user, fetchUser, navigate]);
+  }, [searchParams, user, fetchUser]);
 
-  useEffect(() => {
-    // Close profile menu when clicking outside
-    const handleClickOutside = (event) => {
-      if (profileMenuRef.current && !profileMenuRef.current.contains(event.target)) {
-        setProfileMenuOpen(false);
-      }
-    };
-
-    if (profileMenuOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
+  const renderContent = () => {
+    switch (activeTab) {
+      case 'dashboard':
+        return <DashboardView />;
+      case 'create-label':
+        return <CreateLabel />;
+      case 'bulk-orders':
+        return <BulkOrders />;
+      case 'batches-list':
+        return <BatchesList />;
+      case 'addresses':
+        return <SavedAddresses />;
+      case 'packages':
+        return <SavedPackages />;
+      case 'history-horizontal':
+        return <OrdersHistoryHorizontal />;
+      case 'balance':
+        return <AddBalance />;
+      case 'integrations':
+        return <Integrations />;
+      default:
+        return <DashboardView />;
     }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [profileMenuOpen]);
-
-  useEffect(() => {
-    // Prevent body scroll when mobile nav is open
-    if (mobileNavOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-    return () => {
-      document.body.style.overflow = '';
-    };
-  }, [mobileNavOpen]);
-
-  const navigationSections = [
-    {
-      heading: '',
-      items: [
-        { id: 'dashboard', label: 'Dashboard', icon: DashboardIcon }
-      ]
-    },
-    {
-      heading: 'Labels',
-      items: [
-        { id: 'create-label', label: 'Create Label', icon: PackageIcon },
-       // { id: 'history', label: 'Order History', icon: HistoryIcon },
-        { id: 'history-horizontal', label: 'Orders History', icon: HistoryIcon }
-      ]
-    },
-    {
-      heading: 'Bulk',
-      items: [
-        { id: 'bulk-orders', label: 'Bulk Orders', icon: BulkOrdersIcon },
-        { id: 'batches-list', label: 'Batches List', icon: BatchesListIcon }
-      ]
-    },
-    {
-      heading: 'Saved',
-      items: [
-        { id: 'addresses', label: 'Saved Addresses', icon: LocationIcon },
-        { id: 'packages', label: 'Saved Packages', icon: RulerIcon }
-      ]
-    },
-    {
-      heading: 'Account',
-      items: [
-        { id: 'balance', label: 'Add Balance', icon: WalletIcon },
-        { id: 'integrations', label: 'Integrations', icon: IntegrationsIcon }
-      ]
-    }
-  ];
+  };
 
   return (
-    <div className="dashboard" data-sidebar-collapsed={sidebarCollapsed}>
-      {/* Header */}
-      <header className="dashboard-header">
-        <div className="header-left">
-          <button 
-            className="hamburger-menu"
-            onClick={() => {
-              setMobileNavOpen(!mobileNavOpen);
-              setSidebarCollapsed(!sidebarCollapsed);
-            }}
-            aria-label="Toggle sidebar"
-          >
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2">
-              <line x1="3" y1="6" x2="17" y2="6"/>
-              <line x1="3" y1="10" x2="17" y2="10"/>
-              <line x1="3" y1="14" x2="17" y2="14"/>
-            </svg>
-          </button>
-          <div className="logo-section" onClick={() => navigate('/')}>
-            <Logo size="medium" />
-          </div>
-        </div>
-        <div className="header-right">
-          <div className="balance-display">
-            <span className="balance-label">Balance:</span>
-            <span className="balance-amount">${user?.balance?.toFixed(2) || '0.00'}</span>
-          </div>
-          <div className="user-profile-wrapper" ref={profileMenuRef}>
-            <div 
-              className="user-profile"
-              onClick={() => setProfileMenuOpen(!profileMenuOpen)}
-              title={getDisplayName(user)} // Tooltip with full display name
-            >
-              <div className="user-avatar-small">
-                {user?.avatarUrl && !avatarError ? (
-                  <img 
-                    src={user.avatarUrl} 
-                    alt={getDisplayName(user)} 
-                    style={{ 
-                      width: '100%', 
-                      height: '100%', 
-                      borderRadius: '50%', 
-                      objectFit: 'cover',
-                      display: 'block'
-                    }}
-                    onError={() => {
-                      // Show initials if image fails to load
-                      setAvatarError(true);
-                    }}
-                  />
-                ) : (
-                  <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%' }}>
-                    {getInitials(user)}
-                  </span>
-                )}
-              </div>
-              <div className="user-info-small">
-                <div className="user-name-small" title={getDisplayName(user)}>
-                  {getDisplayName(user)}
-                </div>
-              </div>
-              <ChevronDown size={16} className="user-chevron" />
-            </div>
-            {profileMenuOpen && (
-              <div className="profile-dropdown">
-                <button 
-                  className="profile-menu-item"
-                  onClick={() => {
-                    setProfileMenuOpen(false);
-                    navigate('/profile');
-                  }}
-                >
-                  Profile
-                </button>
-                <button 
-                  className="profile-menu-item"
-                  onClick={() => {
-                    setProfileMenuOpen(false);
-                    if (logout) {
-                      logout();
-                    }
-                    navigate('/');
-                  }}
-                >
-                  Logout
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      </header>
-
-      {/* Mobile Overlay */}
-      {mobileNavOpen && (
-        <div 
-          className="mobile-nav-overlay"
-          onClick={() => {
-            setMobileNavOpen(false);
-            setSidebarCollapsed(false);
-          }}
-        />
-      )}
-
-      <div className="dashboard-content">
-        {/* Sidebar */}
-        <nav className={`dashboard-sidebar ${sidebarCollapsed ? 'collapsed' : ''} ${mobileNavOpen ? 'mobile-open' : ''}`}>
-          {navigationSections.map((section, sectionIndex) => (
-            <div key={sectionIndex} className="nav-section">
-              {section.heading && (
-                <div className="nav-section-heading">{section.heading}</div>
-              )}
-              <div className="nav-section-items">
-                {section.items.map(tab => (
-                  <button
-                    key={tab.id}
-                    className={`nav-item ${activeTab === tab.id ? 'active' : ''}`}
-                    onClick={() => {
-                      setActiveTab(tab.id);
-                      setMobileNavOpen(false);
-                      setSidebarCollapsed(false);
-                    }}
-                  >
-                    <span className="nav-item-icon">
-                      {React.createElement(tab.icon, { size: 20 })}
-                    </span>
-                    <span className="nav-item-label">{tab.label}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-          ))}
-        </nav>
-
-        {/* Content Area */}
-        <div className="tab-content-wrapper">
-          <div className="content-card">
-            <div className="tab-content">
-              {activeTab === 'dashboard' && <DashboardView />}
-              {activeTab === 'create-label' && <CreateLabel />}
-              {activeTab === 'bulk-orders' && <BulkOrders />}
-              {activeTab === 'batches-list' && <BatchesList />}
-              {activeTab === 'addresses' && <SavedAddresses />}
-              {activeTab === 'packages' && <SavedPackages />}
-              {activeTab === 'history-horizontal' && <OrdersHistoryHorizontal />}
-              {activeTab === 'balance' && <AddBalance />}
-              {activeTab === 'integrations' && <Integrations />}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Footer */}
-      <footer className="dashboard-footer">
-        <p>Copyright © ShipCanary {new Date().getFullYear()}</p>
-      </footer>
-    </div>
+    <DashboardLayout activeTab={activeTab} onTabChange={setActiveTab}>
+      {renderContent()}
+    </DashboardLayout>
   );
 };
 

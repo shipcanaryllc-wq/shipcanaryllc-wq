@@ -4,6 +4,7 @@ import { format } from 'date-fns';
 import BitcoinLogo from '../BitcoinLogo/BitcoinLogo';
 import { useAuth } from '../../context/AuthContext';
 import './DashboardView.css';
+import './DashboardCard.css';
 import API_BASE_URL from '../../config/api';
 
 // Helper function to normalize address fields to uppercase for display
@@ -236,8 +237,7 @@ const DashboardView = () => {
   }
 
   return (
-    <div className="dashboard-view">
-      <div className="dashboard-container">
+    <div className="dashboard-view-content">
         {/* Breadcrumb */}
         <div className="dashboard-breadcrumb">
           <span>Home</span>
@@ -246,7 +246,7 @@ const DashboardView = () => {
         </div>
 
         {/* Metrics Cards */}
-        <div className="metrics-grid">
+        <div className="stats-grid page-section">
         <div className="metric-card">
           <div className="metric-content">
             <div className="metric-label">Orders Today</div>
@@ -309,10 +309,10 @@ const DashboardView = () => {
         </div>
       </div>
 
-        {/* Three Column Layout */}
-        <div className="dashboard-columns">
-          {/* My Account Card */}
-          <div className="dashboard-card account-card">
+        {/* Main Dashboard Grid - 12 column system */}
+        <div className="dashboard-main-grid page-section">
+          {/* My Account Card - col-span-3 */}
+          <div className="dashboard-card account-card col-span-3">
             <h3 className="card-title">My Account</h3>
             <div className="account-info">
               <div className="info-row">
@@ -344,8 +344,8 @@ const DashboardView = () => {
             </div>
           </div>
 
-          {/* Recent Orders Card */}
-          <div className="dashboard-card orders-card">
+          {/* Recent Orders Card - col-span-6 */}
+          <div className="dashboard-card orders-card col-span-6">
             <h3 className="card-title">Recent Orders</h3>
             <div className="orders-list">
               {getRecentOrders().length === 0 ? (
@@ -389,8 +389,8 @@ const DashboardView = () => {
             </div>
           </div>
 
-          {/* Recent Deposits Card */}
-          <div className="dashboard-card deposits-card">
+          {/* Recent Deposits Card - col-span-3 */}
+          <div className="dashboard-card deposits-card col-span-3">
             <div className="card-header-with-link">
               <h3 className="card-title">Recent Deposits</h3>
             </div>
@@ -463,8 +463,8 @@ const DashboardView = () => {
         </div>
 
         {/* Shipping Summary Section */}
-        <div className="shipping-summary-section">
-          <div className="shipping-summary-card">
+        <div className="shipping-summary-section page-section">
+          <div className="dashboard-card shipping-summary-card">
             <h3 className="card-title">Shipping Summary</h3>
             <div className="summary-tiles">
               <div className="summary-tile">
@@ -488,7 +488,6 @@ const DashboardView = () => {
             </div>
           </div>
         </div>
-      </div>
     </div>
   );
 };

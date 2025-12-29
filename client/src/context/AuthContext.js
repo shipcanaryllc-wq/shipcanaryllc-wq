@@ -132,6 +132,10 @@ export const AuthProvider = ({ children }) => {
     setUser(prev => ({ ...prev, balance: newBalance }));
   };
 
+  const updateUser = (userData) => {
+    setUser(prev => ({ ...prev, ...userData }));
+  };
+
   const handleOAuthCallback = async (token) => {
     try {
       localStorage.setItem('token', token);
@@ -151,6 +155,7 @@ export const AuthProvider = ({ children }) => {
     register,
     logout,
     updateBalance,
+    updateUser,
     fetchUser,
     handleOAuthCallback
   };

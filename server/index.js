@@ -32,6 +32,23 @@ if (!k || k === 'undefined') {
 console.log('✅ SHIPLABEL_API_KEY loaded');
 console.log('   Key length:', k.length);
 
+// Email configuration validation
+const RESEND_API_KEY = process.env.RESEND_API_KEY;
+const EMAIL_FROM = process.env.EMAIL_FROM;
+if (!RESEND_API_KEY || !EMAIL_FROM) {
+  console.error('\n═══════════════════════════════════════════════════════════');
+  console.error('⚠️  EMAIL NOT CONFIGURED: missing RESEND_API_KEY or EMAIL_FROM');
+  console.error('═══════════════════════════════════════════════════════════');
+  console.error('   Set RESEND_API_KEY in server/.env file');
+  console.error('   Set EMAIL_FROM in server/.env file (e.g., onboarding@resend.dev)');
+  console.error('   Password reset emails will fail until configured.');
+  console.error('═══════════════════════════════════════════════════════════\n');
+} else {
+  console.log('✅ Email service configured');
+  console.log('   RESEND_API_KEY: loaded');
+  console.log('   EMAIL_FROM:', EMAIL_FROM);
+}
+
 const app = express();
 
 // B) CORS Configuration - Strict allowlist
@@ -242,6 +259,50 @@ if (process.env.NODE_ENV !== 'production') {
       cwd: process.cwd(),
       dirname: __dirname,
     });
+  });
+
+  // Test email endpoint (DEV ONLY)
+  app.post('/api/debug/test-email', express.json(), async (req, res) => {
+    try {
+      const { to } = req.body;
+      
+      if (!to || !to.includes('@')) {
+        return res.status(400).json({ 
+          success: false, 
+          error: 'Invalid email address. Provide { "to": "email@example.com" }' 
+        });
+      }
+
+      const { sendEmail, isEmailConfigured } = require('./services/emailService');
+      
+      if (!isEmailConfigured()) {
+        return res.status(503).json({ 
+          success: false, 
+          error: 'Email service not configured. Set RESEND_API_KEY and EMAIL_FROM in .env' 
+        });
+      }
+
+      const result = await sendEmail({
+        to,
+        subject: 'Test Email from ShipCanary',
+        html: '<p>This is a <strong>test email</strong> from ShipCanary.</p><p>If you received this, email sending is working correctly!</p>',
+        text: 'This is a test email from ShipCanary. If you received this, email sending is working correctly!',
+      });
+
+      console.log('✅ Test email sent successfully. Resend ID:', result.messageId);
+      res.json({ 
+        success: true, 
+        messageId: result.messageId,
+        message: 'Test email sent successfully. Check your inbox.' 
+      });
+    } catch (error) {
+      console.error('❌ Test email failed:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: error.message,
+        details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      });
+    }
   });
 }
 

@@ -1,0 +1,58 @@
+/* ============================================
+   PAYMENT LOGOS - Payment Method Indicators
+   ============================================ */
+
+.payment-logos-container {
+  margin-top: 12px;
+  margin-bottom: 4px;
+}
+
+.payment-logos-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 24px;
+}
+
+.payment-logo-wrapper {
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+  cursor: default;
+  flex-shrink: 0;
+  overflow: visible;
+  min-width: 0;
+}
+
+.payment-logo-wrapper:hover {
+  opacity: 1;
+}
+
+.payment-logo-svg {
+  height: 100%;
+  width: auto;
+  max-width: none;
+  display: block;
+  filter: grayscale(100%);
+  opacity: 0.8;
+  overflow: visible;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .payment-logos-row {
+    gap: 16px;
+  }
+
+  .payment-logo-wrapper {
+    height: 20px;
+  }
+
+  .payment-logo-svg {
+    height: 100%;
+  }
+}
+
