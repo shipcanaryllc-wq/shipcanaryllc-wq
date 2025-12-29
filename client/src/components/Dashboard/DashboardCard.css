@@ -19,28 +19,38 @@
    ============================================ */
 
 .card-header {
-  margin-bottom: 20px;
-  padding-bottom: 12px;
+  margin-bottom: 24px; /* 24px = 3 * 8px */
+  padding-bottom: 16px; /* 16px = 2 * 8px */
+  padding-top: 0;
+  margin-top: 0;
   border-bottom: 1px solid #e5e7eb;
 }
 
 .card-title {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
   color: #111827;
   margin: 0;
-  padding: 0;
+  padding: 0 0 16px 0; /* 16px = 2 * 8px - space below title */
   text-transform: none;
   letter-spacing: 0;
+  line-height: 1.4;
 }
 
 .card-header-with-link {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
-  padding-bottom: 12px;
+  margin-bottom: 24px; /* 24px = 3 * 8px */
+  padding-bottom: 16px; /* 16px = 2 * 8px */
+  padding-top: 0;
+  margin-top: 0;
   border-bottom: 1px solid #e5e7eb;
+}
+
+.card-header-with-link .card-title {
+  padding: 0 0 0 0; /* Remove padding since header handles it */
+  margin: 0;
 }
 
 .card-header-with-link .card-title {
@@ -54,11 +64,11 @@
    ============================================ */
 
 .page-section {
-  margin-bottom: 24px; /* space-y-6 equivalent */
+  margin-bottom: 24px; /* 24px = 3 * 8px */
 }
 
 .page-section:last-child {
-  margin-bottom: 0;
+  margin-bottom: 0; /* Keep last section flush */
 }
 
 /* ============================================
@@ -69,8 +79,8 @@
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(1, minmax(0, 1fr));
-  gap: 16px; /* gap-4 */
-  margin-bottom: 24px;
+  gap: 16px; /* 16px = 2 * 8px */
+  margin-bottom: 24px; /* 24px = 3 * 8px */
 }
 
 @media (min-width: 640px) {
@@ -121,7 +131,7 @@
 .metric-card {
   background: #ffffff;
   border-radius: 12px;
-  padding: 20px;
+  padding: 24px; /* 24px = 3 * 8px */
   border: 1px solid #e5e7eb;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
   display: flex;
@@ -147,7 +157,7 @@
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: #6b7280;
-  margin-bottom: 8px;
+  margin-bottom: 12px; /* 12px = 1.5 * 8px */
   font-weight: 600;
 }
 

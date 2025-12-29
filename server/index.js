@@ -289,10 +289,11 @@ if (process.env.NODE_ENV !== 'production') {
         text: 'This is a test email from ShipCanary. If you received this, email sending is working correctly!',
       });
 
-      console.log('✅ Test email sent successfully. Resend ID:', result.messageId);
+      console.log('[DEBUG] Test email sent successfully. Resend ID:', result.id || result.messageId);
       res.json({ 
         success: true, 
-        messageId: result.messageId,
+        id: result.id || result.messageId,
+        messageId: result.id || result.messageId,
         message: 'Test email sent successfully. Check your inbox.' 
       });
     } catch (error) {
@@ -305,6 +306,80 @@ if (process.env.NODE_ENV !== 'production') {
     }
   });
 }
+
+// Debug email route protected by DEBUG_TOKEN (works in all environments)
+app.post('/api/debug/email', express.json(), async (req, res) => {
+  try {
+    const debugToken = req.headers['x-debug-token'] || req.body.debugToken;
+    const expectedToken = process.env.DEBUG_TOKEN;
+
+    if (!expectedToken) {
+      return res.status(503).json({ 
+        ok: false, 
+        error: 'DEBUG_TOKEN not configured' 
+      });
+    }
+
+    if (debugToken !== expectedToken) {
+      return res.status(401).json({ 
+        ok: false, 
+        error: 'UNAUTHORIZED',
+        details: 'Invalid DEBUG_TOKEN' 
+      });
+    }
+
+    const { to } = req.body;
+    
+    if (!to || !to.includes('@')) {
+      return res.status(400).json({ 
+        ok: false, 
+        error: 'INVALID_EMAIL',
+        details: 'Provide { "to": "email@example.com" }' 
+      });
+    }
+
+    const { sendEmail, isEmailConfigured } = require('./services/emailService');
+    
+    if (!isEmailConfigured()) {
+      return res.status(503).json({ 
+        ok: false, 
+        error: 'EMAIL_NOT_CONFIGURED',
+        details: 'Set RESEND_API_KEY and EMAIL_FROM in environment variables' 
+      });
+    }
+
+    console.log('[DEBUG-EMAIL] Sending test email', { to });
+
+    const result = await sendEmail({
+      to,
+      subject: 'Debug Test Email from ShipCanary',
+      html: '<p>This is a <strong>debug test email</strong> from ShipCanary.</p><p>If you received this, Resend integration is working correctly!</p>',
+      text: 'This is a debug test email from ShipCanary. If you received this, Resend integration is working correctly!',
+    });
+
+    console.log('[DEBUG-EMAIL] Resend response', { 
+      id: result.id || result.messageId,
+      success: result.success 
+    });
+
+    res.json({ 
+      ok: true, 
+      messageId: result.id || result.messageId,
+      id: result.id || result.messageId,
+      message: 'Test email sent successfully. Check your inbox.' 
+    });
+  } catch (error) {
+    console.error('[DEBUG-EMAIL] Failed', {
+      error: error.message,
+      stack: error.stack
+    });
+    res.status(500).json({ 
+      ok: false, 
+      error: 'EMAIL_SEND_FAILED',
+      details: error.message 
+    });
+  }
+});
 
 // 2) DEV-ONLY ShipLabel connectivity test route (NO secrets)
 if (process.env.NODE_ENV !== 'production') {

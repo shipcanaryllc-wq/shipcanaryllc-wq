@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { format } from 'date-fns';
 import BitcoinLogo from '../BitcoinLogo/BitcoinLogo';
+import DailyOrdersChart from './DailyOrdersChart';
 import { useAuth } from '../../context/AuthContext';
 import './DashboardView.css';
 import './DashboardCard.css';
@@ -417,7 +418,7 @@ const DashboardView = () => {
                     const isBTCPay = deposit.paymentMethod?.toLowerCase().includes('btcpay') || 
                                     deposit.paymentMethod?.toLowerCase().includes('bitcoin') ||
                                     !deposit.paymentMethod;
-                    const methodLabel = isBTCPay ? 'BTC-Pay' : (deposit.paymentMethod || 'Payment');
+                    const methodLabel = isBTCPay ? 'BTCPay' : (deposit.paymentMethod || 'Payment');
                     const depositDate = deposit.createdAt 
                       ? format(new Date(deposit.createdAt), 'MMM dd, yyyy • h:mm a')
                       : 'N/A';
@@ -487,6 +488,11 @@ const DashboardView = () => {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Daily Orders Chart Section */}
+        <div className="orders-chart-section page-section">
+          <DailyOrdersChart orders={orders} />
         </div>
     </div>
   );

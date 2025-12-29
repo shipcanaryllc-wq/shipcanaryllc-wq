@@ -18,6 +18,7 @@ const Profile = () => {
   const [success, setSuccess] = useState('');
   const [activeTab, setActiveTab] = useState('profile');
   const [passwordResetSent, setPasswordResetSent] = useState(false);
+  const [securityError, setSecurityError] = useState('');
   
   const [formData, setFormData] = useState({
     name: '',
@@ -230,37 +231,77 @@ const Profile = () => {
     }
   };
 
-  const handlePasswordReset = async () => {
+  const handlePasswordReset = async (e) => {
+    // Prevent default form submission if called from a form
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+
+    console.log("[RESET] clicked");
+
+    if (!user?.email) {
+      console.error('[RESET] No user email available');
+      setSecurityError('Unable to determine your email address. Please refresh the page.');
+      return;
+    }
+
     setLoading(true);
-    setError('');
+    setSecurityError('');
     setPasswordResetSent(false);
 
     try {
-      const token = localStorage.getItem('token');
-      await axios.post(`${API_BASE_URL}/auth/request-password-reset`, {
+      const base = process.env.REACT_APP_API_URL || process.env.VITE_API_URL || API_BASE_URL;
+      console.log("[RESET] base", base);
+
+      const url = `${base}/auth/request-password-reset`;
+      console.log('[RESET] calling API', {
+        url,
         email: user.email
-      }, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
       });
 
+      const response = await fetch(url, {
+        method: "POST",
+        headers: { 
+          "Content-Type": "application/json",
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({ email: user.email }),
+      });
+
+      const responseBody = await response.json();
+      console.log('[RESET] response status:', response.status);
+      console.log('[RESET] response body:', responseBody);
+
+      if (!response.ok) {
+        throw new Error(responseBody.message || `HTTP error! status: ${response.status}`);
+      }
+
+      console.log('[RESET] API call successful');
+
       setPasswordResetSent(true);
-      setSuccess('Password reset email sent! Check your inbox.');
+      setSecurityError(''); // Clear any previous errors
       setTimeout(() => {
-        setSuccess('');
         setPasswordResetSent(false);
       }, 5000);
     } catch (error) {
-      console.error('Error requesting password reset:', error);
+      console.error('[RESET] API call failed:', error);
+      console.error('[RESET] Error details:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status,
+        statusText: error.response?.statusText
+      });
       
       // Handle rate limiting (429) specifically
-      if (error.response?.status === 429) {
-        setError(error.response?.data?.message || 'Too many password reset requests. Please try again in an hour.');
+      if (error.message?.includes('429') || error.response?.status === 429) {
+        setSecurityError('Too many password reset requests. Please try again in an hour.');
       } else {
-        setError(error.response?.data?.message || 'Failed to send password reset email');
+        setSecurityError('Failed to send password reset email');
       }
+      setPasswordResetSent(false);
     } finally {
+      console.log('[RESET] handler finished, setting loading to false');
       setLoading(false);
     }
   };
@@ -306,20 +347,28 @@ const Profile = () => {
         <div className="profile-tabs">
           <button
             className={`profile-tab ${activeTab === 'profile' ? 'active' : ''}`}
-            onClick={() => setActiveTab('profile')}
+            onClick={() => {
+              setActiveTab('profile');
+              setSecurityError(''); // Clear security errors when switching tabs
+            }}
           >
             Profile
           </button>
           <button
             className={`profile-tab ${activeTab === 'security' ? 'active' : ''}`}
-            onClick={() => setActiveTab('security')}
+            onClick={() => {
+              setActiveTab('security');
+              setError(''); // Clear profile errors when switching tabs
+              setSuccess(''); // Clear profile success when switching tabs
+            }}
           >
             Security
           </button>
         </div>
 
-        {error && <div className="profile-error">{error}</div>}
-        {success && <div className="profile-success">{success}</div>}
+        {/* Profile tab errors/success shown inline in form */}
+        {activeTab === 'profile' && error && <div className="profile-error">{error}</div>}
+        {activeTab === 'profile' && success && <div className="profile-success">{success}</div>}
 
         {activeTab === 'profile' && (
           <form onSubmit={handleSubmit} className="profile-form">
@@ -426,25 +475,55 @@ const Profile = () => {
 
         {activeTab === 'security' && (
           <div className="security-section">
-            <h2>Password</h2>
-            <p className="security-description">
-              Reset your password by email. You'll receive a secure link that expires in 1 hour.
-            </p>
-            <div className="security-actions">
-              <button
-                onClick={handlePasswordReset}
-                disabled={loading || passwordResetSent}
-                className="btn-primary"
-              >
-                {passwordResetSent ? 'Email Sent ✓' : loading ? 'Sending...' : 'Reset Password'}
-              </button>
-            </div>
-            {passwordResetSent && (
-              <div className="security-message">
-                <p>✓ Password reset email sent to <strong>{user.email}</strong></p>
-                <p>Check your inbox and click the link to reset your password.</p>
+            <div className="security-content">
+              <h2 className="security-section-title">Password Reset</h2>
+              <p className="security-description">
+                Reset your password by email. You'll receive a secure link that expires in 1 hour.
+              </p>
+              
+              {/* Error Alert - Inline, subtle */}
+              {securityError && (
+                <div className="security-alert security-alert-error" role="alert">
+                  <svg className="security-alert-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path fillRule="evenodd" clipRule="evenodd" d="M10 18C14.4183 18 18 14.4183 18 10C18 5.58172 14.4183 2 10 2C5.58172 2 2 5.58172 2 10C2 14.4183 5.58172 18 10 18ZM8.70711 7.29289C8.31658 6.90237 7.68342 6.90237 7.29289 7.29289C6.90237 7.68342 6.90237 8.31658 7.29289 8.70711L8.58579 10L7.29289 11.2929C6.90237 11.6834 6.90237 12.3166 7.29289 12.7071C7.68342 13.0976 8.31658 13.0976 8.70711 12.7071L10 11.4142L11.2929 12.7071C11.6834 13.0976 12.3166 13.0976 12.7071 12.7071C13.0976 12.3166 13.0976 11.6834 12.7071 11.2929L11.4142 10L12.7071 8.70711C13.0976 8.31658 13.0976 7.68342 12.7071 7.29289C11.6834 6.90237 11.3166 6.90237 10.7071 7.29289L10 8L9.29289 7.29289H8.70711Z" fill="currentColor"/>
+                  </svg>
+                  <span>We couldn't send the password reset email. Please try again.</span>
+                </div>
+              )}
+              
+              {/* Success Alert - Inline, subtle */}
+              {passwordResetSent && (
+                <div className="security-alert security-alert-success" role="alert">
+                  <svg className="security-alert-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path fillRule="evenodd" clipRule="evenodd" d="M10 18C14.4183 18 18 14.4183 18 10C18 5.58172 14.4183 2 10 2C5.58172 2 2 5.58172 2 10C2 14.4183 5.58172 18 10 18ZM13.7071 8.29289C14.0976 8.68342 14.0976 9.31658 13.7071 9.70711L9.70711 13.7071C9.31658 14.0976 8.68342 14.0976 8.29289 13.7071L6.29289 11.7071C5.90237 11.3166 5.90237 10.6834 6.29289 10.2929C6.68342 9.90237 7.31658 9.90237 7.70711 10.2929L9 11.5858L12.2929 8.29289C12.6834 7.90237 13.3166 7.90237 13.7071 8.29289Z" fill="currentColor"/>
+                  </svg>
+                  <span>Password reset email sent. Check your inbox.</span>
+                </div>
+              )}
+              
+              <div className="security-actions">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    console.log('[RESET] button onClick fired');
+                    handlePasswordReset(e);
+                  }}
+                  disabled={loading || passwordResetSent}
+                  className="btn-security-reset"
+                >
+                  {loading ? (
+                    <>
+                      <svg className="btn-spinner" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeDasharray="43.98" strokeDashoffset="10" opacity="0.5"/>
+                      </svg>
+                      <span>Sending…</span>
+                    </>
+                  ) : (
+                    'Reset Password'
+                  )}
+                </button>
               </div>
-            )}
+            </div>
           </div>
         )}
         </div>

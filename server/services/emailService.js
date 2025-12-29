@@ -37,6 +37,8 @@ const sendEmail = async ({ to, subject, html, text }) => {
   }
 
   try {
+    console.log('[EMAIL] sending via Resend', { to, from: EMAIL_FROM, subject });
+    
     const { data, error } = await resend.emails.send({
       from: EMAIL_FROM,
       to,
@@ -46,12 +48,22 @@ const sendEmail = async ({ to, subject, html, text }) => {
     });
 
     if (error) {
-      console.error('❌ Resend API error:', error);
+      console.error('[EMAIL] Resend API error', { 
+        error: error.message, 
+        statusCode: error.statusCode,
+        to,
+        from: EMAIL_FROM
+      });
       throw new Error(`Failed to send email: ${error.message}`);
     }
 
-    console.log(`✅ Email sent successfully via Resend. ID: ${data?.id}`);
-    return { success: true, messageId: data?.id };
+    console.log('[EMAIL] sent successfully via Resend', { 
+      id: data?.id, 
+      to,
+      from: EMAIL_FROM 
+    });
+    // Return Resend response ID as 'id' to match Resend API response
+    return { success: true, id: data?.id, messageId: data?.id };
   } catch (error) {
     console.error('❌ Error sending email:', error);
     throw error;
@@ -62,7 +74,7 @@ const sendEmail = async ({ to, subject, html, text }) => {
  * Send password reset email
  * @param {string} email - Recipient email address
  * @param {string} resetToken - Password reset token
- * @returns {Promise<{success: boolean, messageId?: string}>}
+ * @returns {Promise<{success: boolean, id?: string, messageId?: string}>}
  */
 const sendPasswordResetEmail = async (email, resetToken) => {
   const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';

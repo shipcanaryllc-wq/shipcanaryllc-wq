@@ -18,7 +18,14 @@ const ResetPassword = () => {
   const [success, setSuccess] = useState(false);
 
   useEffect(() => {
+    console.log('[RESET-PASSWORD] Component loaded', { 
+      hasToken: !!token, 
+      tokenLength: token?.length,
+      url: window.location.href 
+    });
+    
     if (!token) {
+      console.error('[RESET-PASSWORD] No token in URL');
       setError('Invalid reset link. Please request a new password reset.');
     }
   }, [token]);
@@ -54,17 +61,28 @@ const ResetPassword = () => {
     setLoading(true);
 
     try {
-      await axios.post(`${API_BASE_URL}/auth/reset-password`, {
+      console.log('[RESET-PASSWORD] Submitting reset', {
+        url: `${API_BASE_URL}/auth/reset-password`,
+        hasToken: !!token,
+        tokenLength: token?.length
+      });
+
+      const response = await axios.post(`${API_BASE_URL}/auth/reset-password`, {
         token,
         password: formData.password
       });
 
+      console.log('[RESET-PASSWORD] Reset successful', response.data);
       setSuccess(true);
       setTimeout(() => {
         navigate('/login');
       }, 3000);
     } catch (error) {
-      console.error('Password reset error:', error);
+      console.error('[RESET-PASSWORD] Reset failed', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status
+      });
       setError(error.response?.data?.message || 'Failed to reset password. The link may have expired.');
     } finally {
       setLoading(false);

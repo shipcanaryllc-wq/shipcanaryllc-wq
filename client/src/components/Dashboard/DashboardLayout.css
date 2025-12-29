@@ -363,6 +363,13 @@
   max-width: 1280px;
   margin: 0 auto;
   padding: 24px 32px 48px 32px; /* py-6 px-8 equivalent */
+  padding-top: 24px; /* Space between header and content */
+}
+
+@media (max-width: 768px) {
+  .dashboard-content-container {
+    padding-top: 16px; /* Mobile: less space */
+  }
 }
 
 /* ============================================

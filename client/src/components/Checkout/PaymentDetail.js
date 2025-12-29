@@ -250,7 +250,7 @@ const PaymentDetail = () => {
                     </div>
                     <div className="method-info">
                       <h3>Buy Bitcoin with Credit or Debit Card</h3>
-                      <p>Don't already have Bitcoin? You can instantly purchase it using your credit or debit card (Visa, Mastercard, and supported cards) through a trusted exchange.</p>
+                      <p>Don't already have Bitcoin? You can instantly purchase it using your credit or debit card through a trusted exchange.</p>
                       <PaymentLogos />
                     </div>
                   </div>
@@ -263,19 +263,15 @@ const PaymentDetail = () => {
                       <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
                   </button>
-                  <p className="method-note">
-                    After purchasing Bitcoin, return to this page and use the <strong>Bitcoin Payment Portal above</strong> to complete your payment.
-                  </p>
                   
-                  {/* Step-by-step instructions */}
+                  {/* How payment works - directly below exchange button */}
                   <div className="payment-instructions">
-                    <h4>How to Complete Your Payment</h4>
+                    <h4>How payment works</h4>
                     <ol className="instructions-list">
-                      <li>Select a trusted exchange below to buy Bitcoin using your credit or debit card.</li>
-                      <li>Complete any required identity verification with the exchange (handled securely by them).</li>
-                      <li>Receive Bitcoin in your wallet or exchange account.</li>
-                      <li>Return to this page and open the <strong>Bitcoin Payment Portal above</strong> to view the payment address.</li>
-                      <li>Send the purchased Bitcoin to complete your payment.</li>
+                      <li>Choose a trusted exchange to buy Bitcoin using your credit or debit card.</li>
+                      <li>Complete your purchase on the exchange.</li>
+                      <li>Return here and open the Bitcoin Payment Portal above.</li>
+                      <li>Complete your payment with Bitcoin.</li>
                     </ol>
                   </div>
                 </div>

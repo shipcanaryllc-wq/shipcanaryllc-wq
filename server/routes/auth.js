@@ -17,7 +17,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-producti
 // Rate limiter for password reset requests
 const passwordResetLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
-  max: 5, // 5 requests per hour (increased from 3)
+  max: 10, // 10 requests per hour
   message: 'Too many password reset requests. Please try again later.',
   standardHeaders: true,
   legacyHeaders: false,
@@ -375,54 +375,148 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
 
 // Request password reset
 router.post('/request-password-reset',
-  passwordResetLimiter,
+  // Temporarily disabled rate limiter for testing
+  // passwordResetLimiter,
   [
     body('email').isEmail().normalizeEmail()
   ],
   async (req, res) => {
+    const { email } = req.body;
+    
+    // Helper to mask email for logging
+    const maskEmail = (email) => {
+      if (!email) return 'N/A';
+      const [localPart, domain] = email.split('@');
+      if (!domain) return email;
+      const maskedLocal = localPart.length > 2 
+        ? localPart.substring(0, 2) + '*'.repeat(Math.min(localPart.length - 2, 4))
+        : '*'.repeat(localPart.length);
+      return `${maskedLocal}@${domain}`;
+    };
+
+    const maskedEmail = maskEmail(email);
+    
+    // Step 1: Log request received with masked email
+    console.log('[RESET] request received', { 
+      email: maskedEmail, 
+      env: process.env.NODE_ENV,
+      timestamp: new Date().toISOString()
+    });
+
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
+        console.log('[RESET] validation failed', { errors: errors.array() });
         return res.status(400).json({ errors: errors.array() });
       }
 
-      const { email } = req.body;
-      const user = await User.findOne({ email: email.toLowerCase() });
-
-      // Always return success to prevent email enumeration
-      // But only send email if user exists
-      if (user) {
-        // Generate secure random token
-        const resetToken = crypto.randomBytes(32).toString('hex');
-        const hashedToken = crypto.createHash('sha256').update(resetToken).digest('hex');
-        
-        // Set token and expiration (1 hour)
-        user.passwordResetToken = hashedToken;
-        user.passwordResetExpires = Date.now() + 60 * 60 * 1000; // 1 hour
-        await user.save();
-
-        // Build reset link using FRONTEND_URL
-        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
-        const resetUrl = `${frontendUrl}/reset-password?token=${resetToken}`;
-
-        // Send email and log result
-        try {
-          const emailResult = await sendPasswordResetEmail(user.email, resetToken);
-          console.log(`✅ Password reset email sent successfully to ${user.email}. Resend ID: ${emailResult.messageId}`);
-        } catch (emailError) {
-          console.error(`❌ Failed to send password reset email to ${user.email}:`, emailError.message);
-          console.error('   Reset URL (for manual testing):', resetUrl);
-          // Don't fail the request if email fails - token is still set
-        }
+      // Step 2: Verify Resend is configured BEFORE processing
+      const hasResendKey = !!process.env.RESEND_API_KEY;
+      const emailFrom = process.env.EMAIL_FROM;
+      
+      if (!hasResendKey || !emailFrom) {
+        console.error('[RESET] EMAIL NOT CONFIGURED', { 
+          hasKey: hasResendKey, 
+          from: emailFrom || 'MISSING',
+          email: maskedEmail
+        });
+        // Return generic 200 response (security) BUT DO NOT attempt to send
+        return res.json({ 
+          message: 'If an account with that email exists, a password reset link has been sent.' 
+        });
       }
 
-      // Always return success message (security: prevent email enumeration)
-      res.json({ 
+      const user = await User.findOne({ email: email.toLowerCase() });
+
+      // Log user found/not found (but still return generic 200 for security)
+      if (!user) {
+        console.log('[RESET] user not found', { email: maskedEmail });
+        return res.json({ 
+          message: 'If an account with that email exists, a password reset link has been sent.' 
+        });
+      }
+
+      console.log('[RESET] user found', { 
+        userId: user._id.toString(), 
+        email: maskEmail(user.email)
+      });
+
+      // Generate secure random token
+      const resetToken = crypto.randomBytes(32).toString('hex');
+      const hashedToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+      
+      // Set token and expiration (1 hour)
+      const expiresAt = Date.now() + 60 * 60 * 1000; // 1 hour
+      user.passwordResetToken = hashedToken;
+      user.passwordResetExpires = expiresAt;
+      await user.save();
+
+      console.log('[RESET] token saved', { 
+        userId: user._id.toString(), 
+        expiresAt: new Date(expiresAt).toISOString() 
+      });
+
+      // Build reset link using FRONTEND_URL (NOT localhost)
+      const frontendUrl = process.env.FRONTEND_URL;
+      if (!frontendUrl) {
+        console.error('[RESET] FRONTEND_URL not configured');
+        return res.status(500).json({ ok: false, error: 'SERVER_CONFIG_ERROR', details: 'FRONTEND_URL not set' });
+      }
+
+      const resetUrl = `${frontendUrl}/reset-password?token=${resetToken}`;
+      
+      // Log resetUrl host only (don't log full token)
+      try {
+        const resetUrlHost = new URL(resetUrl).host;
+        console.log('[RESET] resetUrl host:', resetUrlHost);
+      } catch (urlError) {
+        console.error('[RESET] invalid resetUrl format', { resetUrl: resetUrl.substring(0, 50) + '...' });
+      }
+
+      // Step 5: Actually send the email and log provider response
+      console.log('[RESET] before calling Resend', { 
+        to: maskEmail(user.email),
+        from: emailFrom
+      });
+      
+      let emailResult;
+      try {
+        emailResult = await sendPasswordResetEmail(user.email, resetToken);
+        console.log('[RESET] Resend result', { 
+          id: emailResult.id || emailResult.messageId,
+          success: emailResult.success,
+          to: maskEmail(user.email),
+          userId: user._id.toString()
+        });
+      } catch (emailError) {
+        // IMPORTANT: Do NOT return 200 if Resend fails
+        console.error('[RESET] Resend failed', {
+          error: emailError.message,
+          stack: emailError.stack,
+          to: maskEmail(user.email),
+          userId: user._id.toString(),
+          errorType: emailError.constructor.name
+        });
+        return res.status(500).json({ 
+          ok: false, 
+          error: 'EMAIL_SEND_FAILED', 
+          details: emailError.message 
+        });
+      }
+
+      // Return success with Resend message id
+      return res.json({ 
+        ok: true,
+        messageId: emailResult.id || emailResult.messageId,
         message: 'If an account with that email exists, a password reset link has been sent.' 
       });
     } catch (error) {
-      console.error('Password reset request error:', error);
-      res.status(500).json({ message: 'Server error' });
+      console.error('[RESET] unexpected error', {
+        error: error.message,
+        stack: error.stack,
+        email: maskedEmail
+      });
+      return res.status(500).json({ ok: false, error: 'SERVER_ERROR', details: error.message });
     }
   }
 );

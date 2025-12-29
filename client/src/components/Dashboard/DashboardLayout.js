@@ -74,8 +74,8 @@ const DashboardLayout = ({ children, activeTab: externalActiveTab, onTabChange =
     {
       heading: 'SAVED',
       items: [
-        { id: 'saved-addresses', label: 'Saved Addresses', icon: LocationIcon, path: '/dashboard' },
-        { id: 'saved-packages', label: 'Saved Packages', icon: RulerIcon, path: '/dashboard' }
+        { id: 'addresses', label: 'Saved Addresses', icon: LocationIcon, path: '/dashboard' },
+        { id: 'packages', label: 'Saved Packages', icon: RulerIcon, path: '/dashboard' }
       ]
     },
     {

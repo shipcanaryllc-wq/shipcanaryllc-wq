@@ -9,36 +9,40 @@
 
 .payment-logos-row {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
+  justify-content: flex-start;
   gap: 24px;
 }
 
 .payment-logo-wrapper {
-  height: 26px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
-  opacity: 0.7;
-  transition: opacity 0.2s ease;
-  cursor: default;
   flex-shrink: 0;
   overflow: visible;
   min-width: 0;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+  cursor: pointer;
 }
 
 .payment-logo-wrapper:hover {
-  opacity: 1;
+  transform: translateY(-2px);
+  opacity: 0.8;
 }
 
 .payment-logo-svg {
   height: 100%;
   width: auto;
-  max-width: none;
   display: block;
-  filter: grayscale(100%);
-  opacity: 0.8;
+  object-fit: contain;
   overflow: visible;
+  transition: opacity 0.2s ease;
+}
+
+.payment-logo-wrapper:hover .payment-logo-svg {
+  opacity: 1;
 }
 
 /* Responsive */
@@ -48,7 +52,7 @@
   }
 
   .payment-logo-wrapper {
-    height: 20px;
+    height: 26px;
   }
 
   .payment-logo-svg {

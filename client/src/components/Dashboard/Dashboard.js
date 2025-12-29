@@ -40,6 +40,9 @@ const Dashboard = () => {
         return <DashboardView />;
       case 'create-label':
         return <CreateLabel />;
+      case 'orders-history':
+      case 'history-horizontal':
+        return <OrdersHistoryHorizontal />;
       case 'bulk-orders':
         return <BulkOrders />;
       case 'batches-list':
@@ -48,8 +51,6 @@ const Dashboard = () => {
         return <SavedAddresses />;
       case 'packages':
         return <SavedPackages />;
-      case 'history-horizontal':
-        return <OrdersHistoryHorizontal />;
       case 'balance':
         return <AddBalance />;
       case 'integrations':

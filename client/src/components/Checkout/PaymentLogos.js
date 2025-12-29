@@ -2,88 +2,80 @@ import React from 'react';
 import './PaymentLogos.css';
 
 /**
- * PaymentLogos - Displays supported payment method logos
- * Shows Mastercard, Visa, American Express, and Discover
+ * PaymentLogos - Clean, neutral, monochrome payment card logos
+ * All logos share the same height and preserve aspect ratio
  */
 const PaymentLogos = () => {
   return (
     <div className="payment-logos-container">
       <div className="payment-logos-row">
-        {/* Visa Logo */}
+        {/* Visa-style text mark */}
         <div className="payment-logo-wrapper" title="Visa" aria-label="Visa">
           <svg 
-            viewBox="0 0 90 28" 
+            viewBox="0 0 80 30" 
             fill="none" 
             xmlns="http://www.w3.org/2000/svg"
             className="payment-logo-svg"
             preserveAspectRatio="xMidYMid meet"
           >
-            {/* Orange-yellow accent chevron on the V */}
-            <path 
-              d="M 8 4 L 8 10 L 14 20 L 18 20 L 12 10 L 12 4 Z" 
-              fill="#F7B600"
-            />
             <text 
-              x="45" 
-              y="20" 
+              x="40" 
+              y="22" 
               fontFamily="Arial, sans-serif" 
-              fontSize="18" 
+              fontSize="20" 
               fontWeight="700" 
-              fill="#1434CB" 
+              fill="#333333" 
               textAnchor="middle" 
               letterSpacing="2"
-              style={{ fontStyle: 'italic' }}
             >
               VISA
             </text>
           </svg>
         </div>
 
-        {/* Mastercard Logo - Old version */}
+        {/* Mastercard-style: two overlapping circles */}
         <div className="payment-logo-wrapper" title="Mastercard" aria-label="Mastercard">
           <svg 
-            viewBox="0 0 75 28" 
+            viewBox="0 0 60 40" 
             fill="none" 
             xmlns="http://www.w3.org/2000/svg"
             className="payment-logo-svg"
             preserveAspectRatio="xMidYMid meet"
           >
-            <circle cx="25" cy="14" r="11" fill="#EB001B"/>
-            <circle cx="50" cy="14" r="11" fill="#F79E1B"/>
-            <circle cx="37.5" cy="14" r="10" fill="#FF5F00"/>
-            <text x="37.5" y="11" fontFamily="Arial, sans-serif" fontSize="6" fontWeight="600" fill="white" textAnchor="middle" letterSpacing="0.3">Master</text>
-            <text x="37.5" y="19" fontFamily="Arial, sans-serif" fontSize="6" fontWeight="600" fill="white" textAnchor="middle" letterSpacing="0.3">Card</text>
+            <circle cx="20" cy="20" r="15" fill="#666666" opacity="0.6"/>
+            <circle cx="40" cy="20" r="15" fill="#666666" opacity="0.6"/>
+            <circle cx="30" cy="20" r="14" fill="#333333"/>
           </svg>
         </div>
 
-        {/* American Express Logo */}
+        {/* AMEX-style: credit card shape with text */}
         <div className="payment-logo-wrapper" title="American Express" aria-label="American Express">
           <svg 
-            viewBox="0 0 85 28" 
+            viewBox="0 0 64 40" 
             fill="none" 
             xmlns="http://www.w3.org/2000/svg"
             className="payment-logo-svg"
             preserveAspectRatio="xMidYMid meet"
           >
-            <rect width="85" height="28" rx="3" fill="#006FCF"/>
-            <text x="42.5" y="11" fontFamily="Arial, sans-serif" fontSize="7" fontWeight="700" fill="white" textAnchor="middle" letterSpacing="1">AMERICAN</text>
-            <text x="42.5" y="20" fontFamily="Arial, sans-serif" fontSize="7" fontWeight="700" fill="white" textAnchor="middle" letterSpacing="1">EXPRESS</text>
+            <rect width="64" height="40" rx="3" fill="#333333"/>
+            <text x="32" y="16" fontFamily="Arial, sans-serif" fontSize="6" fontWeight="700" fill="#ffffff" textAnchor="middle" letterSpacing="0.4">AMERICAN</text>
+            <text x="32" y="28" fontFamily="Arial, sans-serif" fontSize="6" fontWeight="700" fill="#ffffff" textAnchor="middle" letterSpacing="0.4">EXPRESS</text>
           </svg>
         </div>
 
-        {/* Generic Credit Card Icon */}
+        {/* Generic credit card icon - credit card shape */}
         <div className="payment-logo-wrapper" title="Credit Card" aria-label="Credit Card">
           <svg 
-            viewBox="0 0 60 28" 
+            viewBox="0 0 64 40" 
             fill="none" 
             xmlns="http://www.w3.org/2000/svg"
             className="payment-logo-svg"
             preserveAspectRatio="xMidYMid meet"
           >
-            <rect width="60" height="28" rx="3" fill="#4A5568"/>
-            <rect x="0" y="4" width="60" height="6" fill="white"/>
-            <rect x="8" y="16" width="12" height="2" fill="white"/>
-            <rect x="24" y="16" width="12" height="2" fill="white"/>
+            <rect width="64" height="40" rx="3" stroke="#333333" strokeWidth="1.5" fill="none"/>
+            <rect x="8" y="10" width="48" height="4" fill="#666666"/>
+            <rect x="8" y="24" width="18" height="2.5" fill="#666666"/>
+            <rect x="30" y="24" width="18" height="2.5" fill="#666666"/>
           </svg>
         </div>
       </div>

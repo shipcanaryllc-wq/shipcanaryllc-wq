@@ -1,5 +1,6 @@
 .profile-page-content {
   /* Layout handled by DashboardLayout */
+  /* Spacing handled by dashboard-content-container padding-top */
 }
 
 .profile-card {
@@ -65,6 +66,7 @@
   display: flex;
   border-bottom: 1px solid #e5e7eb;
   padding: 0 32px;
+  gap: 0;
 }
 
 .profile-tab {
@@ -74,18 +76,20 @@
   border-bottom: 2px solid transparent;
   font-size: 0.95rem;
   font-weight: 500;
-  color: #6b7280;
+  color: #9ca3af; /* Muted inactive color */
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
+  position: relative;
 }
 
 .profile-tab:hover {
-  color: #111827;
+  color: #6b7280; /* Slightly darker on hover, but still muted */
 }
 
 .profile-tab.active {
-  color: #ff6b35;
-  border-bottom-color: #ff6b35;
+  color: #111827; /* Strong contrast for active */
+  font-weight: 600; /* Semibold for active */
+  border-bottom-color: #111827; /* Clear underline */
 }
 
 .profile-error {
@@ -293,38 +297,126 @@
 
 .security-section {
   padding: 32px;
+  display: flex;
+  justify-content: center;
+}
+
+.security-content {
+  width: 100%;
+  max-width: 680px; /* Center with max width */
+  margin: 0 auto;
+}
+
+.security-section-title {
+  margin: 0 0 12px 0; /* 12px = 1.5 * 8px */
+  font-size: 1.25rem; /* Consistent with profile-section h2 */
+  font-weight: 600; /* Semibold */
+  color: #111827;
+  line-height: 1.4;
 }
 
 .security-description {
-  margin: 0 0 24px 0;
-  color: #6b7280;
-  font-size: 0.95rem;
+  margin: 0 0 32px 0; /* 32px = 4 * 8px - increased spacing */
+  color: #6b7280; /* Muted color */
+  font-size: 0.9375rem; /* 15px - regular body text */
+  font-weight: 400; /* Regular */
   line-height: 1.6;
 }
 
+/* Inline Alert Styles */
+.security-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px; /* 12px = 1.5 * 8px */
+  padding: 12px 16px; /* 12px = 1.5 * 8px vertical, 16px = 2 * 8px horizontal */
+  border-radius: 8px; /* Medium border radius */
+  font-size: 0.9375rem; /* 15px - regular body text */
+  line-height: 1.5;
+  margin-bottom: 24px; /* 24px = 3 * 8px */
+}
+
+.security-alert-icon {
+  flex-shrink: 0;
+  margin-top: 2px; /* Align with text baseline */
+}
+
+.security-alert-error {
+  background: #fef2f2; /* Light red background */
+  color: #991b1b; /* Dark red text for readability */
+  border: 1px solid #fecaca;
+}
+
+.security-alert-error .security-alert-icon {
+  color: #dc2626; /* Red icon */
+}
+
+.security-alert-success {
+  background: #f0fdf4; /* Light green background */
+  color: #166534; /* Dark green text for readability */
+  border: 1px solid #bbf7d0;
+}
+
+.security-alert-success .security-alert-icon {
+  color: #16a34a; /* Green icon */
+}
+
 .security-actions {
-  margin-bottom: 24px;
-}
-
-.security-message {
-  padding: 16px;
-  background: #d1fae5;
-  border: 1px solid #a7f3d0;
-  border-radius: 8px;
-  color: #065f46;
-}
-
-.security-message p {
-  margin: 8px 0;
-  font-size: 0.9rem;
-}
-
-.security-message p:first-child {
-  margin-top: 0;
-}
-
-.security-message p:last-child {
+  margin-top: 8px; /* 8px = 1 * 8px */
   margin-bottom: 0;
+}
+
+/* Security Reset Button - Refined CTA */
+.btn-security-reset {
+  width: 100%;
+  height: 48px; /* 48px = 6 * 8px */
+  padding: 0 24px; /* 24px = 3 * 8px */
+  background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%); /* Subtle gradient */
+  color: #ffffff;
+  border: none;
+  border-radius: 8px; /* Medium border radius */
+  font-size: 0.9375rem; /* 15px */
+  font-weight: 600; /* Semibold */
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px; /* 8px = 1 * 8px */
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); /* Subtle shadow, not harsh */
+}
+
+.btn-security-reset:hover:not(:disabled) {
+  background: linear-gradient(135deg, #e55a2b 0%, #e0821a 100%); /* Darker on hover */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Slightly more shadow on hover */
+  transform: translateY(-1px);
+}
+
+.btn-security-reset:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.2); /* Visible focus state */
+}
+
+.btn-security-reset:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.btn-security-reset:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-spinner {
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @media (max-width: 640px) {
@@ -335,7 +427,11 @@
   .profile-header,
   .profile-form,
   .security-section {
-    padding: 24px;
+    padding: 24px 20px;
+  }
+
+  .profile-tabs {
+    padding: 0 20px;
   }
 
   .profile-actions {
@@ -344,6 +440,14 @@
 
   .btn-primary,
   .btn-secondary {
+    width: 100%;
+  }
+
+  .security-content {
+    max-width: 100%;
+  }
+
+  .btn-security-reset {
     width: 100%;
   }
 }
