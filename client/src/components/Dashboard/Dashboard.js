@@ -32,6 +32,10 @@ const Dashboard = () => {
       setActiveTab('balance');
       window.history.replaceState({}, '', '/dashboard');
     }
+    if (tab === 'orders-history' || tab === 'history' || tab === 'history-horizontal') {
+      setActiveTab('orders-history');
+      window.history.replaceState({}, '', '/dashboard');
+    }
   }, [searchParams, user, fetchUser]);
 
   const renderContent = () => {

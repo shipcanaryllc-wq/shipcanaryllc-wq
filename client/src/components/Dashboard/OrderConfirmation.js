@@ -84,8 +84,12 @@ const OrderConfirmation = ({ order, onClose }) => {
     
     setDownloadingLabel(true);
     try {
+      const token = localStorage.getItem('token');
       const response = await axios.get(`${API_BASE_URL}/orders/${orderId}/label`, {
         responseType: 'blob',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
       
       const blob = new Blob([response.data], { type: 'application/pdf' });
@@ -93,7 +97,7 @@ const OrderConfirmation = ({ order, onClose }) => {
       
       const link = document.createElement('a');
       link.href = url;
-      link.target = '_blank';
+      link.download = `label-${orderId}.pdf`;
       link.rel = 'noopener noreferrer';
       document.body.appendChild(link);
       link.click();
@@ -102,7 +106,13 @@ const OrderConfirmation = ({ order, onClose }) => {
       setTimeout(() => window.URL.revokeObjectURL(url), 100);
     } catch (error) {
       console.error('Error downloading label:', error);
-      alert('Failed to download label. Please try again.');
+      if (error.response?.status === 401) {
+        alert('Session expired. Please log in again.');
+      } else if (error.response?.status === 404) {
+        alert('Label not found. The label may not be available yet.');
+      } else {
+        alert('Failed to download label. Please check your internet connection and try again.');
+      }
     } finally {
       setDownloadingLabel(false);
     }
@@ -172,7 +182,7 @@ const OrderConfirmation = ({ order, onClose }) => {
   };
 
   const handleViewDetails = () => {
-    navigate(`/dashboard?tab=history`);
+    navigate(`/dashboard?tab=orders-history`);
   };
 
   return (
@@ -182,45 +192,41 @@ const OrderConfirmation = ({ order, onClose }) => {
         <div className="success-header">
           <div className="success-icon-wrapper">
             <div className="success-icon-container">
-              {/* Animated orange checkmark with gradient */}
+              {/* Professional success checkmark */}
               <svg 
                 className={`success-icon ${checkmarkAnimated ? 'animated' : ''}`} 
-                viewBox="0 0 80 80" 
+                viewBox="0 0 64 64" 
                 fill="none" 
                 xmlns="http://www.w3.org/2000/svg"
               >
-                {/* Outer glow ring */}
+                {/* Subtle background circle */}
                 <circle 
-                  cx="40" 
-                  cy="40" 
-                  r="38" 
-                  fill="url(#orangeGradient)" 
-                  className="success-circle"
+                  cx="32" 
+                  cy="32" 
+                  r="30" 
+                  fill="#10b981"
+                  className="success-circle-bg"
+                  opacity={checkmarkAnimated ? 1 : 0}
+                  style={{
+                    transition: 'opacity 0.3s ease-out'
+                  }}
                 />
-                {/* Checkmark path with stroke animation */}
+                {/* Checkmark path */}
                 <path 
-                  d="M24 40 L36 52 L56 28" 
+                  d="M20 32 L28 40 L44 24" 
                   stroke="white" 
-                  strokeWidth="4" 
+                  strokeWidth="3.5" 
                   strokeLinecap="round" 
                   strokeLinejoin="round"
                   className="success-checkmark"
                   style={{
-                    strokeDasharray: checkmarkAnimated ? '44' : '0',
-                    strokeDashoffset: checkmarkAnimated ? '0' : '44',
-                    transition: 'stroke-dashoffset 0.5s ease-out'
+                    strokeDasharray: checkmarkAnimated ? '30' : '0',
+                    strokeDashoffset: checkmarkAnimated ? '0' : '30',
+                    transition: 'stroke-dashoffset 0.4s ease-out 0.2s',
+                    opacity: checkmarkAnimated ? 1 : 0
                   }}
                 />
-                {/* Gradient definition */}
-                <defs>
-                  <linearGradient id="orangeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#ff6b35" />
-                    <stop offset="100%" stopColor="#f7931e" />
-                  </linearGradient>
-                </defs>
               </svg>
-              {/* Pulse ring effect */}
-              <div className="success-pulse-ring"></div>
             </div>
           </div>
           <h1 className="success-title">Label created</h1>
@@ -246,6 +252,35 @@ const OrderConfirmation = ({ order, onClose }) => {
               <div className="summary-item">
                 <span className="summary-label">Date</span>
                 <span className="summary-value">{formattedDate} {formattedTime}</span>
+              </div>
+            )}
+            {trackingNumber && (
+              <div className="summary-item full-width">
+                <span className="summary-label">Tracking Number</span>
+                <div className="summary-tracking-wrapper">
+                  <span className="summary-tracking-value">{trackingNumber}</span>
+                  <button
+                    onClick={handleCopyTracking}
+                    className={`summary-copy-button ${copySuccess ? 'copied' : ''}`}
+                  >
+                    {copySuccess ? (
+                      <>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                          <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                        Copied
+                      </>
+                    ) : (
+                      <>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                        </svg>
+                        Copy
+                      </>
+                    )}
+                  </button>
+                </div>
               </div>
             )}
           </div>
@@ -357,51 +392,21 @@ const OrderConfirmation = ({ order, onClose }) => {
           </div>
         </div>
 
-        {/* Tracking Section */}
+        {/* Tracking Link Section */}
         {trackingNumber && (
-          <div className="tracking-card">
-            <h2 className="card-title">Tracking Information</h2>
-            <div className="tracking-content">
-              <div className="tracking-number-wrapper">
-                <span className="tracking-label">Tracking Number</span>
-                <div className="tracking-number-display">
-                  <span className="tracking-number-value">{trackingNumber}</span>
-                  <button
-                    onClick={handleCopyTracking}
-                    className={`copy-button ${copySuccess ? 'copied' : ''}`}
-                  >
-                    {copySuccess ? (
-                      <>
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                          <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg>
-                        Copied
-                      </>
-                    ) : (
-                      <>
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                        </svg>
-                        Copy
-                      </>
-                    )}
-                  </button>
-                </div>
-              </div>
-              <a
-                href={trackPackageUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="track-button"
-              >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <polyline points="12 6 12 12 16 14"></polyline>
-                </svg>
-                Track Package
-              </a>
-            </div>
+          <div className="tracking-link-section">
+            <a
+              href={trackPackageUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="track-button"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+              Track Package
+            </a>
           </div>
         )}
       </div>

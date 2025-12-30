@@ -248,7 +248,7 @@
   overflow-x: hidden;
   border-right: 1px solid #1a1a1a;
   transition: width 0.3s ease, transform 0.3s ease;
-  z-index: 99;
+  z-index: 100;
 }
 
 .dashboard-sidebar.collapsed {

@@ -22,6 +22,7 @@ export const useMapboxAutocomplete = (inputRef, onPlaceSelect) => {
   const inputValueRef = useRef('');
   const isFocusedRef = useRef(false);
   const openRef = useRef(false);
+  const currentInputRef = useRef(null); // Track the actual input element to detect changes
 
   // Keep callback ref updated
   useEffect(() => {
@@ -106,7 +107,24 @@ export const useMapboxAutocomplete = (inputRef, onPlaceSelect) => {
     const input = inputRef?.current;
     
     if (!input) {
+      // If input doesn't exist yet, return early but don't prevent re-running
+      // This allows the effect to re-run when the input becomes available
       return;
+    }
+    
+    // Check if input element has changed (remount scenario)
+    const inputChanged = currentInputRef.current !== input;
+    if (inputChanged) {
+      if (DEBUG_AUTOCOMPLETE) {
+        console.log('[Mapbox] Input element changed, resetting state');
+      }
+      // Reset internal state flags when input element changes
+      suppressNextQueryRef.current = false;
+      isSelectingRef.current = false;
+      inputValueRef.current = input.value || '';
+      isFocusedRef.current = false;
+      openRef.current = false;
+      currentInputRef.current = input;
     }
 
     const accessToken = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN;
@@ -116,7 +134,7 @@ export const useMapboxAutocomplete = (inputRef, onPlaceSelect) => {
     }
     
     if (DEBUG_AUTOCOMPLETE) {
-      console.log('[Mapbox] Autocomplete initialized for input:', input.id || 'unnamed');
+      console.log('[Mapbox] Autocomplete initialized for input:', input.id || input.name || 'unnamed');
     }
 
     const performSearch = async (query) => {
@@ -378,7 +396,7 @@ export const useMapboxAutocomplete = (inputRef, onPlaceSelect) => {
         abortRef.current = null;
       }
     };
-  }, [inputRef, closeDropdown, handleSelect]); // Removed isFocused and open from deps to prevent re-attaching listeners
+  }, [inputRef, closeDropdown, handleSelect, inputRef?.current]); // Include inputRef.current to detect when input element changes
 
   // Expose closeDropdown for external use
   const closeSuggestions = useCallback(() => {
@@ -403,6 +421,50 @@ export const useMapboxAutocomplete = (inputRef, onPlaceSelect) => {
     }
   }, [inputRef]);
 
+  // Reset function to clear all internal state
+  const reset = useCallback(() => {
+    if (DEBUG_AUTOCOMPLETE) {
+      console.log('[Mapbox] reset() called');
+    }
+    
+    // Abort any pending requests
+    if (abortRef.current) {
+      abortRef.current.abort();
+      abortRef.current = null;
+    }
+    
+    // Clear debounce timeout
+    if (debounceTimeoutRef.current) {
+      clearTimeout(debounceTimeoutRef.current);
+      debounceTimeoutRef.current = null;
+    }
+    
+    // Clear blur timeout
+    if (blurTimeoutRef.current) {
+      clearTimeout(blurTimeoutRef.current);
+      blurTimeoutRef.current = null;
+    }
+    
+    // Reset all state flags - IMPORTANT: Don't reset suppressNextQueryRef here
+    // as it might interfere with normal operation
+    isSelectingRef.current = false;
+    inputValueRef.current = '';
+    isFocusedRef.current = false;
+    openRef.current = false;
+    
+    // Clear state
+    setItems([]);
+    setLoading(false);
+    setOpen(false);
+    setSelectedIndex(-1);
+    setIsFocused(false);
+    
+    // Clear input value if ref exists
+    if (inputRef?.current) {
+      inputRef.current.value = '';
+    }
+  }, [inputRef]);
+
   return {
     suggestions: items, // Keep for backward compatibility
     showSuggestions: open, // Keep for backward compatibility
@@ -411,6 +473,7 @@ export const useMapboxAutocomplete = (inputRef, onPlaceSelect) => {
     suggestionsRef: rootRef, // Keep for backward compatibility
     closeSuggestions,
     setInputValue,
+    reset,
     // New explicit API
     open,
     loading,

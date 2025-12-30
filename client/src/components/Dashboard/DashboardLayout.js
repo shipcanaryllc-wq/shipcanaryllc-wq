@@ -4,7 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { ChevronDown } from 'lucide-react';
 import { getDisplayName } from '../../utils/userDisplay';
 import Logo from '../Logo/Logo';
-import { DashboardIcon, PackageIcon, HistoryIcon, BulkOrdersIcon, BatchesListIcon, LocationIcon, RulerIcon, WalletIcon, IntegrationsIcon } from '../Icons/Icons';
+import { DashboardIcon, PackageIcon, HistoryIcon, BulkOrdersIcon, BatchesListIcon, LocationIcon, RulerIcon, MoneyIcon, IntegrationsIcon } from '../Icons/Icons';
 import './DashboardLayout.css';
 
 /**
@@ -81,7 +81,7 @@ const DashboardLayout = ({ children, activeTab: externalActiveTab, onTabChange =
     {
       heading: 'ACCOUNT',
       items: [
-        { id: 'balance', label: 'Add Balance', icon: WalletIcon, path: '/dashboard' },
+        { id: 'balance', label: 'Add Balance', icon: MoneyIcon, path: '/dashboard' },
         { id: 'integrations', label: 'Integrations', icon: IntegrationsIcon, path: '/dashboard' }
       ]
     }

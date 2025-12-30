@@ -76,6 +76,7 @@
   position: relative;
   background: linear-gradient(to bottom, #f8f8fa 0%, #f1f2f6 100%);
   min-height: 100%;
+  width: 100%;
 }
 
 /* Page Shell - Consistent Layout Wrapper */

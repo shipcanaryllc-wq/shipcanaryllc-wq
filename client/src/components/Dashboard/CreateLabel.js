@@ -334,6 +334,7 @@ const CreateLabel = () => {
   const [showPackageModal, setShowPackageModal] = useState(false);
   const [showOrderConfirmation, setShowOrderConfirmation] = useState(false);
   const [createdOrder, setCreatedOrder] = useState(null);
+  const [formResetKey, setFormResetKey] = useState(0); // Key to force remount of AddressFormFields
   
   // Debounce timer for auto-selection
   const autoSelectTimerRef = useRef(null);
@@ -1444,6 +1445,19 @@ const CreateLabel = () => {
             setCreatedOrder(null);
             isPurchaseInProgressRef.current = false; // Reset ref when closing confirmation
             setLoading(false);
+            // Force remount of AddressFormFields to ensure clean state
+            // This will cause the refs to be reassigned to new DOM elements
+            setFormResetKey(prev => prev + 1);
+            // Small delay to ensure DOM is updated before resetting hooks
+            setTimeout(() => {
+              // Reset Mapbox autocomplete hooks to clear internal state after remount
+              if (fromAutocomplete.reset) {
+                fromAutocomplete.reset();
+              }
+              if (toAutocomplete.reset) {
+                toAutocomplete.reset();
+              }
+            }, 0);
           }}
         />
       </div>
@@ -1692,14 +1706,25 @@ const CreateLabel = () => {
                     step="0.1"
                     min="0.1"
                     value={newPackage.length}
+                    onFocus={(e) => {
+                      // Select all text if value is "0" so typing replaces it
+                      if (e.target.value === '0') {
+                        e.target.select();
+                      }
+                    }}
                     onChange={(e) => {
-                    const newLength = e.target.value === '' ? '0' : e.target.value;
+                      // Allow empty string during editing - don't force '0'
+                      const newLength = e.target.value;
                       setNewPackage({ ...newPackage, length: newLength });
-                      validateDimensions(newLength, newPackage.width, newPackage.height);
+                      validateDimensions(newLength || '0', newPackage.width || '0', newPackage.height || '0');
                       // Reset user selection when package changes to allow auto-selection
                       setUserSelectedServiceId(null);
                     }}
-                    onBlur={() => {
+                    onBlur={(e) => {
+                      // Only set to '0' on blur if field is empty
+                      if (e.target.value === '') {
+                        setNewPackage({ ...newPackage, length: '0' });
+                      }
                       // Trigger auto-selection when user finishes editing
                       autoSelectBestService();
                     }}
@@ -1713,14 +1738,25 @@ const CreateLabel = () => {
                     step="0.1"
                     min="0.1"
                     value={newPackage.width}
+                    onFocus={(e) => {
+                      // Select all text if value is "0" so typing replaces it
+                      if (e.target.value === '0') {
+                        e.target.select();
+                      }
+                    }}
                     onChange={(e) => {
-                    const newWidth = e.target.value === '' ? '0' : e.target.value;
+                      // Allow empty string during editing - don't force '0'
+                      const newWidth = e.target.value;
                       setNewPackage({ ...newPackage, width: newWidth });
-                      validateDimensions(newPackage.length, newWidth, newPackage.height);
+                      validateDimensions(newPackage.length || '0', newWidth || '0', newPackage.height || '0');
                       // Reset user selection when package changes to allow auto-selection
                       setUserSelectedServiceId(null);
                     }}
-                    onBlur={() => {
+                    onBlur={(e) => {
+                      // Only set to '0' on blur if field is empty
+                      if (e.target.value === '') {
+                        setNewPackage({ ...newPackage, width: '0' });
+                      }
                       // Trigger auto-selection when user finishes editing
                       autoSelectBestService();
                     }}
@@ -1734,14 +1770,25 @@ const CreateLabel = () => {
                     step="0.1"
                     min="0.1"
                     value={newPackage.height}
+                    onFocus={(e) => {
+                      // Select all text if value is "0" so typing replaces it
+                      if (e.target.value === '0') {
+                        e.target.select();
+                      }
+                    }}
                     onChange={(e) => {
-                    const newHeight = e.target.value === '' ? '0' : e.target.value;
+                      // Allow empty string during editing - don't force '0'
+                      const newHeight = e.target.value;
                       setNewPackage({ ...newPackage, height: newHeight });
-                      validateDimensions(newPackage.length, newPackage.width, newHeight);
+                      validateDimensions(newPackage.length || '0', newPackage.width || '0', newHeight || '0');
                       // Reset user selection when package changes to allow auto-selection
                       setUserSelectedServiceId(null);
                     }}
-                    onBlur={() => {
+                    onBlur={(e) => {
+                      // Only set to '0' on blur if field is empty
+                      if (e.target.value === '') {
+                        setNewPackage({ ...newPackage, height: '0' });
+                      }
                       // Trigger auto-selection when user finishes editing
                       autoSelectBestService();
                     }}
@@ -1756,13 +1803,24 @@ const CreateLabel = () => {
                   min="0.1"
                   max="70"
                   value={newPackage.weight}
+                  onFocus={(e) => {
+                    // Select all text if value is "0" so typing replaces it
+                    if (e.target.value === '0') {
+                      e.target.select();
+                    }
+                  }}
                   onChange={(e) => {
-                    const newWeight = e.target.value === '' ? '0' : e.target.value;
+                    // Allow empty string during editing - don't force '0'
+                    const newWeight = e.target.value;
                     setNewPackage({ ...newPackage, weight: newWeight });
                     // Reset user selection when package changes to allow auto-selection
                     setUserSelectedServiceId(null);
                   }}
-                  onBlur={() => {
+                  onBlur={(e) => {
+                    // Only set to '0' on blur if field is empty
+                    if (e.target.value === '') {
+                      setNewPackage({ ...newPackage, weight: '0' });
+                    }
                     // Trigger auto-selection when user finishes editing
                     autoSelectBestService();
                   }}
@@ -1822,6 +1880,7 @@ const CreateLabel = () => {
 
           <div className="form-card">
             <AddressFormFields
+              key={`from-${formResetKey}`}
               prefix="from"
               address={newFromAddress}
               setAddress={setNewFromAddress}
@@ -1865,6 +1924,7 @@ const CreateLabel = () => {
 
           <div className="form-card">
             <AddressFormFields
+              key={`to-${formResetKey}`}
               prefix="to"
               address={newToAddress}
               setAddress={setNewToAddress}

@@ -115,7 +115,7 @@
   border: 1px solid rgba(0, 0, 0, 0.04);
   display: flex;
   flex-direction: column;
-  height: 100%;
+  align-self: flex-start; /* Align to top instead of stretching */
 }
 
 .card-title {
@@ -138,6 +138,7 @@
   display: flex;
   flex-direction: column;
   gap: 0; /* Gap handled by info-row padding */
+  flex-shrink: 0; /* Don't grow unnecessarily */
 }
 
 .info-row {
@@ -185,6 +186,29 @@
   flex-direction: column;
   gap: 0;
   padding-top: 8px; /* 8px = 1 * 8px - add space after header */
+  max-height: 400px; /* Limit height, add scroll when content exceeds */
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 8px;
+}
+
+/* Custom scrollbar for orders list */
+.orders-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.orders-list::-webkit-scrollbar-track {
+  background: #f9fafb;
+  border-radius: 3px;
+}
+
+.orders-list::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 3px;
+}
+
+.orders-list::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
 }
 
 .order-item {
@@ -321,11 +345,21 @@
   display: flex;
   flex-direction: column;
   gap: 0;
-  max-height: 600px;
-  overflow-y: auto;
+  max-height: none; /* Remove fixed max-height, let it grow naturally */
+  overflow-y: visible; /* Only show scrollbar if content exceeds container */
   overflow-x: hidden;
   padding-right: 8px;
   margin-top: 8px;
+}
+
+/* Only add scrollbar if deposits list gets too long */
+.deposits-list-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  max-height: 400px; /* Limit container height only if content exceeds */
+  overflow-y: auto; /* Enable scroll only when content exceeds max-height */
 }
 
 /* Custom scrollbar for deposits list */

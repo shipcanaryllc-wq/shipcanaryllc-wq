@@ -1,0 +1,130 @@
+/* ============================================
+   PAYMENT LOGOS - Professional Payment Method Indicators
+   Proportional spacing, equal boxes, optical balance
+   ============================================ */
+
+.container {
+  margin-top: 12px;
+  margin-bottom: 4px;
+  overflow: visible !important; /* Ensure container doesn't clip */
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: clamp(14px, 3vw, 28px); /* Responsive gap */
+  row-gap: clamp(10px, 2vw, 18px); /* Row spacing for wrapped items */
+  overflow: visible !important; /* Ensure row doesn't clip */
+}
+
+/* Fixed-size boxes - equal for all logos */
+.logoBox {
+  /* Desktop: 140px × 56px (increased height for Mastercard), Tablet: 120px × 50px, Mobile: 110px × 48px */
+  width: clamp(110px, 12vw, 140px);
+  height: clamp(48px, 6vw, 56px); /* Increased height to prevent Mastercard clipping */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: visible !important; /* NOT hidden - allow logos to extend if needed */
+  background: transparent !important;
+  transition: filter 0.2s ease, opacity 0.2s ease, transform 0.2s ease;
+  cursor: pointer;
+  position: relative; /* Ensure proper positioning context */
+}
+
+/* Image styling - CRITICAL: prevents distortion and clipping */
+.logoMedia {
+  /* No fixed height - wrapper defines size, image fits within */
+  width: 100% !important; /* Override any global img styles */
+  height: 100% !important; /* Fill wrapper height */
+  max-width: 100% !important;
+  max-height: 100% !important;
+  display: block !important;
+  object-fit: contain !important; /* Prevent distortion - critical - fits within bounds */
+  object-position: center !important;
+  background: transparent !important; /* No background */
+  /* Grayscale by default for professional look */
+  filter: grayscale(100%);
+  opacity: 0.6;
+  transition: filter 0.2s ease, opacity 0.2s ease, transform 0.2s ease;
+}
+
+/* Optical balance adjustments - subtle scale tweaks */
+/* Reduced scales to prevent clipping with overflow: visible */
+.logoMedia.visa {
+  transform: scale(0.95);
+}
+
+.logoMedia.mastercard {
+  transform: scale(1.0); /* Reduced from 1.05 to prevent clipping */
+}
+
+.logoMedia.amex {
+  transform: scale(1.0); /* Reduced from 1.05 to prevent clipping */
+}
+
+.logoMedia.interac {
+  transform: scale(1.05); /* Reduced from 1.10 to prevent clipping */
+}
+
+/* Full color on hover */
+.logoBox:hover .logoMedia {
+  filter: grayscale(0%) !important;
+  opacity: 1 !important;
+}
+
+.logoBox:hover {
+  transform: translateY(-2px);
+}
+
+/* Ensure hover transform doesn't conflict with scale */
+.logoBox:hover .logoMedia.visa {
+  transform: scale(0.95) translateY(0);
+}
+
+.logoBox:hover .logoMedia.mastercard {
+  transform: scale(1.0) translateY(0);
+}
+
+.logoBox:hover .logoMedia.amex {
+  transform: scale(1.0) translateY(0);
+}
+
+.logoBox:hover .logoMedia.interac {
+  transform: scale(1.05) translateY(0);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .row {
+    gap: clamp(12px, 2.5vw, 20px);
+    row-gap: clamp(8px, 1.5vw, 14px);
+    overflow: visible !important;
+  }
+
+  .logoBox {
+    /* Tablet sizing - increased height */
+    width: clamp(110px, 12vw, 120px);
+    height: clamp(48px, 6vw, 50px);
+    overflow: visible !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .row {
+    gap: clamp(10px, 2vw, 16px);
+    row-gap: clamp(8px, 1.5vw, 12px);
+    overflow: visible !important;
+  }
+
+  .logoBox {
+    /* Mobile sizing - 2 per row, increased height */
+    width: clamp(110px, 12vw, 120px);
+    height: clamp(46px, 6vw, 48px);
+    flex: 0 0 calc(50% - clamp(5px, 1vw, 8px));
+    overflow: visible !important;
+  }
+}

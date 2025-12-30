@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 90 28" fill="none">
+  <!-- Gold stripe -->
+  <rect x="0" y="10" width="90" height="8" fill="#F7B600"/>
+  <!-- Dark blue top stripe -->
+  <rect x="0" y="0" width="90" height="3" fill="#1434CB"/>
+  <!-- Dark blue bottom stripe -->
+  <rect x="0" y="25" width="90" height="3" fill="#1434CB"/>
+  <!-- VISA text -->
+  <text x="45" y="20" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#1434CB" text-anchor="middle" letter-spacing="2">VISA</text>
+</svg>
+

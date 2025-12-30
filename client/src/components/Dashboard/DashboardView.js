@@ -360,11 +360,20 @@ const DashboardView = () => {
                   const isSuccess = order.status === 'completed' && order.trackingStatus !== 'Exception';
                   const isFailed = order.status === 'failed' || order.trackingStatus === 'Exception';
                   
+                  // Format service name to ensure "USPS" prefix
+                  const formatServiceName = (service) => {
+                    if (!service) return 'USPS Service';
+                    // If it already starts with USPS, return as is
+                    if (service.toLowerCase().startsWith('usps')) return service;
+                    // Otherwise, add USPS prefix
+                    return `USPS ${service}`;
+                  };
+                  
                   return (
                     <div key={order._id || order.id} className="order-item">
                       <div className="order-item-content">
                         <div className="order-item-left">
-                          <div className="order-service">{order.uspsService || 'USPS Service'}</div>
+                          <div className="order-service">{formatServiceName(order.uspsService)}</div>
                           <div className="order-addresses">
                             From: {fromName} → To: {toName}
                           </div>

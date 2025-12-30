@@ -1,11 +1,14 @@
 .confirmation-wrapper {
   width: 100%;
-  min-height: 100vh;
+  min-height: calc(100vh - 60px); /* Account for header height */
   background: #f8fafc;
   padding: 40px 20px;
   display: flex;
   justify-content: center;
   align-items: flex-start;
+  position: relative;
+  z-index: 1;
+  pointer-events: auto;
 }
 
 .confirmation-container {
@@ -37,37 +40,18 @@
 }
 
 .success-icon {
-  width: 80px;
-  height: 80px;
-  animation: scaleIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-  filter: drop-shadow(0 4px 12px rgba(255, 107, 53, 0.3));
+  width: 64px;
+  height: 64px;
+  animation: scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  filter: drop-shadow(0 2px 6px rgba(16, 185, 129, 0.25));
 }
 
-.success-circle {
-  transition: transform 0.3s ease-out;
-}
-
-.success-icon.animated .success-circle {
-  animation: scaleIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+.success-circle-bg {
+  transition: opacity 0.3s ease-out;
 }
 
 .success-checkmark {
   fill: none;
-  stroke-dasharray: 44;
-  stroke-dashoffset: 44;
-}
-
-.success-pulse-ring {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  border: 2px solid rgba(255, 107, 53, 0.4);
-  animation: pulseRing 1.5s ease-out;
-  pointer-events: none;
 }
 
 @keyframes scaleIn {
@@ -81,16 +65,6 @@
   }
 }
 
-@keyframes pulseRing {
-  0% {
-    transform: translate(-50%, -50%) scale(0.8);
-    opacity: 1;
-  }
-  100% {
-    transform: translate(-50%, -50%) scale(1.4);
-    opacity: 0;
-  }
-}
 
 .success-title {
   font-size: 32px;
@@ -130,6 +104,55 @@
   gap: 6px;
 }
 
+.summary-item.full-width {
+  grid-column: 1 / -1;
+}
+
+.summary-tracking-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.summary-tracking-value {
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
+  letter-spacing: 0.05em;
+  padding: 8px 12px;
+  background: #f3f4f6;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+}
+
+.summary-copy-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.summary-copy-button:hover {
+  background: #f3f4f6;
+  border-color: #d1d5db;
+}
+
+.summary-copy-button.copied {
+  background: #d1fae5;
+  border-color: #10b981;
+  color: #059669;
+}
+
 .summary-label {
   font-size: 13px;
   font-weight: 500;
@@ -146,7 +169,7 @@
 
 .summary-value.price-value {
   font-size: 24px;
-  color: #ff6b35;
+  color: #10b981;
   font-weight: 700;
 }
 
@@ -316,79 +339,11 @@
   margin-bottom: 4px;
 }
 
-/* Tracking Card */
-.tracking-card {
-  background: white;
-  border-radius: 12px;
-  padding: 24px 32px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
-  border: 1px solid #e5e7eb;
-  border-left: 4px solid #059669;
-}
-
-.tracking-content {
+/* Tracking Link Section */
+.tracking-link-section {
   display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.tracking-number-wrapper {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.tracking-label {
-  font-size: 13px;
-  font-weight: 500;
-  color: #6b7280;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.tracking-number-display {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.tracking-number-value {
-  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
-  font-size: 18px;
-  font-weight: 600;
-  color: #111827;
-  letter-spacing: 0.05em;
-  padding: 8px 12px;
-  background: #f3f4f6;
-  border-radius: 6px;
-  border: 1px solid #e5e7eb;
-}
-
-.copy-button {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 14px;
-  background: #f9fafb;
-  border: 1px solid #e5e7eb;
-  border-radius: 6px;
-  font-size: 13px;
-  font-weight: 500;
-  color: #374151;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.copy-button:hover {
-  background: #f3f4f6;
-  border-color: #d1d5db;
-}
-
-.copy-button.copied {
-  background: #d1fae5;
-  border-color: #10b981;
-  color: #059669;
+  justify-content: center;
+  margin-top: 8px;
 }
 
 .track-button {
@@ -434,8 +389,7 @@
 
   .summary-card,
   .details-card,
-  .address-card,
-  .tracking-card {
+  .address-card {
     padding: 20px 24px;
   }
 
@@ -469,7 +423,7 @@
     grid-template-columns: 1fr;
   }
 
-  .tracking-number-display {
+  .summary-tracking-wrapper {
     flex-direction: column;
     align-items: flex-start;
   }
@@ -482,8 +436,8 @@
 
 @media (max-width: 480px) {
   .success-icon {
-    width: 48px;
-    height: 48px;
+    width: 56px;
+    height: 56px;
   }
 
   .success-title {
@@ -492,8 +446,7 @@
 
   .summary-card,
   .details-card,
-  .address-card,
-  .tracking-card {
+  .address-card {
     padding: 16px 20px;
   }
 }

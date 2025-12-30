@@ -3,7 +3,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
 import OnRampWidget from './OnRampWidget';
-import PaymentLogos from './PaymentLogos';
+import PaymentLogos from '../PaymentLogos/PaymentLogos';
 import './PaymentDetail.css';
 import API_BASE_URL from '../../config/api';
 import { Shield, Lock, Code, FileText } from 'lucide-react';
@@ -276,9 +276,9 @@ const PaymentDetail = () => {
                   </div>
                 </div>
 
-                {/* Secure & Trusted Payments Section */}
+                {/* Secure & Encrypted Payments Section */}
                 <div className="security-section">
-                  <h3 className="security-title">Secure & Trusted Payments</h3>
+                  <h3 className="security-title">Secure & Encrypted Payments</h3>
                   <div className="security-grid">
                     <div className="security-item">
                       <Code size={20} className="security-icon" />
