@@ -77,31 +77,6 @@ const OnRampWidget = ({ onClose, amount, currency = 'USD' }) => {
         </div>
 
         <div className="onramp-widget-content">
-          <div className="onramp-info">
-            <h3>How to Complete Your Payment</h3>
-            <ol>
-              <li>
-                <strong>Select a trusted exchange</strong> below to purchase Bitcoin with your credit or debit card
-              </li>
-              <li>
-                Complete any required <strong>identity verification</strong> with the exchange (handled securely by them)
-              </li>
-              <li>
-                <strong>Receive Bitcoin</strong> directly in your personal wallet or exchange account
-              </li>
-              <li>
-                Return to this payment page and <strong>open the BTCPay checkout</strong> to view the invoice address
-              </li>
-              <li>
-                <strong>Send the purchased Bitcoin</strong> to the BTCPay invoice address to complete your payment
-              </li>
-            </ol>
-
-            <div className="important-note">
-              <strong>Important:</strong> After purchasing Bitcoin, return here and send it to the BTCPay invoice address to complete payment.
-            </div>
-          </div>
-
           <div className="provider-selector">
             <label>Select Exchange:</label>
             <select
@@ -139,7 +114,7 @@ const OnRampWidget = ({ onClose, amount, currency = 'USD' }) => {
                   </svg>
                 </a>
                 <p className="widget-note">
-                  After purchasing Bitcoin, return to this page and send the Bitcoin to your BTCPay invoice address to complete payment.
+                  After purchasing Bitcoin, return to the payment screen and open the Bitcoin Payment Portal to complete your payment.
                 </p>
               </div>
             )}
