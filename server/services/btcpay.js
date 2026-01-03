@@ -17,10 +17,14 @@ const crypto = require('crypto');
  * - Mapping BTCPay statuses to our PaymentStatus enum
  */
 
-const BTCPAY_URL = process.env.BTCPAY_URL;
+// Normalize BTCPAY_URL to include protocol if missing
+const rawBtcpayUrl = process.env.BTCPAY_URL || '';
+const BTCPAY_URL = rawBtcpayUrl.startsWith('http://') || rawBtcpayUrl.startsWith('https://') 
+  ? rawBtcpayUrl 
+  : `https://${rawBtcpayUrl}`;
 const BTCPAY_API_KEY = process.env.BTCPAY_API_KEY;
 const BTCPAY_STORE_ID = process.env.BTCPAY_STORE_ID;
-const BTCPAY_WEBHOOK_SECRET = process.env.BTCPAY_WEBHOOK_SECRET;
+const BTCPAY_WEBHOOK_SECRET = process.env.BTCPAY_WEBHOOK_SECRET || '';
 
 // Create axios instance for BTCPay API
 const btcpayClient = axios.create({
@@ -31,6 +35,22 @@ const btcpayClient = axios.create({
   },
   timeout: 30000
 });
+
+// Runtime assertion: Verify axios client is configured with correct baseURL (not demo server)
+if (BTCPAY_URL) {
+  const baseDomain = BTCPAY_URL.replace(/^https?:\/\//, '').replace(/\/$/, '');
+  const demoDomains = ['demo.btcpayserver.org', 'mainnet.demo.btcpayserver.org', 'testnet.demo.btcpayserver.org'];
+  const isDemoBaseUrl = demoDomains.some(domain => baseDomain.includes(domain));
+  
+  if (isDemoBaseUrl) {
+    console.error('[BTCPay Security] ⚠️  CRITICAL: BTCPAY_URL points to DEMO server!');
+    console.error(`  BTCPAY_URL: ${BTCPAY_URL}`);
+    console.error(`  This will cause ALL invoices to be created on demo server!`);
+    console.error(`  Update BTCPAY_URL in .env to: https://btcpay483258.lndyn.com`);
+  } else {
+    console.log('[BTCPay Service] ✅ Axios client configured with baseURL:', BTCPAY_URL);
+  }
+}
 
 /**
  * Maps BTCPay invoice status to our PaymentStatus enum
@@ -97,6 +117,13 @@ async function createInvoice({ amount, currency = 'USD', userId, metadata = {} }
     );
   }
 
+  // CRITICAL: Log BTCPAY_URL at runtime to verify it's correct (dev only)
+  if (process.env.NODE_ENV !== 'production') {
+    console.log('[BTCPay Invoice Creation] BTCPAY_URL env:', process.env.BTCPAY_URL);
+    console.log('[BTCPay Invoice Creation] BTCPAY_URL normalized:', BTCPAY_URL);
+    console.log('[BTCPay Invoice Creation] BTCPAY_STORE_ID:', BTCPAY_STORE_ID);
+  }
+
   try {
     // BTCPay expects amount as a string in the smallest currency unit
     // For USD, that's cents. For BTC, that's satoshis.
@@ -125,9 +152,111 @@ async function createInvoice({ amount, currency = 'USD', userId, metadata = {} }
 
     const invoice = response.data;
 
+    // Runtime assertion: Verify invoice was created for the correct store
+    // This ensures addresses are derived ONLY from the configured store's xpub
+    const invoiceStoreId = invoice.storeId || invoice.store?.id || null;
+    if (invoiceStoreId && invoiceStoreId !== BTCPAY_STORE_ID) {
+      console.error('[BTCPay Security] ⚠️  CRITICAL: Invoice store ID mismatch!');
+      console.error(`  Expected Store ID: ${BTCPAY_STORE_ID}`);
+      console.error(`  Invoice Store ID: ${invoiceStoreId}`);
+      console.error(`  Invoice ID: ${invoice.id}`);
+      // Don't throw - log and continue, but this should never happen
+    }
+
+    // CRITICAL FIX: Validate and fix checkout URL to prevent demo server usage
+    // BTCPay may return checkoutLink pointing to demo server - we MUST override it
+    const originalCheckoutLink = invoice.checkoutLink || null;
+    let checkoutUrl = originalCheckoutLink;
+    const expectedDomain = BTCPAY_URL.replace(/^https?:\/\//, '').replace(/\/$/, '');
+    const demoDomains = ['demo.btcpayserver.org', 'mainnet.demo.btcpayserver.org', 'testnet.demo.btcpayserver.org'];
+    
+    // ALWAYS log the original checkoutLink from BTCPay (for debugging)
+    console.log('[BTCPay Invoice] Raw checkoutLink from BTCPay API:', originalCheckoutLink || 'null');
+    
+    // Check if checkoutLink points to demo server
+    if (checkoutUrl) {
+      const checkoutUrlLower = checkoutUrl.toLowerCase();
+      const isDemoUrl = demoDomains.some(domain => checkoutUrlLower.includes(domain));
+      
+      if (isDemoUrl) {
+        console.error('[BTCPay Security] ⚠️  CRITICAL: Invoice checkoutLink points to DEMO server!');
+        console.error(`  Invalid checkoutLink: ${checkoutUrl}`);
+        console.error(`  Invoice ID: ${invoice.id}`);
+        console.error(`  Expected domain: ${expectedDomain}`);
+        console.error(`  Overriding with correct URL: ${BTCPAY_URL}/i/${invoice.id}`);
+        checkoutUrl = null; // Force reconstruction with correct URL
+      } else {
+        // Validate checkoutLink points to our configured server
+        try {
+          const checkoutDomain = new URL(checkoutUrl).hostname;
+          if (checkoutDomain !== expectedDomain) {
+            console.warn('[BTCPay Security] ⚠️  CheckoutLink domain mismatch!');
+            console.warn(`  Expected domain: ${expectedDomain}`);
+            console.warn(`  CheckoutLink domain: ${checkoutDomain}`);
+            console.warn(`  Invoice ID: ${invoice.id}`);
+            console.warn(`  Overriding with correct URL: ${BTCPAY_URL}/i/${invoice.id}`);
+            checkoutUrl = null; // Force reconstruction
+          }
+        } catch (urlError) {
+          console.warn('[BTCPay Security] ⚠️  Invalid checkoutLink URL format:', urlError.message);
+          console.warn(`  Invalid URL: ${checkoutUrl}`);
+          checkoutUrl = null; // Force reconstruction
+        }
+      }
+    }
+    
+    // Construct checkout URL if missing or invalid
+    if (!checkoutUrl) {
+      checkoutUrl = `${BTCPAY_URL}/i/${invoice.id}`;
+      console.log('[BTCPay Invoice] Constructed checkout URL:', checkoutUrl);
+    }
+    
+    // ALWAYS log final checkout URL domain (for debugging)
+    try {
+      const finalDomain = new URL(checkoutUrl).hostname;
+      console.log('[BTCPay Invoice] Final checkout URL domain:', finalDomain);
+      console.log('[BTCPay Invoice] Expected domain:', expectedDomain);
+      console.log('[BTCPay Invoice] Domain match:', finalDomain === expectedDomain ? '✅' : '❌');
+    } catch (e) {
+      console.error('[BTCPay Invoice] Error parsing final checkout URL:', e.message);
+    }
+
+    // Extract BTC address from invoice (derived from store's xpub)
+    const btcAddress = invoice.addresses?.BTC || invoice.availableAddressHashes?.BTC || null;
+    
+    // Runtime assertion: Address MUST come from BTCPay response (store's derivation scheme)
+    if (!btcAddress) {
+      console.warn('[BTCPay Security] ⚠️  No BTC address in invoice response');
+      console.warn(`  Invoice ID: ${invoice.id}`);
+      console.warn(`  Store ID: ${BTCPAY_STORE_ID}`);
+      // This is OK - address may be generated later by BTCPay
+    } else {
+      // Validate address format (basic check)
+      const isValidBtcAddress = /^(bc1|[13])[a-zA-HJ-NP-Z0-9]{25,62}$/.test(btcAddress);
+      if (!isValidBtcAddress && btcAddress !== 'N/A') {
+        console.warn('[BTCPay Security] ⚠️  Invalid BTC address format in invoice response');
+        console.warn(`  Address: ${btcAddress}`);
+        console.warn(`  Invoice ID: ${invoice.id}`);
+      }
+    }
+
+    // Enhanced debug logging (non-production only or when DEBUG=true)
+    if (process.env.NODE_ENV !== 'production' || process.env.DEBUG === 'true') {
+      console.log('[BTCPay Debug] Invoice created successfully:');
+      console.log(`  - Invoice ID: ${invoice.id}`);
+      console.log(`  - Store ID: ${BTCPAY_STORE_ID} (configured)`);
+      console.log(`  - Invoice Store ID: ${invoiceStoreId || 'N/A'} (from BTCPay)`);
+      console.log(`  - Checkout URL: ${checkoutUrl} (validated)`);
+      console.log(`  - Checkout Domain: ${new URL(checkoutUrl).hostname}`);
+      console.log(`  - BTC Address: ${btcAddress || 'N/A'} (derived from store xpub)`);
+      console.log(`  - BTCPay URL: ${BTCPAY_URL}`);
+      console.log(`  - Derivation Source: Store ${BTCPAY_STORE_ID} configured wallet`);
+      console.log(`  - Address Origin: BTCPay Server HD wallet (xpub-based)`);
+    }
+
     return {
       btcpayInvoiceId: invoice.id,
-      btcpayCheckoutUrl: invoice.checkoutLink || `${BTCPAY_URL}/i/${invoice.id}`,
+      btcpayCheckoutUrl: checkoutUrl, // Use validated/constructed URL
       amount: parseFloat(invoice.amount) || amount,
       currency: invoice.currency || currency,
       status: mapBtcpayStatusToPaymentStatus(invoice.status, invoice.exceptionStatus),
@@ -266,6 +395,60 @@ async function getInvoiceStatus(invoiceId) {
 
     const invoice = response.data;
     
+    // Runtime assertion: Verify invoice belongs to configured store
+    const invoiceStoreId = invoice.storeId || invoice.store?.id || null;
+    if (invoiceStoreId && invoiceStoreId !== BTCPAY_STORE_ID) {
+      console.error('[BTCPay Security] ⚠️  Invoice store ID mismatch in getInvoiceStatus');
+      console.error(`  Expected Store ID: ${BTCPAY_STORE_ID}`);
+      console.error(`  Invoice Store ID: ${invoiceStoreId}`);
+      console.error(`  Invoice ID: ${invoiceId}`);
+    }
+    
+    // CRITICAL FIX: Validate and fix checkout URL to prevent demo server usage
+    let checkoutUrl = invoice.checkoutLink || null;
+    const expectedDomain = BTCPAY_URL.replace(/^https?:\/\//, '').replace(/\/$/, '');
+    const demoDomains = ['demo.btcpayserver.org', 'mainnet.demo.btcpayserver.org', 'testnet.demo.btcpayserver.org'];
+    
+    if (checkoutUrl) {
+      const checkoutUrlLower = checkoutUrl.toLowerCase();
+      const isDemoUrl = demoDomains.some(domain => checkoutUrlLower.includes(domain));
+      
+      if (isDemoUrl) {
+        console.error('[BTCPay Security] ⚠️  CheckoutLink points to DEMO server in getInvoiceStatus!');
+        console.error(`  Invalid checkoutLink: ${checkoutUrl}`);
+        console.error(`  Overriding with correct URL`);
+        checkoutUrl = null;
+      } else {
+        try {
+          const checkoutDomain = new URL(checkoutUrl).hostname;
+          if (checkoutDomain !== expectedDomain) {
+            console.warn('[BTCPay Security] ⚠️  CheckoutLink domain mismatch in getInvoiceStatus');
+            checkoutUrl = null;
+          }
+        } catch (e) {
+          console.warn('[BTCPay Security] ⚠️  Invalid checkoutLink URL format');
+          checkoutUrl = null;
+        }
+      }
+    }
+    
+    if (!checkoutUrl) {
+      checkoutUrl = `${BTCPAY_URL}/i/${invoice.id}`;
+    }
+    
+    // Extract BTC address (from store's derivation scheme)
+    const btcAddress = invoice.addresses?.BTC || invoice.availableAddressHashes?.BTC || null;
+    
+    // Debug logging for address verification
+    if ((process.env.NODE_ENV !== 'production' || process.env.DEBUG === 'true') && btcAddress) {
+      console.log('[BTCPay Debug] Invoice status retrieved:');
+      console.log(`  - Invoice ID: ${invoiceId}`);
+      console.log(`  - Store ID: ${BTCPAY_STORE_ID} (configured)`);
+      console.log(`  - Checkout URL: ${checkoutUrl} (validated)`);
+      console.log(`  - BTC Address: ${btcAddress} (derived from store xpub)`);
+      console.log(`  - Address Origin: BTCPay Server HD wallet`);
+    }
+    
     return {
       btcpayInvoiceId: invoice.id,
       status: mapBtcpayStatusToPaymentStatus(invoice.status, invoice.exceptionStatus),
@@ -273,7 +456,7 @@ async function getInvoiceStatus(invoiceId) {
       btcpayExceptionStatus: invoice.exceptionStatus,
       amount: parseFloat(invoice.amount) || null,
       currency: invoice.currency || 'USD',
-      btcpayCheckoutUrl: invoice.checkoutLink || `${BTCPAY_URL}/i/${invoice.id}`
+      btcpayCheckoutUrl: checkoutUrl // Use validated/constructed URL
     };
   } catch (error) {
     console.error('BTCPay getInvoiceStatus error:', error.response?.data || error.message);

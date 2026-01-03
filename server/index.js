@@ -49,6 +49,29 @@ if (!RESEND_API_KEY || !EMAIL_FROM) {
   console.log('   EMAIL_FROM:', EMAIL_FROM);
 }
 
+// BTCPay configuration validation
+const BTCPAY_URL = process.env.BTCPAY_URL;
+const BTCPAY_API_KEY = process.env.BTCPAY_API_KEY;
+const BTCPAY_STORE_ID = process.env.BTCPAY_STORE_ID;
+if (!BTCPAY_URL || !BTCPAY_API_KEY || !BTCPAY_STORE_ID) {
+  console.warn('\n═══════════════════════════════════════════════════════════');
+  console.warn('⚠️  BTCPAY NOT FULLY CONFIGURED');
+  console.warn('═══════════════════════════════════════════════════════════');
+  if (!BTCPAY_URL) console.warn('   Missing: BTCPAY_URL');
+  if (!BTCPAY_API_KEY) console.warn('   Missing: BTCPAY_API_KEY');
+  if (!BTCPAY_STORE_ID) console.warn('   Missing: BTCPAY_STORE_ID');
+  console.warn('   Bitcoin payments will fail until configured.');
+  console.warn('═══════════════════════════════════════════════════════════\n');
+} else {
+  const normalizedUrl = BTCPAY_URL.startsWith('http://') || BTCPAY_URL.startsWith('https://') 
+    ? BTCPAY_URL 
+    : `https://${BTCPAY_URL}`;
+  console.log('✅ BTCPay configured');
+  console.log('   BTCPAY_URL:', normalizedUrl);
+  console.log('   BTCPAY_STORE_ID:', BTCPAY_STORE_ID);
+  console.log('   BTCPAY_API_KEY: loaded');
+}
+
 const app = express();
 
 // B) CORS Configuration - Strict allowlist
@@ -226,6 +249,8 @@ app.use('/api/users', require('./routes/users'));
 app.use('/api/payments', require('./routes/payments'));
 app.use('/api/payments', require('./routes/payments-btcpay'));
 app.use('/api/deposits', require('./routes/deposits'));
+app.use('/api/tracking', require('./routes/tracking'));
+app.use('/api/test', require('./routes/test-btcpay')); // Test endpoint for BTCPay verification
 
 // Health check
 app.get('/api/health', (req, res) => {

@@ -34,7 +34,7 @@ const router = express.Router();
 router.post('/create',
   auth,
   [
-    body('amount').isFloat({ min: 0.01 }).withMessage('Amount must be at least 0.01'),
+    body('amount').isFloat({ min: 1.00 }).withMessage('Amount must be at least 1.00'),
     body('currency').optional().isIn(['USD', 'EUR', 'BTC', 'USDT']).withMessage('Invalid currency')
   ],
   async (req, res) => {
@@ -100,6 +100,26 @@ router.post('/create',
       console.log(`[Invoice Creation]   - Topup ID: ${topup._id}`);
       console.log(`[BTCPAY] Created invoice ${invoiceData.btcpayInvoiceId}`);
       console.log(`[BTCPAY] Invoice metadata:`, JSON.stringify(invoiceMetadata, null, 2));
+      
+      // CRITICAL: Log checkout URL domain for verification (ALWAYS log, not just dev)
+      try {
+        const checkoutDomain = new URL(payment.btcpayCheckoutUrl).hostname;
+        const expectedDomain = process.env.BTCPAY_URL?.replace(/^https?:\/\//, '').replace(/\/$/, '') || 'unknown';
+        console.log(`[Invoice Creation] 🔍 CHECKOUT URL VERIFICATION:`);
+        console.log(`  - Checkout URL: ${payment.btcpayCheckoutUrl}`);
+        console.log(`  - Checkout Domain: ${checkoutDomain}`);
+        console.log(`  - Expected Domain: ${expectedDomain}`);
+        console.log(`  - Domain Match: ${checkoutDomain === expectedDomain ? '✅ CORRECT' : '❌ MISMATCH'}`);
+        
+        // Warn if domain doesn't match
+        if (checkoutDomain !== expectedDomain) {
+          console.error(`[Invoice Creation] ⚠️  WARNING: Checkout URL domain mismatch!`);
+          console.error(`  This invoice will open the wrong BTCPay server!`);
+        }
+      } catch (urlError) {
+        console.error(`[Invoice Creation] ❌ Error parsing checkout URL:`, urlError.message);
+        console.error(`  Checkout URL: ${payment.btcpayCheckoutUrl}`);
+      }
 
       res.json({
         paymentId: payment._id.toString(),

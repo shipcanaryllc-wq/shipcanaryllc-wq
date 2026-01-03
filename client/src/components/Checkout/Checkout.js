@@ -84,14 +84,14 @@ const Checkout = () => {
             <input
               type="number"
               id="amount"
-              min="0.01"
+              min="1.00"
               step="0.01"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               required
               disabled={loading}
             />
-            <small>Minimum: $0.01</small>
+            <small>Minimum: $1.00</small>
           </div>
 
           <div className="payment-info">
@@ -105,7 +105,7 @@ const Checkout = () => {
           <button 
             type="submit" 
             className="btn-primary"
-            disabled={loading || amount < 0.01}
+            disabled={loading || amount < 1.00}
           >
             {loading ? 'Creating Payment...' : 'Continue to Crypto Checkout'}
           </button>

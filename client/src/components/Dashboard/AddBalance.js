@@ -128,14 +128,14 @@ const AddBalance = () => {
               <input
                 type="number"
                 step="0.01"
-                min="0.01"
+                min="1.00"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 required
                 placeholder="10.00"
                 disabled={loading}
               />
-              <small className="helper-text">Minimum: $0.01</small>
+              <small className="helper-text">Minimum: $1.00</small>
             </div>
 
             {/* Payment Method Section */}
@@ -154,7 +154,7 @@ const AddBalance = () => {
             <div className="payment-actions">
               <button 
                 type="submit" 
-                disabled={loading || !amount || parseFloat(amount) < 0.01} 
+                disabled={loading || !amount || parseFloat(amount) < 1.00} 
                 className="pay-button"
               >
                 {loading ? 'Creating Payment...' : 'Continue to Bitcoin Checkout'}
