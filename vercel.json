@@ -1,7 +1,7 @@
 {
   "version": 2,
-  "buildCommand": "cd client && npm ci && npm run build",
-  "outputDirectory": "client/build",
+  "buildCommand": "npm ci && npm run build",
+  "outputDirectory": "build",
   "framework": "create-react-app",
   "installCommand": "npm ci",
   "functions": {
