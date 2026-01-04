@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import apiClient from '../../config/axios';
 import { format } from 'date-fns';
 import BitcoinLogo from '../BitcoinLogo/BitcoinLogo';
 import DailyOrdersChart from './DailyOrdersChart';
@@ -76,8 +76,12 @@ const DashboardView = () => {
   const fetchOrders = async () => {
     try {
       setLoading(true);
+      const token = localStorage.getItem('token');
+      if (process.env.NODE_ENV !== 'production') {
+        console.log('[DashboardView] Fetching orders - token exists:', !!token, 'token preview:', token ? token.substring(0, 10) + '...' : 'none');
+      }
       // Fetch all orders for dashboard metrics (use high per_page to get all orders)
-      const response = await axios.get(`${API_BASE_URL}/orders`, {
+      const response = await apiClient.get('/orders', {
         params: {
           page: 1,
           per_page: 1000 // Get all orders for accurate metrics calculation
@@ -106,11 +110,7 @@ const DashboardView = () => {
       setLoadingDeposits(true);
       setErrorDeposits(null);
       
-      const response = await axios.get(`${API_BASE_URL}/deposits/recent`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
+      const response = await apiClient.get('/deposits/recent');
       
       if (response.data.deposits && Array.isArray(response.data.deposits)) {
         setDeposits(response.data.deposits);

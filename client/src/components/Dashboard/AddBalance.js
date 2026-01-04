@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import apiClient from '../../config/axios';
 import { useAuth } from '../../context/AuthContext';
 import './AddBalance.css';
 import API_BASE_URL from '../../config/api';
@@ -47,19 +47,14 @@ const AddBalance = () => {
         return;
       }
 
-      const response = await axios.post(
-        `${API_BASE_URL}/payments/create`,
+      const response = await apiClient.post(
+        '/payments/create',
         {
           amount: parseFloat(amount),
           currency: 'USD',
           metadata: {
             source: 'add_balance_page',
             timestamp: new Date().toISOString()
-          }
-        },
-        {
-          headers: {
-            'Authorization': `Bearer ${token}`
           }
         }
       );

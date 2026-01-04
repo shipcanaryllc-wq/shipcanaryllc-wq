@@ -24,7 +24,7 @@
 
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import apiClient from '../../config/axios';
 import { useAuth } from '../../context/AuthContext';
 import { useOrderSelection } from '../../hooks/useOrderSelection';
 import { mergePdfsFromUrls, downloadPdf } from '../../utils/pdfMerge';
@@ -72,13 +72,14 @@ const OrdersHistoryHorizontal = () => {
   const fetchOrders = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${API_BASE_URL}/orders`, {
+      const token = localStorage.getItem('token');
+      if (process.env.NODE_ENV !== 'production') {
+        console.log('[OrdersHistory] Fetching orders - token exists:', !!token, 'token preview:', token ? token.substring(0, 10) + '...' : 'none');
+      }
+      const response = await apiClient.get('/orders', {
         params: {
           page: 1,
           per_page: perPage,
-        },
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
       });
 
@@ -124,12 +125,9 @@ const OrdersHistoryHorizontal = () => {
 
     try {
       console.log('[Tracking] Fetching status for', trackingNumbers.length, 'tracking numbers');
-      const response = await axios.get(`${API_BASE_URL}/tracking/status`, {
+      const response = await apiClient.get('/tracking/status', {
         params: {
           tracking_numbers: trackingNumbers.join(',')
-        },
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
       });
 
@@ -252,11 +250,8 @@ const OrdersHistoryHorizontal = () => {
 
   const handleDownloadLabel = async (orderId) => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/orders/${orderId}/label`, {
+      const response = await apiClient.get(`/orders/${orderId}/label`, {
         responseType: 'blob',
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
       });
 
       const blob = new Blob([response.data], { type: 'application/pdf' });

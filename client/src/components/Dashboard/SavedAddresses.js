@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import apiClient from '../../config/axios';
 import { useAuth } from '../../context/AuthContext';
 import { useMapboxAutocomplete } from '../../hooks/useMapboxAutocomplete';
 import AddressFormFields from './AddressFormFields';
@@ -187,7 +187,11 @@ const SavedAddresses = () => {
 
   const fetchAddresses = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/addresses`);
+      const token = localStorage.getItem('token');
+      if (process.env.NODE_ENV !== 'production') {
+        console.log('[SavedAddresses] Fetching addresses - token exists:', !!token, 'token preview:', token ? token.substring(0, 10) + '...' : 'none');
+      }
+      const response = await apiClient.get('/addresses');
       setAddresses(response.data);
     } catch (error) {
       console.error('Error fetching addresses:', error);
@@ -200,9 +204,9 @@ const SavedAddresses = () => {
     e.preventDefault();
     try {
       if (editingAddress) {
-        await axios.put(`${API_BASE_URL}/addresses/${editingAddress._id}`, formData);
+        await apiClient.put(`/addresses/${editingAddress._id}`, formData);
       } else {
-        await axios.post(`${API_BASE_URL}/addresses`, formData);
+        await apiClient.post('/addresses', formData);
       }
       fetchAddresses();
       resetForm();
@@ -232,7 +236,7 @@ const SavedAddresses = () => {
     if (!window.confirm('Are you sure you want to delete this address?')) return;
     
     try {
-      await axios.delete(`${API_BASE_URL}/addresses/${id}`);
+      await apiClient.delete(`/addresses/${id}`);
       fetchAddresses();
     } catch (error) {
       console.error('Error deleting address:', error);

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import apiClient from '../../config/axios';
 import { Download, Plus, Eye } from 'lucide-react';
 import './OrderConfirmation.css';
 import API_BASE_URL from '../../config/api';
@@ -84,12 +84,8 @@ const OrderConfirmation = ({ order, onClose }) => {
     
     setDownloadingLabel(true);
     try {
-      const token = localStorage.getItem('token');
-      const response = await axios.get(`${API_BASE_URL}/orders/${orderId}/label`, {
+      const response = await apiClient.get(`/orders/${orderId}/label`, {
         responseType: 'blob',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
       });
       
       const blob = new Blob([response.data], { type: 'application/pdf' });

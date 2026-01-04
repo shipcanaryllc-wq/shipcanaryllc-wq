@@ -23,6 +23,19 @@ apiClient.interceptors.request.use(
     const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+      // Debug logging in development
+      if (process.env.NODE_ENV !== 'production') {
+        console.log(`[API Client] Request to ${config.url}:`, {
+          hasToken: true,
+          tokenPreview: token.substring(0, 10) + '...',
+          tokenLength: token.length
+        });
+      }
+    } else {
+      // Debug logging when token is missing
+      if (process.env.NODE_ENV !== 'production') {
+        console.warn(`[API Client] Request to ${config.url}: No token found in localStorage`);
+      }
     }
     return config;
   },

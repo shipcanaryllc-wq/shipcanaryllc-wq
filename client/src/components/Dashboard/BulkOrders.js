@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import axios from 'axios';
+import apiClient from '../../config/axios';
 import * as XLSX from 'xlsx';
 import Papa from 'papaparse';
 import { useAuth } from '../../context/AuthContext';
@@ -147,8 +147,8 @@ const BulkOrders = () => {
     const fetchData = async () => {
       try {
         const [labelTypesRes, addressesRes] = await Promise.all([
-          axios.get(`${API_BASE_URL}/orders/label-types`),
-          axios.get(`${API_BASE_URL}/addresses`)
+          apiClient.get('/orders/label-types'),
+          apiClient.get('/addresses')
         ]);
         
         setLabelTypes(labelTypesRes.data);
@@ -244,7 +244,7 @@ const BulkOrders = () => {
           continue;
         }
 
-        const response = await axios.post(`${API_BASE_URL}/orders`, {
+        const response = await apiClient.post('/orders', {
           labelTypeId: defaultLabelType,
           fromAddressId: defaultFromAddress,
           toAddress: {

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import apiClient from '../../config/axios';
 import { useAuth } from '../../context/AuthContext';
 import './SavedPackages.css';
 import API_BASE_URL from '../../config/api';
@@ -32,7 +32,11 @@ const SavedPackages = () => {
 
   const fetchPackages = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/packages`);
+      const token = localStorage.getItem('token');
+      if (process.env.NODE_ENV !== 'production') {
+        console.log('[SavedPackages] Fetching packages - token exists:', !!token, 'token preview:', token ? token.substring(0, 10) + '...' : 'none');
+      }
+      const response = await apiClient.get('/packages');
       setPackages(response.data);
     } catch (error) {
       console.error('Error fetching packages:', error);
@@ -62,9 +66,9 @@ const SavedPackages = () => {
       };
 
       if (editingPackage) {
-        await axios.put(`${API_BASE_URL}/packages/${editingPackage._id}`, submitData);
+        await apiClient.put(`/packages/${editingPackage._id}`, submitData);
       } else {
-        await axios.post(`${API_BASE_URL}/packages`, submitData);
+        await apiClient.post('/packages', submitData);
       }
       fetchPackages();
       resetForm();
@@ -92,7 +96,7 @@ const SavedPackages = () => {
     if (!window.confirm('Are you sure you want to delete this package?')) return;
     
     try {
-      await axios.delete(`${API_BASE_URL}/packages/${id}`);
+      await apiClient.delete(`/packages/${id}`);
       fetchPackages();
     } catch (error) {
       console.error('Error deleting package:', error);

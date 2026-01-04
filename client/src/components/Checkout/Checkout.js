@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import apiClient from '../../config/axios';
 import { useAuth } from '../../context/AuthContext';
 import './Checkout.css';
 import API_BASE_URL from '../../config/api';
@@ -18,19 +18,14 @@ const Checkout = () => {
     setLoading(true);
 
     try {
-      const response = await axios.post(
-        `${API_BASE_URL}/payments/create`,
+      const response = await apiClient.post(
+        '/payments/create',
         {
           amount: parseFloat(amount),
           currency: 'USD',
           metadata: {
             source: 'checkout_page',
             timestamp: new Date().toISOString()
-          }
-        },
-        {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
           }
         }
       );

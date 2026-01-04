@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import apiClient from '../../config/axios';
 import { useAuth } from '../../context/AuthContext';
 import OnRampWidget from './OnRampWidget';
 import PaymentLogos from '../PaymentLogos/PaymentLogos';
@@ -32,14 +32,7 @@ const PaymentDetail = () => {
 
     try {
       // Fetch payment details from server using invoiceId (which is actually paymentId)
-      const response = await axios.get(
-        `${API_BASE_URL}/payments/${invoiceId}`,
-        {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          }
-        }
-      );
+      const response = await apiClient.get(`/payments/${invoiceId}`);
 
       const paymentData = response.data;
       setPayment(paymentData);

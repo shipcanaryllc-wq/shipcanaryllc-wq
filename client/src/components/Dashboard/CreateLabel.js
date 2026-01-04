@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import ReactDOM from 'react-dom';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import apiClient from '../../config/axios';
 import { Ban } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import PackageDetailsModal from './PackageDetailsModal';
@@ -923,7 +923,11 @@ const CreateLabel = () => {
 
   const fetchLabelTypes = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/orders/label-types`);
+      const token = localStorage.getItem('token');
+      if (process.env.NODE_ENV !== 'production') {
+        console.log('[CreateLabel] Fetching label types - token exists:', !!token, 'token preview:', token ? token.substring(0, 10) + '...' : 'none');
+      }
+      const response = await apiClient.get('/orders/label-types');
       setLabelTypes(response.data);
     } catch (error) {
       console.error('Error fetching label types:', error);
@@ -932,7 +936,11 @@ const CreateLabel = () => {
 
   const fetchAddresses = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/addresses`);
+      const token = localStorage.getItem('token');
+      if (process.env.NODE_ENV !== 'production') {
+        console.log('[CreateLabel] Fetching addresses - token exists:', !!token, 'token preview:', token ? token.substring(0, 10) + '...' : 'none');
+      }
+      const response = await apiClient.get('/addresses');
       setAddresses(response.data);
     } catch (error) {
       console.error('Error fetching addresses:', error);
@@ -941,7 +949,11 @@ const CreateLabel = () => {
 
   const fetchPackages = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/packages`);
+      const token = localStorage.getItem('token');
+      if (process.env.NODE_ENV !== 'production') {
+        console.log('[CreateLabel] Fetching packages - token exists:', !!token, 'token preview:', token ? token.substring(0, 10) + '...' : 'none');
+      }
+      const response = await apiClient.get('/packages');
       setPackages(response.data);
     } catch (error) {
       console.error('Error fetching packages:', error);
@@ -1221,32 +1233,19 @@ const CreateLabel = () => {
         }})
       };
 
-      const url = `${API_BASE_URL}/orders`;
       console.log('\n[CreateLabel] ════════════════════════════════════════════════════════════════');
       console.log('[CreateLabel] 🚀 CREATING LABEL - REQUEST DETAILS');
       console.log('[CreateLabel] ════════════════════════════════════════════════════════════════');
-      console.log('[CreateLabel] URL:', url);
+      console.log('[CreateLabel] URL: /orders');
       console.log('[CreateLabel] Method: POST');
       console.log('[CreateLabel] Payload:', JSON.stringify(payload, null, 2));
       console.log('[CreateLabel] Token present:', !!token);
       console.log('[CreateLabel] Token length:', token ? token.length : 0);
       console.log('[CreateLabel] Token (first 30 chars):', token ? token.substring(0, 30) + '...' : 'MISSING');
-      
-      // A) Frontend: Only send Authorization header (no x-auth-token)
-      const headers = {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      };
-      console.log('[CreateLabel] Request Headers:', JSON.stringify({
-        'Authorization': `Bearer ${token.substring(0, 20)}...`,
-        'Content-Type': 'application/json'
-      }, null, 2));
       console.log('[CreateLabel] ════════════════════════════════════════════════════════════════\n');
 
-      // POST /api/orders - Create new order/label
-      const response = await axios.post(url, payload, {
-        headers: headers
-      });
+      // POST /api/orders - Create new order/label (apiClient handles auth header automatically)
+      const response = await apiClient.post('/orders', payload);
 
       setCreatedOrder(response.data.order);
       setShowOrderConfirmation(true);

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import apiClient from '../../config/axios';
 import { format } from 'date-fns';
 import { useAuth } from '../../context/AuthContext';
 import './OrderHistory.css';
@@ -85,7 +85,7 @@ const OrderHistory = () => {
     try {
       setLoading(true);
       // Fetch all orders - use high per_page limit to get all orders
-      const response = await axios.get(`${API_BASE_URL}/orders`, {
+      const response = await apiClient.get('/orders', {
         params: {
           page: 1,
           per_page: 1000 // Get all orders for history view
@@ -114,7 +114,7 @@ const OrderHistory = () => {
     
     setDownloadingLabel(orderId);
     try {
-      const response = await axios.get(`${API_BASE_URL}/orders/${orderId}/label`, {
+      const response = await apiClient.get(`/orders/${orderId}/label`, {
         responseType: 'blob', // Important: get binary data
       });
       
