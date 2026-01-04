@@ -1,0 +1,447 @@
+/* ============================================
+   PREMIUM LOGISTICS INFRASTRUCTURE ANIMATION
+   Delivery Network Visualization
+   Stripe/Vercel/Linear-level SaaS quality
+   ============================================ */
+
+.hero-logistics-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+  min-width: 400px;
+  min-height: 400px;
+  background: transparent;
+}
+
+.hero-logistics-svg {
+  width: 100%;
+  height: 100%;
+  max-width: 580px;
+  max-height: 580px;
+  background: transparent;
+}
+
+/* ============================================
+   NETWORK HUB (Central Globe)
+   ============================================ */
+
+.network-hub {
+  transform-origin: 200px 200px;
+}
+
+.hub-core {
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.05));
+}
+
+/* ============================================
+   ROUTING PATHS
+   ============================================ */
+
+.routing-paths {
+  opacity: 0.9;
+}
+
+.route-base {
+  opacity: 0.3;
+}
+
+.route-active {
+  opacity: 0;
+  stroke-dasharray: 200;
+  stroke-dashoffset: 200;
+}
+
+.route-pulse {
+  animation: routeFlow 8s ease-in-out infinite;
+}
+
+.route-group:nth-child(2) .route-pulse {
+  animation-duration: 9s;
+  animation-delay: 1s;
+}
+
+.route-group:nth-child(3) .route-pulse {
+  animation-duration: 10s;
+  animation-delay: 2s;
+}
+
+@keyframes routeFlow {
+  0% {
+    opacity: 0;
+    stroke-dashoffset: 200;
+  }
+  20% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.6;
+    stroke-dashoffset: 0;
+  }
+  80% {
+    opacity: 0.4;
+  }
+  100% {
+    opacity: 0;
+    stroke-dashoffset: -200;
+  }
+}
+
+/* ============================================
+   NETWORK NODES
+   ============================================ */
+
+.network-nodes {
+  transform-origin: 200px 200px;
+}
+
+.node-glow {
+  transition: fill 0.3s ease;
+}
+
+.node-pulse {
+  animation: nodeActivate 2s ease-in-out infinite;
+}
+
+.node-1 .node-pulse {
+  animation-delay: 0s;
+}
+
+.node-2 .node-pulse {
+  animation-delay: 1.3s;
+}
+
+.node-3 .node-pulse {
+  animation-delay: 2.6s;
+}
+
+.node-4 .node-pulse {
+  animation-delay: 0.7s;
+}
+
+.node-5 .node-pulse {
+  animation-delay: 2s;
+}
+
+.node-6 .node-pulse {
+  animation-delay: 3.3s;
+}
+
+@keyframes nodeActivate {
+  0%, 100% {
+    fill: url(#nodeInactive);
+    r: 12;
+    opacity: 0.3;
+  }
+  50% {
+    fill: url(#nodeActive);
+    r: 14;
+    opacity: 0.6;
+  }
+}
+
+.node-core {
+  transition: fill 0.3s ease;
+}
+
+.node-1.node-pulse ~ .node-core,
+.node-2.node-pulse ~ .node-core,
+.node-3.node-pulse ~ .node-core,
+.node-4.node-pulse ~ .node-core,
+.node-5.node-pulse ~ .node-core,
+.node-6.node-pulse ~ .node-core {
+  fill: #ff6b35;
+}
+
+/* ============================================
+   DELIVERY BOXES (Isometric)
+   ============================================ */
+
+.delivery-boxes {
+  transform-origin: 200px 200px;
+}
+
+.box-container {
+  transform-origin: center;
+}
+
+.isometric-box {
+  filter: url(#boxShadow);
+}
+
+.box-shadow {
+  opacity: 0.6;
+}
+
+.box-top {
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.05));
+}
+
+.box-front {
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.08));
+}
+
+.label-indicator {
+  transition: fill-opacity 0.3s ease;
+}
+
+/* Box 1 - Route 1 (Curved path: top arc) */
+.box-container {
+  transform-origin: 8px 10px;
+}
+
+.box-move-1 {
+  animation: boxTravel1 8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes boxTravel1 {
+  0% {
+    transform: translate(100px, 200px) rotate(0deg);
+    opacity: 0;
+  }
+  5% {
+    opacity: 1;
+  }
+  25% {
+    transform: translate(150px, 150px) rotate(45deg);
+  }
+  50% {
+    transform: translate(200px, 120px) rotate(90deg);
+  }
+  75% {
+    transform: translate(250px, 150px) rotate(135deg);
+  }
+  95% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(300px, 200px) rotate(180deg);
+    opacity: 0;
+  }
+}
+
+/* Box 2 - Route 2 (Curved path: bottom arc) */
+.box-move-2 {
+  animation: boxTravel2 9s cubic-bezier(0.4, 0, 0.2, 1) infinite 1s;
+}
+
+@keyframes boxTravel2 {
+  0% {
+    transform: translate(100px, 200px) rotate(0deg);
+    opacity: 0;
+  }
+  5% {
+    opacity: 1;
+  }
+  25% {
+    transform: translate(150px, 250px) rotate(-45deg);
+  }
+  50% {
+    transform: translate(200px, 280px) rotate(-90deg);
+  }
+  75% {
+    transform: translate(250px, 250px) rotate(-135deg);
+  }
+  95% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(300px, 200px) rotate(-180deg);
+    opacity: 0;
+  }
+}
+
+/* Box 3 - Route 3 (Full orbit) */
+.box-move-3 {
+  animation: boxTravel3 10s cubic-bezier(0.4, 0, 0.2, 1) infinite 2s;
+}
+
+@keyframes boxTravel3 {
+  0% {
+    transform: translate(200px, 100px) rotate(0deg);
+    opacity: 0;
+  }
+  3% {
+    opacity: 1;
+  }
+  12.5% {
+    transform: translate(250px, 150px) rotate(45deg);
+  }
+  25% {
+    transform: translate(300px, 200px) rotate(90deg);
+  }
+  37.5% {
+    transform: translate(250px, 250px) rotate(135deg);
+  }
+  50% {
+    transform: translate(200px, 300px) rotate(180deg);
+  }
+  62.5% {
+    transform: translate(150px, 250px) rotate(225deg);
+  }
+  75% {
+    transform: translate(100px, 200px) rotate(270deg);
+  }
+  87.5% {
+    transform: translate(150px, 150px) rotate(315deg);
+  }
+  97% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(200px, 100px) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+/* Box label indicator pulse when passing nodes */
+.box-1.box-move-1 .label-indicator {
+  animation: labelPulse 8s ease-in-out infinite;
+}
+
+.box-2.box-move-2 .label-indicator {
+  animation: labelPulse 9s ease-in-out infinite 1s;
+}
+
+.box-3.box-move-3 .label-indicator {
+  animation: labelPulse 10s ease-in-out infinite 2s;
+}
+
+@keyframes labelPulse {
+  0%, 100% {
+    fill-opacity: 0.3;
+  }
+  25%, 50%, 75% {
+    fill-opacity: 0.6;
+  }
+}
+
+/* ============================================
+   CANARY ORCHESTRATOR
+   ============================================ */
+
+.canary-orchestrator {
+  transform-origin: 200px 200px;
+}
+
+.canary-path {
+  animation: canaryOrchestrate 10s ease-in-out infinite;
+}
+
+.canary-trail {
+  opacity: 0.3;
+  stroke-dasharray: 200;
+  stroke-dashoffset: 200;
+  animation: trailDraw 10s ease-in-out infinite;
+}
+
+.canary-body {
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+  transform: translate(200px, 100px);
+}
+
+.canary-wing-shape {
+  animation: wingSubtle 1.2s ease-in-out infinite;
+  transform-origin: 1px 1px;
+}
+
+@keyframes canaryOrchestrate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes trailDraw {
+  0% {
+    stroke-dashoffset: 200;
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.3;
+  }
+  90% {
+    opacity: 0.3;
+    stroke-dashoffset: 0;
+  }
+  100% {
+    opacity: 0;
+    stroke-dashoffset: -200;
+  }
+}
+
+@keyframes wingSubtle {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(-5deg);
+  }
+}
+
+/* ============================================
+   REDUCED MOTION SUPPORT
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .route-pulse,
+  .node-pulse,
+  .box-move-1,
+  .box-move-2,
+  .box-move-3,
+  .canary-path,
+  .canary-trail,
+  .canary-wing-shape {
+    animation: none !important;
+  }
+
+  .box-container {
+    transform: translate(150px, 175px);
+  }
+
+  .box-container.box-2 {
+    transform: translate(150px, 225px);
+  }
+
+  .box-container.box-3 {
+    transform: translate(250px, 200px);
+  }
+
+  .canary-body {
+    transform: translate(200px, 100px) rotate(45deg);
+  }
+
+  .route-active {
+    opacity: 0.2;
+    stroke-dashoffset: 0;
+  }
+
+  .node-glow {
+    fill: url(#nodeInactive);
+    r: 12;
+  }
+}
+
+/* ============================================
+   RESPONSIVE ADJUSTMENTS
+   ============================================ */
+
+@media (max-width: 1024px) {
+  .hero-logistics-container {
+    min-width: 300px;
+    min-height: 300px;
+  }
+}
+
+@media (max-width: 768px) {
+  .hero-logistics-container {
+    min-width: 280px;
+    min-height: 280px;
+  }
+}
+

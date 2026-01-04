@@ -44,6 +44,9 @@ const OrdersHistoryHorizontal = () => {
   const [labelFilter, setLabelFilter] = useState('');
   const [downloadingMerged, setDownloadingMerged] = useState(false);
   const [toastMessage, setToastMessage] = useState(null);
+  const [trackingStatusCache, setTrackingStatusCache] = useState(new Map());
+  const [lastTrackingFetch, setLastTrackingFetch] = useState(0);
+  const trackingCacheTimeout = 2 * 60 * 1000; // 2 minutes cache
   
   // PDF cache to avoid re-requesting the same PDF
   const pdfCacheRef = useRef(new Map());
@@ -88,11 +91,77 @@ const OrdersHistoryHorizontal = () => {
       }
 
       setOrders(ordersData);
+      
+      // Fetch tracking status for visible orders
+      fetchTrackingStatus(ordersData);
     } catch (error) {
       console.error('Error fetching orders:', error);
       setOrders([]);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Fetch tracking status for orders
+  const fetchTrackingStatus = async (ordersList, forceRefresh = false) => {
+    const now = Date.now();
+    const cacheValid = (now - lastTrackingFetch) < trackingCacheTimeout;
+    
+    if (!forceRefresh && cacheValid && trackingStatusCache.size > 0) {
+      console.log('[Tracking] Using cached tracking status');
+      return;
+    }
+
+    // Get tracking numbers from orders
+    const trackingNumbers = ordersList
+      .map(order => order.trackingNumber)
+      .filter(Boolean)
+      .filter((tn, index, arr) => arr.indexOf(tn) === index); // Unique
+
+    if (trackingNumbers.length === 0) {
+      return;
+    }
+
+    try {
+      console.log('[Tracking] Fetching status for', trackingNumbers.length, 'tracking numbers');
+      const response = await axios.get(`${API_BASE_URL}/tracking/status`, {
+        params: {
+          tracking_numbers: trackingNumbers.join(',')
+        },
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+
+      if (response.data && response.data.ok && response.data.data) {
+        // Update cache
+        const newCache = new Map();
+        response.data.data.forEach(item => {
+          newCache.set(item.trackingNumber, item);
+        });
+        setTrackingStatusCache(newCache);
+        setLastTrackingFetch(now);
+
+        // Update orders with tracking status
+        setOrders(prevOrders => {
+          return prevOrders.map(order => {
+            const trackingData = newCache.get(order.trackingNumber);
+            if (trackingData) {
+              return {
+                ...order,
+                trackingStatus: trackingData.status,
+                trackingSubstatus: trackingData.substatus,
+                latestEvent: trackingData.latestEvent,
+                latestCheckpointTime: trackingData.latestCheckpointTime
+              };
+            }
+            return order;
+          });
+        });
+      }
+    } catch (error) {
+      console.error('[Tracking] Error fetching tracking status:', error);
+      // Don't block UI if tracking fails
     }
   };
 
@@ -305,8 +374,20 @@ const OrdersHistoryHorizontal = () => {
 
       {/* Header */}
       <div className="orders-header">
-        <h1>Orders History</h1>
-        <div className="breadcrumb">Home / Orders History</div>
+        <div>
+          <h1>Orders History</h1>
+          <div className="breadcrumb">Home / Orders History</div>
+        </div>
+        <button
+          className="refresh-tracking-btn"
+          onClick={() => fetchTrackingStatus(filteredOrders, true)}
+          title="Refresh tracking status"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+          </svg>
+          Refresh Tracking
+        </button>
       </div>
 
       {/* Top Bar - Search and Filters */}

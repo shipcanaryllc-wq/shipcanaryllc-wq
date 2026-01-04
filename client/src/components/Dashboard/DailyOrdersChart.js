@@ -165,3 +165,5 @@ const DailyOrdersChart = ({ orders = [] }) => {
 
 export default DailyOrdersChart;
 
+
+

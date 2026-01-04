@@ -1,0 +1,181 @@
+# ============================================
+# SHIPCANARY BACKEND - ALL ENVIRONMENT VARIABLES
+# ============================================
+# This file contains your ACTUAL values
+# Copy to server/.env for local development
+# For Railway: Add these in Railway Dashboard → Variables tab
+
+# ============================================
+# REQUIRED - Core Configuration
+# ============================================
+
+# Server Port
+PORT=5001
+
+# Node Environment (production for Railway, development for local)
+NODE_ENV=production
+
+# Frontend URL (for CORS and redirects)
+FRONTEND_URL=https://app-shipcanary-dev.shipcanary.com
+
+# Backend URL
+BACKEND_URL=https://api-shipcanary-dev.shipcanary.com
+
+# ============================================
+# REQUIRED - Database
+# ============================================
+
+# MongoDB Connection String
+MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/shipcanary?retryWrites=true&w=majority
+
+# ============================================
+# REQUIRED - Authentication & Security
+# ============================================
+
+# JWT Secret Key
+JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
+
+# ============================================
+# REQUIRED - Shipping Service (Primary)
+# ============================================
+
+# ShipLabel.net API Key (Primary Shipping Service)
+SHIPLABEL_API_KEY=your-shiplabel-api-key
+
+# ShipLabel Base URL
+SHIPLABEL_BASE_URL=https://www.shiplabel.net/api/v2
+
+# ShipLabel Dry Run Mode
+SHIPLABEL_DRY_RUN=true
+
+# ============================================
+# REQUIRED - Email Service
+# ============================================
+
+# Resend API Key (for sending emails)
+RESEND_API_KEY=your-resend-api-key
+
+# Email From Address
+EMAIL_FROM=onboarding@resend.dev
+
+# ============================================
+# REQUIRED - Payment Gateway: BTCPay Server
+# ============================================
+
+# BTCPay Server URL
+BTCPAY_URL=btcpay483258.lndyn.com
+
+# BTCPay API Key
+BTCPAY_API_KEY=your-btcpay-api-key
+
+# BTCPay Store ID
+BTCPAY_STORE_ID=9vEDq8cht6Are2BY4DZJ311SxzaUXqx7uQr29yH8AaNo
+
+# BTCPay Webhook Secret
+BTCPAY_WEBHOOK_SECRET=your-btcpay-webhook-secret
+
+# ============================================
+# OPTIONAL - Backup Shipping Service
+# ============================================
+
+# ShippFast API Token (Backup Shipping Service)
+SHIPPFAST_API_TOKEN=your-shippfast-api-token
+
+# ShippFast Base URL
+SHIPPFAST_BASE_URL=https://shippfast.net/api/v1
+
+# ============================================
+# OPTIONAL - Google OAuth
+# ============================================
+
+# Google OAuth Client ID
+GOOGLE_CLIENT_ID=your-google-client-id
+
+# Google OAuth Client Secret
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+
+# ============================================
+# OPTIONAL - Cloudinary (Avatar Uploads)
+# ============================================
+
+# Cloudinary Cloud Name
+CLOUDINARY_CLOUD_NAME=dgkjzehlv
+
+# Cloudinary API Key
+CLOUDINARY_API_KEY=your-cloudinary-api-key
+
+# Cloudinary API Secret
+CLOUDINARY_API_SECRET=your-cloudinary-api-secret
+
+# ============================================
+# OPTIONAL - AWS S3 (Label Storage)
+# ============================================
+
+# AWS Access Key ID
+AWS_ACCESS_KEY_ID=your-aws-access-key
+
+# AWS Secret Access Key
+AWS_SECRET_ACCESS_KEY=your-aws-secret-key
+
+# AWS Region
+AWS_REGION=us-east-1
+
+# AWS S3 Bucket Name
+AWS_S3_BUCKET=shipcanary-labels
+
+# ============================================
+# OPTIONAL - Payment Gateway: Stripe (Legacy)
+# ============================================
+
+# Stripe Secret Key (for credit card payments - legacy)
+STRIPE_SECRET_KEY=your-stripe-secret-key
+
+# Stripe Publishable Key (for frontend)
+STRIPE_PUBLISHABLE_KEY=your-stripe-publishable-key
+
+# Stripe Webhook Secret
+STRIPE_WEBHOOK_SECRET=whsec_your-webhook-secret
+
+# ============================================
+# OPTIONAL - Tracking Service
+# ============================================
+
+# TrackingMore API Key (for USPS tracking)
+TRACKINGMORE_API_KEY=your-trackingmore-api-key
+
+# ============================================
+# OPTIONAL - Allowlist Configuration
+# ============================================
+
+# Require Allowlist (set to true to restrict access)
+REQUIRE_ALLOWLIST=true
+
+# Tester Allowlist (comma-separated email addresses)
+TESTER_ALLOWLIST=shipcanaryllc@gmail.com,Ninjaarmoury@gmail.com
+
+# ============================================
+# OPTIONAL - Debug & Development
+# ============================================
+
+# Debug Mode (set to 'true' for extra logging)
+DEBUG=false
+
+# Debug Token (for debug endpoints)
+DEBUG_TOKEN=
+
+# ============================================
+# OPTIONAL - CORS Configuration
+# ============================================
+
+# Additional Allowed Origins (comma-separated)
+ALLOWED_ORIGINS=
+
+# ============================================
+# NOTES:
+# ============================================
+# - For Railway: Copy these variables to Railway Dashboard → Variables tab
+# - For local: Copy this file to server/.env
+# - Keep this file secure and never commit it to git
+# - Update NODE_ENV to 'production' for Railway deployment
+# - Update FRONTEND_URL and BACKEND_URL to your production URLs for Railway
+

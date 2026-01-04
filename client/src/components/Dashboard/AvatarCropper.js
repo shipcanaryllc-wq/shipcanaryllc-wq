@@ -187,3 +187,5 @@ const getCroppedImg = (imageSrc, pixelCrop, rotation = 0) => {
 export default AvatarCropper;
 
 
+
+

@@ -706,6 +706,26 @@ router.post('/', auth, async (req, res) => {
 
       await order.save();
 
+      // Create tracking in TrackingMore (non-blocking)
+      try {
+        const trackingmore = require('../services/trackingmore');
+        console.log('[CreateOrder] Creating TrackingMore tracking for:', labelResult.trackingNumber);
+        await trackingmore.trackingmoreCreate(labelResult.trackingNumber);
+        order.trackingCreatedAt = new Date();
+        order.courierCode = 'usps';
+        order.trackingProvider = 'trackingmore';
+        await order.save();
+        console.log('[CreateOrder] ✅ TrackingMore tracking created successfully');
+      } catch (trackingError) {
+        // Don't block label creation if TrackingMore fails
+        console.error('[CreateOrder] ⚠️  TrackingMore creation failed (non-blocking):', trackingError.message || trackingError);
+        // Still mark as created even if API call failed (idempotent on next sync)
+        order.trackingCreatedAt = new Date();
+        order.courierCode = 'usps';
+        order.trackingProvider = 'trackingmore';
+        await order.save();
+      }
+
       // Populate order for response (only if IDs exist)
       if (order.fromAddress) await order.populate('fromAddress');
       if (order.toAddress) await order.populate('toAddress');

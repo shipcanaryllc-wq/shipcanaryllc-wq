@@ -39,7 +39,7 @@ export function buildTrackingUrl(order) {
  */
 export function getDisplayStatuses(order) {
   const status = (order.status || '').toLowerCase();
-  const trackingStatus = (order.trackingStatus || '').toLowerCase();
+  const trackingStatus = (order.trackingStatus || '').toUpperCase(); // Use uppercase for normalized statuses
   const detailStatus = (order.detailStatus || '').toLowerCase();
   
   // Combine all status fields for checking
@@ -54,44 +54,61 @@ export function getDisplayStatuses(order) {
     labelStatusText = 'Failed';
     labelStatusTone = 'danger';
   }
-  // Check for delivered
-  else if (combinedStatus.includes('delivered')) {
+  // Check for delivered (support both old and new formats)
+  else if (combinedStatus.includes('delivered') || trackingStatus === 'DELIVERED') {
     labelStatusText = 'Delivered';
     labelStatusTone = 'success';
   }
   // Check for out for delivery
-  else if (combinedStatus.includes('out for delivery') || combinedStatus.includes('out_for_delivery')) {
+  else if (combinedStatus.includes('out for delivery') || combinedStatus.includes('out_for_delivery') || trackingStatus === 'OUT_FOR_DELIVERY') {
     labelStatusText = 'Out for delivery';
     labelStatusTone = 'info';
   }
   // Check for in transit
-  else if (combinedStatus.includes('in transit') || combinedStatus.includes('in_transit') || combinedStatus.includes('transit')) {
+  else if (combinedStatus.includes('in transit') || combinedStatus.includes('in_transit') || combinedStatus.includes('transit') || trackingStatus === 'IN_TRANSIT') {
     labelStatusText = 'In transit';
     labelStatusTone = 'info';
   }
   // Check for exceptions
   else if (combinedStatus.includes('exception') || combinedStatus.includes('return') || 
-           combinedStatus.includes('refused') || combinedStatus.includes('hold')) {
+           combinedStatus.includes('refused') || combinedStatus.includes('hold') || trackingStatus === 'EXCEPTION') {
     labelStatusText = 'Exception';
     labelStatusTone = 'warning';
   }
-  // Default: Label created (pre-shipment, no scan, etc.)
+  // Check for label created
   else if (combinedStatus.includes('pre-shipment') || combinedStatus.includes('pre_shipment') ||
-           combinedStatus.includes('label') || combinedStatus.includes('no scan') ||
-           combinedStatus.includes('no_scan') || combinedStatus === '' || !combinedStatus.trim()) {
+           combinedStatus.includes('label') || trackingStatus === 'LABEL_CREATED') {
     labelStatusText = 'Label created';
     labelStatusTone = 'neutral';
   }
+  // Check for no scan
+  else if (combinedStatus.includes('no scan') || combinedStatus.includes('no_scan') || trackingStatus === 'NO_SCAN' || 
+           combinedStatus === '' || !combinedStatus.trim()) {
+    labelStatusText = 'No scan';
+    labelStatusTone = 'neutral';
+  }
 
-  // Determine shipment status (secondary badge - show raw provider status if available)
+  // Determine shipment status (secondary badge - show normalized tracking status)
   let shipmentStatusText = '';
   let shipmentStatusTone = 'neutral';
 
-  // Use detailStatus or trackingStatus as secondary badge
-  if (detailStatus && detailStatus !== 'no_scan' && detailStatus !== 'no_info' && detailStatus.trim() !== '') {
+  // Map normalized statuses to display text
+  const statusDisplayMap = {
+    'NO_SCAN': 'NO SCAN',
+    'LABEL_CREATED': 'LABEL CREATED',
+    'IN_TRANSIT': 'IN TRANSIT',
+    'OUT_FOR_DELIVERY': 'OUT FOR DELIVERY',
+    'DELIVERED': 'DELIVERED',
+    'EXCEPTION': 'EXCEPTION'
+  };
+
+  // Use normalized trackingStatus if available
+  if (trackingStatus && statusDisplayMap[trackingStatus]) {
+    shipmentStatusText = statusDisplayMap[trackingStatus];
+  } else if (detailStatus && detailStatus !== 'no_scan' && detailStatus !== 'no_info' && detailStatus.trim() !== '') {
     shipmentStatusText = detailStatus.toUpperCase().replace(/_/g, ' ');
-  } else if (trackingStatus && trackingStatus !== 'label created' && trackingStatus.trim() !== '') {
-    shipmentStatusText = trackingStatus.toUpperCase().replace(/_/g, ' ');
+  } else if (trackingStatus && trackingStatus !== 'LABEL CREATED' && trackingStatus.trim() !== '') {
+    shipmentStatusText = trackingStatus.replace(/_/g, ' ');
   } else {
     shipmentStatusText = 'NO SCAN';
   }

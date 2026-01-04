@@ -53,8 +53,45 @@ const orderSchema = new mongoose.Schema({
   },
   trackingStatus: {
     type: String,
-    default: 'Label Created',
-    enum: ['Label Created', 'In Transit', 'Out for Delivery', 'Delivered', 'Exception']
+    default: 'NO_SCAN',
+    enum: ['NO_SCAN', 'LABEL_CREATED', 'IN_TRANSIT', 'OUT_FOR_DELIVERY', 'DELIVERED', 'EXCEPTION']
+  },
+  // TrackingMore integration fields
+  courierCode: {
+    type: String,
+    default: 'usps'
+  },
+  trackingProvider: {
+    type: String,
+    default: 'trackingmore'
+  },
+  trackingCreatedAt: {
+    type: Date,
+    default: null
+  },
+  trackingSubstatus: {
+    type: String,
+    default: null
+  },
+  latestEvent: {
+    type: String,
+    default: null
+  },
+  latestCheckpointTime: {
+    type: Date,
+    default: null
+  },
+  lastTrackingSyncAt: {
+    type: Date,
+    default: null
+  },
+  trackingEvents: {
+    type: Array,
+    default: []
+  },
+  trackingRawPayload: {
+    type: Object,
+    default: null
   },
   status: {
     type: String,

@@ -1,0 +1,178 @@
+# ============================================
+# SHIPCANARY BACKEND - ALL ENVIRONMENT VARIABLES
+# ============================================
+# Copy this file to server/.env and fill in your actual values
+# For Railway: Add these in Railway Dashboard → Variables tab
+
+# ============================================
+# REQUIRED - Core Configuration
+# ============================================
+
+# Server Port (Railway will set this automatically, but you can override)
+PORT=5001
+
+# Node Environment (production for Railway, development for local)
+NODE_ENV=production
+
+# Frontend URL (for CORS and redirects)
+FRONTEND_URL=https://your-frontend-url.com
+
+# ============================================
+# REQUIRED - Database
+# ============================================
+
+# MongoDB Connection String
+# Format: mongodb+srv://username:password@cluster.mongodb.net/database?retryWrites=true&w=majority
+MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/shipcanary?retryWrites=true&w=majority
+
+# ============================================
+# REQUIRED - Authentication & Security
+# ============================================
+
+# JWT Secret Key (for authentication tokens)
+# Generate with: openssl rand -hex 64
+JWT_SECRET=your-super-secret-jwt-key-change-this-in-production-minimum-64-characters-long
+
+# ============================================
+# REQUIRED - Shipping Service (Primary)
+# ============================================
+
+# ShipLabel.net API Key (Primary Shipping Service)
+# Get from: https://www.shiplabel.net → Account Settings → API Keys
+SHIPLABEL_API_KEY=your-shiplabel-api-key
+
+# ShipLabel Base URL (optional, defaults to https://www.shiplabel.net/api/v2)
+SHIPLABEL_BASE_URL=https://www.shiplabel.net/api/v2
+
+# ============================================
+# REQUIRED - Email Service
+# ============================================
+
+# Resend API Key (for sending emails)
+# Get from: https://resend.com → API Keys
+RESEND_API_KEY=re_your-resend-api-key
+
+# Email From Address (must be verified in Resend)
+EMAIL_FROM=noreply@yourdomain.com
+
+# ============================================
+# OPTIONAL - Payment Gateway: BTCPay Server
+# ============================================
+
+# BTCPay Server URL (can be with or without https:// prefix)
+BTCPAY_URL=btcpay483258.lndyn.com
+
+# BTCPay API Key
+BTCPAY_API_KEY=386a0dd98e12f6f442aae424a6053383f3fd4d89
+
+# BTCPay Store ID
+BTCPAY_STORE_ID=9vEDq8cht6Are2BY4DZJ311SxzaUXqx7uQr29yH8AaNo
+
+# BTCPay Webhook Secret (for webhook verification)
+BTCPAY_WEBHOOK_SECRET=2EmfTSX3WbzPkCxGunv81FaTnSeu
+
+# ============================================
+# OPTIONAL - Payment Gateway: Stripe (Legacy)
+# ============================================
+
+# Stripe Secret Key (for credit card payments - legacy)
+STRIPE_SECRET_KEY=sk_test_your-stripe-secret-key
+
+# Stripe Publishable Key (for frontend)
+STRIPE_PUBLISHABLE_KEY=pk_test_your-stripe-publishable-key
+
+# Stripe Webhook Secret
+STRIPE_WEBHOOK_SECRET=whsec_your-webhook-secret
+
+# ============================================
+# OPTIONAL - Backup Shipping Service
+# ============================================
+
+# ShippFast API Token (Backup Shipping Service)
+SHIPPFAST_API_TOKEN=your-shippfast-api-token
+
+# ShippFast Base URL
+SHIPPFAST_BASE_URL=https://shippfast.net/api/v1
+
+# ============================================
+# OPTIONAL - Google OAuth
+# ============================================
+
+# Google OAuth Client ID
+# Get from: https://console.cloud.google.com → APIs & Services → Credentials
+GOOGLE_CLIENT_ID=your-google-client-id
+
+# Google OAuth Client Secret
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+
+# ============================================
+# OPTIONAL - Cloudinary (Avatar Uploads)
+# ============================================
+
+# Cloudinary Cloud Name
+CLOUDINARY_CLOUD_NAME=your-cloudinary-cloud-name
+
+# Cloudinary API Key
+CLOUDINARY_API_KEY=your-cloudinary-api-key
+
+# Cloudinary API Secret
+CLOUDINARY_API_SECRET=your-cloudinary-api-secret
+
+# ============================================
+# OPTIONAL - AWS S3 (Label Storage)
+# ============================================
+
+# AWS Access Key ID
+AWS_ACCESS_KEY_ID=your-aws-access-key-id
+
+# AWS Secret Access Key
+AWS_SECRET_ACCESS_KEY=your-aws-secret-access-key
+
+# AWS Region
+AWS_REGION=us-east-1
+
+# AWS S3 Bucket Name
+AWS_S3_BUCKET=shipcanary-labels
+
+# ============================================
+# OPTIONAL - Tracking Service
+# ============================================
+
+# TrackingMore API Key (for USPS tracking)
+TRACKINGMORE_API_KEY=lu6q3j0k-j0rc-a8x8-yb47-4l03tnhjn1wd
+
+# ============================================
+# OPTIONAL - Debug & Development
+# ============================================
+
+# Debug Mode (set to 'true' for extra logging)
+DEBUG=false
+
+# Debug Token (for debug endpoints)
+DEBUG_TOKEN=your-debug-token-here
+
+# ============================================
+# OPTIONAL - CORS Configuration
+# ============================================
+
+# Additional Allowed Origins (comma-separated)
+# Example: ALLOWED_ORIGINS=https://preview.example.com,https://staging.example.com
+ALLOWED_ORIGINS=
+
+# ============================================
+# OPTIONAL - Backend URL (usually auto-detected)
+# ============================================
+
+# Backend URL (Railway sets this automatically)
+# Only set if you need to override
+BACKEND_URL=https://your-railway-url.up.railway.app
+
+# ============================================
+# NOTES:
+# ============================================
+# - Replace all placeholder values with your actual credentials
+# - Keep this file secure and never commit it to git
+# - For Railway: Add variables in Railway Dashboard → Variables tab
+# - Required variables are marked with "REQUIRED"
+# - Optional variables can be left empty if you don't use those features
+

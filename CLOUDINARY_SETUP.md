@@ -71,3 +71,5 @@ The frontend handles this gracefully and shows a user-friendly message.
 - ✅ Images stored in `shipcanary/avatars` folder on Cloudinary
 
 
+
+

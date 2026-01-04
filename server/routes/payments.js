@@ -109,7 +109,9 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
   res.json({ received: true });
 });
 
-// Create crypto payment address
+// LEGACY ROUTE DISABLED: This route generated placeholder addresses and is NOT used.
+// All BTC payments MUST go through BTCPay Server using the configured store's xpub derivation scheme.
+// Use POST /api/payments/create (BTCPay route) instead.
 router.post('/create-crypto',
   auth,
   [
@@ -117,59 +119,21 @@ router.post('/create-crypto',
     body('currency').isIn(['BTC', 'ETH']).withMessage('Currency must be BTC or ETH')
   ],
   async (req, res) => {
-    try {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
-      }
-
-      const { amount, currency } = req.body;
-
-      // Generate a unique payment address
-      // In production, you would integrate with a crypto payment processor like:
-      // - BTCPay Server
-      // - Coinbase Commerce
-      // - BitPay
-      // - Or your own Bitcoin/Ethereum node
-      
-      // For now, we'll generate a placeholder address
-      // In production, this should call your crypto payment service API
-      const paymentId = crypto.randomBytes(16).toString('hex');
-      const address = generateCryptoAddress(currency, paymentId);
-
-      // Store pending payment (you'd want a Payment model for this)
-      // For now, we'll just return the address
-      // In production, store: userId, amount, currency, address, paymentId, status: 'pending'
-
-      res.json({
-        address,
-        paymentId,
-        amount,
-        currency,
-        message: 'Send the exact amount to this address. Your balance will update after confirmation.'
-      });
-    } catch (error) {
-      console.error('Crypto payment error:', error);
-      res.status(500).json({ message: 'Failed to generate crypto address' });
-    }
+    console.warn('[Payment Security] ⚠️  Legacy /create-crypto route called - DISABLED');
+    console.warn('  All BTC payments must use BTCPay Server via /api/payments/create');
+    console.warn('  This ensures addresses are derived from the configured store xpub only');
+    return res.status(410).json({ 
+      message: 'This endpoint has been disabled. Use /api/payments/create for BTCPay Server integration.',
+      error: 'LEGACY_ROUTE_DISABLED',
+      useInstead: '/api/payments/create'
+    });
   }
 );
 
-// Helper function to generate crypto address (placeholder)
-// In production, integrate with actual crypto payment service
+// Helper function DISABLED - placeholder address generation removed for security
+// All addresses MUST come from BTCPay Server store's configured derivation scheme
 function generateCryptoAddress(currency, paymentId) {
-  // This is a placeholder - in production, use a real crypto payment service
-  // Example services: BTCPay Server, Coinbase Commerce API, BitPay
-  
-  if (currency === 'BTC') {
-    // Placeholder Bitcoin address format
-    return `bc1q${paymentId.substring(0, 40)}`;
-  } else if (currency === 'ETH') {
-    // Placeholder Ethereum address format
-    return `0x${paymentId.substring(0, 40)}`;
-  }
-  
-  return `crypto_${paymentId}`;
+  throw new Error('Placeholder address generation is disabled. Use BTCPay Server integration.');
 }
 
 // Verify crypto payment (would be called by webhook from crypto service)

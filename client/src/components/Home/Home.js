@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import Navbar from '../Navbar/Navbar';
 import Footer from '../Footer/Footer';
+import HeroLogisticsAnimation from './HeroLogisticsAnimation';
 import './Home.css';
 
 // Icon Components
@@ -92,12 +93,6 @@ const NetworkIcon = ({ size = 24, color = 'currentColor' }) => (
 const Home = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [microstats, setMicrostats] = useState({
-    labelsToday: 1247,
-    avgSavings: '$3.42',
-    processingSpeed: '240ms'
-  });
-
   const [currentProofIndex, setCurrentProofIndex] = useState(0);
   const [demoStage, setDemoStage] = useState(0); // 0: Dashboard, 1: Create Label, 2: Success, 3: Stats Update
 
@@ -132,18 +127,6 @@ const Home = () => {
     }
   };
 
-  // Animate microstats on mount
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setMicrostats(prev => ({
-        labelsToday: prev.labelsToday + Math.floor(Math.random() * 3),
-        avgSavings: prev.avgSavings,
-        processingSpeed: `${220 + Math.floor(Math.random() * 40)}ms`
-      }));
-    }, 5000);
-    return () => clearInterval(interval);
-  }, []);
-
   // Rotate social proof statements
   useEffect(() => {
     const interval = setInterval(() => {
@@ -168,15 +151,12 @@ const Home = () => {
       {/* Hero Section */}
       <section className="hero-section">
         <div className="hero-background-gradient"></div>
-        <div className="hero-background-blur"></div>
         <div className="container">
         <div className="hero-content">
             <div className="hero-text">
               <h1 className="hero-heading">
-                Small Business
-                <br />
-                Shipping Simplified
-          </h1>
+                Small Business<br className="hidden lg:block" />Shipping Simplified
+              </h1>
               <p className="hero-subheading">
                 Designed for small businesses — affordable shipping resources at your fingertips. Access top-tier tools through our easy-to-use platform or Canary Infrastructure Engine.
               </p>
@@ -188,47 +168,10 @@ const Home = () => {
                   No credit card required. First label free.
                 </p>
               </div>
-              
-              {/* Microstats */}
-              <div className="hero-microstats">
-                <div className="microstat-item">
-                  <div className="microstat-value">{microstats.labelsToday.toLocaleString()}</div>
-                  <div className="microstat-label">Live Labels Generated Today</div>
-                </div>
-                <div className="microstat-item">
-                  <div className="microstat-value">{microstats.avgSavings}</div>
-                  <div className="microstat-label">Average Savings Per Shipment</div>
-                </div>
-                <div className="microstat-item">
-                  <div className="microstat-value">{microstats.processingSpeed}</div>
-                  <div className="microstat-label">Label Processing Speed</div>
-                </div>
-              </div>
             </div>
             <div className="hero-illustration">
               <div className="shipping-animation">
-                <div className="label-printer">
-                  <div className="printer-base"></div>
-                  <div className="printer-head"></div>
-                  <div className="label-sheet">
-                    <div className="label-line label-line-1"></div>
-                    <div className="label-line label-line-2"></div>
-                    <div className="label-line label-line-3"></div>
-                  </div>
-                </div>
-                <div className="parcel-flow">
-                  <div className="parcel parcel-1"></div>
-                  <div className="parcel parcel-2"></div>
-                  <div className="parcel parcel-3"></div>
-                </div>
-                <div className="route-lines">
-                  <svg className="route-svg" viewBox="0 0 400 300">
-                    <path className="route-path" d="M50,150 Q150,50 250,100 T450,150" stroke="currentColor" fill="none" strokeWidth="2"/>
-                    <circle className="route-node route-node-1" cx="50" cy="150" r="4"/>
-                    <circle className="route-node route-node-2" cx="250" cy="100" r="4"/>
-                    <circle className="route-node route-node-3" cx="350" cy="150" r="4"/>
-                  </svg>
-                </div>
+                <HeroLogisticsAnimation />
               </div>
           </div>
           </div>

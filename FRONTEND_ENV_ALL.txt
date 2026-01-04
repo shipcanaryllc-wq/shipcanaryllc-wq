@@ -1,0 +1,70 @@
+# ============================================
+# SHIPCANARY FRONTEND - ALL ENVIRONMENT VARIABLES
+# ============================================
+# NOTE: React requires REACT_APP_ prefix for all frontend env vars
+# Copy to client/.env for local development
+# For Vercel: Add these in Vercel Dashboard → Settings → Environment Variables
+
+# ============================================
+# REQUIRED - Core Configuration
+# ============================================
+
+# API Base URL (Backend API endpoint)
+# Production: https://api-shipcanary-dev.shipcanary.com/api
+# Development: http://localhost:5001/api
+REACT_APP_API_URL=https://api-shipcanary-dev.shipcanary.com/api
+
+# ============================================
+# REQUIRED - Mapbox (Address Autocomplete)
+# ============================================
+
+# Mapbox Access Token (for address autocomplete)
+# Get from: https://account.mapbox.com → Access Tokens
+REACT_APP_MAPBOX_ACCESS_TOKEN=pk.eyJ1Ijoic2hpcGNhbmFyeSIsImEiOiJjbWlqaDN3bWswZ3k2M2VweWRwZG83eDZwIn0.k1MbFlbaxMrkkq4KIoasCg
+
+# ============================================
+# OPTIONAL - Google Places API (Alternative Address Autocomplete)
+# ============================================
+
+# Google Places API Key (for address autocomplete alternative)
+# Get from: https://console.cloud.google.com → APIs & Services → Credentials
+REACT_APP_GOOGLE_PLACES_API_KEY=your-google-places-api-key
+
+# ============================================
+# OPTIONAL - OnRamp Provider (Crypto Purchase Widget)
+# ============================================
+
+# OnRamp Provider (for crypto purchase widget)
+# Options: moonpay, coinbase, kraken, binance, gemini
+REACT_APP_ONRAMP_PROVIDER=moonpay
+
+# OnRamp API Key (if provider requires it)
+REACT_APP_ONRAMP_API_KEY=
+
+# ============================================
+# OPTIONAL - Development & Testing
+# ============================================
+
+# Tunnel Test Mode (for local development testing with tunnels)
+REACT_APP_TUNNEL_TEST_MODE=false
+
+# Tester Passcode (for testing/development access)
+REACT_APP_TESTER_PASSCODE=shipcanary2024
+
+# ============================================
+# OPTIONAL - Vite Support (if migrating to Vite)
+# ============================================
+
+# Vite API URL (alternative to REACT_APP_API_URL if using Vite)
+VITE_API_URL=
+
+# ============================================
+# NOTES:
+# ============================================
+# - All React environment variables MUST start with REACT_APP_
+# - For Vercel: Add variables in Vercel Dashboard → Settings → Environment Variables
+# - For local: Copy this file to client/.env
+# - Update REACT_APP_API_URL to your production backend URL for deployment
+# - REACT_APP_TUNNEL_TEST_MODE should be false in production
+# - Never commit .env files to git (they're already in .gitignore)
+

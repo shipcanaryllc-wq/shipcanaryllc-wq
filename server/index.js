@@ -253,8 +253,12 @@ app.use('/api/tracking', require('./routes/tracking'));
 app.use('/api/test', require('./routes/test-btcpay')); // Test endpoint for BTCPay verification
 
 // Health check
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', message: 'ShipCanary API is running' });
+app.get("/health", (req, res) => {
+  res.status(200).json({
+    ok: true,
+    service: "shipcanary-api",
+    time: new Date().toISOString(),
+  });
 });
 
 // 6) Debug endpoint to verify env vars are loaded
@@ -591,8 +595,10 @@ if (process.env.NODE_ENV !== 'production') {
   });
 }
 
-const PORT = process.env.PORT || 5001;
-app.listen(PORT, () => {
+const PORT = Number(process.env.PORT) || 8080;
+
+app.listen(PORT, "0.0.0.0", () => {
   console.log(`Server running on port ${PORT}`);
 });
+
 
