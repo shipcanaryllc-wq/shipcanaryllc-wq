@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { ArrowLeft } from 'lucide-react';
-import axios from 'axios';
+import apiClient from '../../config/axios';
 import DashboardLayout from './DashboardLayout';
 import AvatarCropper from './AvatarCropper';
 import API_BASE_URL from '../../config/api';
@@ -95,9 +95,8 @@ const Profile = () => {
       const croppedFile = new File([croppedBlob], 'avatar.jpg', { type: 'image/jpeg' });
       formData.append('avatar', croppedFile);
 
-      const response = await axios.post(`${API_BASE_URL}/users/profile/avatar`, formData, {
+      const response = await apiClient.post('/users/profile/avatar', formData, {
         headers: {
-          'Authorization': `Bearer ${token}`,
           'Content-Type': 'multipart/form-data'
         }
       });
@@ -175,9 +174,8 @@ const Profile = () => {
         formDataToSend.append('avatar', avatarFile);
       }
 
-      const response = await axios.put(`${API_BASE_URL}/users/me`, formDataToSend, {
+      const response = await apiClient.put('/users/me', formDataToSend, {
         headers: {
-          'Authorization': `Bearer ${token}`,
           'Content-Type': 'multipart/form-data'
         }
       });
@@ -251,31 +249,17 @@ const Profile = () => {
     setPasswordResetSent(false);
 
     try {
-      const base = process.env.REACT_APP_API_URL || process.env.VITE_API_URL || API_BASE_URL;
-      console.log("[RESET] base", base);
-
-      const url = `${base}/auth/request-password-reset`;
       console.log('[RESET] calling API', {
-        url,
+        url: `${API_BASE_URL}/auth/request-password-reset`,
         email: user.email
       });
 
-      const response = await fetch(url, {
-        method: "POST",
-        headers: { 
-          "Content-Type": "application/json",
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify({ email: user.email }),
+      const response = await apiClient.post('/auth/request-password-reset', {
+        email: user.email
       });
 
-      const responseBody = await response.json();
       console.log('[RESET] response status:', response.status);
-      console.log('[RESET] response body:', responseBody);
-
-      if (!response.ok) {
-        throw new Error(responseBody.message || `HTTP error! status: ${response.status}`);
-      }
+      console.log('[RESET] response body:', response.data);
 
       console.log('[RESET] API call successful');
 

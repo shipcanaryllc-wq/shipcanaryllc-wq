@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import axios from 'axios';
+import apiClient from '../../config/axios';
 import API_BASE_URL from '../../config/api';
 import Logo from '../Logo/Logo';
 import './Auth.css';
@@ -45,7 +45,7 @@ const Login = () => {
     setResetSuccess(false);
 
     try {
-      await axios.post(`${API_BASE_URL}/auth/request-password-reset`, {
+      await apiClient.post('/auth/request-password-reset', {
         email: email.trim()
       });
 

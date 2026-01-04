@@ -1,25 +1,39 @@
 // Centralized API configuration
-// Uses REACT_APP_API_URL in production, falls back to localhost for development
+// Single source of truth for API base URL
+// Ensures all requests include /api prefix for production backend
+
 const getApiBaseUrl = () => {
-  // Single source of truth: always check REACT_APP_API_URL first
+  // Priority 1: REACT_APP_API_URL (should include /api already)
   if (process.env.REACT_APP_API_URL) {
-    return process.env.REACT_APP_API_URL;
+    const url = process.env.REACT_APP_API_URL.trim();
+    // Ensure it ends with /api (handles both https://api.shipcanary.com and https://api.shipcanary.com/api)
+    if (url.endsWith('/api')) {
+      return url;
+    }
+    // If URL doesn't end with /api, add it
+    return `${url.replace(/\/$/, '')}/api`;
   }
   
-  // Development fallback: only use localhost when not in production
-  // Check if we're in browser (window exists) and on localhost
+  // Priority 2: VITE_API_URL (for Vite compatibility)
+  if (process.env.VITE_API_URL) {
+    const url = process.env.VITE_API_URL.trim();
+    if (url.endsWith('/api')) {
+      return url;
+    }
+    return `${url.replace(/\/$/, '')}/api`;
+  }
+  
+  // Development fallback: localhost with /api
   if (typeof window !== 'undefined' && 
       process.env.NODE_ENV !== 'production' && 
       (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
     return 'http://localhost:5001/api';
   }
   
-  // Production without REACT_APP_API_URL: log error and use localhost fallback
-  // This allows the build to succeed, but the app will show errors at runtime
+  // Production without env var: log error
   if (typeof window !== 'undefined' && process.env.NODE_ENV === 'production') {
     console.error('❌ REACT_APP_API_URL is not set! Please configure it in Vercel environment variables.');
-    // Return localhost as fallback (will fail in production, but allows build)
-    return 'http://localhost:5001/api';
+    console.error('Expected format: https://api.shipcanary.com/api');
   }
   
   // Default fallback for development
