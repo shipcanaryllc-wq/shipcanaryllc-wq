@@ -1,5 +1,6 @@
 const axios = require('axios');
 const crypto = require('crypto');
+const { normalizeBtcpayUrl } = require('../utils/normalizeBtcpayUrl');
 
 /**
  * BTCPay Server Integration Service
@@ -17,11 +18,15 @@ const crypto = require('crypto');
  * - Mapping BTCPay statuses to our PaymentStatus enum
  */
 
-// Normalize BTCPAY_URL to include protocol if missing
-const rawBtcpayUrl = process.env.BTCPAY_URL || '';
-const BTCPAY_URL = rawBtcpayUrl.startsWith('http://') || rawBtcpayUrl.startsWith('https://') 
-  ? rawBtcpayUrl 
-  : `https://${rawBtcpayUrl}`;
+// Normalize BTCPAY_URL using utility function
+let BTCPAY_URL;
+try {
+  BTCPAY_URL = normalizeBtcpayUrl(process.env.BTCPAY_URL || '');
+} catch (error) {
+  console.error('[BTCPay Service] ❌ Failed to normalize BTCPAY_URL:', error.message);
+  BTCPAY_URL = '';
+}
+
 const BTCPAY_API_KEY = process.env.BTCPAY_API_KEY;
 const BTCPAY_STORE_ID = process.env.BTCPAY_STORE_ID;
 const BTCPAY_WEBHOOK_SECRET = process.env.BTCPAY_WEBHOOK_SECRET || '';
@@ -38,17 +43,22 @@ const btcpayClient = axios.create({
 
 // Runtime assertion: Verify axios client is configured with correct baseURL (not demo server)
 if (BTCPAY_URL) {
-  const baseDomain = BTCPAY_URL.replace(/^https?:\/\//, '').replace(/\/$/, '');
-  const demoDomains = ['demo.btcpayserver.org', 'mainnet.demo.btcpayserver.org', 'testnet.demo.btcpayserver.org'];
-  const isDemoBaseUrl = demoDomains.some(domain => baseDomain.includes(domain));
-  
-  if (isDemoBaseUrl) {
-    console.error('[BTCPay Security] ⚠️  CRITICAL: BTCPAY_URL points to DEMO server!');
-    console.error(`  BTCPAY_URL: ${BTCPAY_URL}`);
-    console.error(`  This will cause ALL invoices to be created on demo server!`);
-    console.error(`  Update BTCPAY_URL in .env to: https://btcpay483258.lndyn.com`);
-  } else {
-    console.log('[BTCPay Service] ✅ Axios client configured with baseURL:', BTCPAY_URL);
+  try {
+    const urlObj = new URL(BTCPAY_URL);
+    const baseDomain = urlObj.hostname;
+    const demoDomains = ['demo.btcpayserver.org', 'mainnet.demo.btcpayserver.org', 'testnet.demo.btcpayserver.org'];
+    const isDemoBaseUrl = demoDomains.some(domain => baseDomain.includes(domain));
+    
+    if (isDemoBaseUrl) {
+      console.error('[BTCPay Security] ⚠️  CRITICAL: BTCPAY_URL points to DEMO server!');
+      console.error(`  BTCPAY_URL: ${BTCPAY_URL}`);
+      console.error(`  This will cause ALL invoices to be created on demo server!`);
+      console.error(`  Update BTCPAY_URL in Fly secrets to: https://btcpay483258.lndyn.com`);
+    } else {
+      console.log('[BTCPay Service] ✅ Axios client configured with baseURL:', BTCPAY_URL);
+    }
+  } catch (error) {
+    console.error('[BTCPay Service] ❌ Invalid BTCPAY_URL:', error.message);
   }
 }
 
@@ -119,8 +129,7 @@ async function createInvoice({ amount, currency = 'USD', userId, metadata = {} }
 
   // CRITICAL: Log BTCPAY_URL at runtime to verify it's correct (dev only)
   if (process.env.NODE_ENV !== 'production') {
-    console.log('[BTCPay Invoice Creation] BTCPAY_URL env:', process.env.BTCPAY_URL);
-    console.log('[BTCPay Invoice Creation] BTCPAY_URL normalized:', BTCPAY_URL);
+    console.log('[BTCPay Invoice Creation] BTCPAY_URL (normalized):', BTCPAY_URL);
     console.log('[BTCPay Invoice Creation] BTCPAY_STORE_ID:', BTCPAY_STORE_ID);
   }
 
@@ -167,7 +176,8 @@ async function createInvoice({ amount, currency = 'USD', userId, metadata = {} }
     // BTCPay may return checkoutLink pointing to demo server - we MUST override it
     const originalCheckoutLink = invoice.checkoutLink || null;
     let checkoutUrl = originalCheckoutLink;
-    const expectedDomain = BTCPAY_URL.replace(/^https?:\/\//, '').replace(/\/$/, '');
+    const urlObj = new URL(BTCPAY_URL);
+    const expectedDomain = urlObj.hostname;
     const demoDomains = ['demo.btcpayserver.org', 'mainnet.demo.btcpayserver.org', 'testnet.demo.btcpayserver.org'];
     
     // ALWAYS log the original checkoutLink from BTCPay (for debugging)
@@ -406,7 +416,8 @@ async function getInvoiceStatus(invoiceId) {
     
     // CRITICAL FIX: Validate and fix checkout URL to prevent demo server usage
     let checkoutUrl = invoice.checkoutLink || null;
-    const expectedDomain = BTCPAY_URL.replace(/^https?:\/\//, '').replace(/\/$/, '');
+    const urlObj = new URL(BTCPAY_URL);
+    const expectedDomain = urlObj.hostname;
     const demoDomains = ['demo.btcpayserver.org', 'mainnet.demo.btcpayserver.org', 'testnet.demo.btcpayserver.org'];
     
     if (checkoutUrl) {
@@ -474,6 +485,7 @@ module.exports = {
   handleWebhook,
   verifyWebhookSignature,
   getInvoiceStatus,
-  mapBtcpayStatusToPaymentStatus
+  mapBtcpayStatusToPaymentStatus,
+  BTCPAY_URL // Export normalized URL for use in routes
 };
 

@@ -104,7 +104,8 @@ router.post('/create',
       // CRITICAL: Log checkout URL domain for verification (ALWAYS log, not just dev)
       try {
         const checkoutDomain = new URL(payment.btcpayCheckoutUrl).hostname;
-        const expectedDomain = process.env.BTCPAY_URL?.replace(/^https?:\/\//, '').replace(/\/$/, '') || 'unknown';
+        const btcpayUrl = btcpay.BTCPAY_URL || '';
+        const expectedDomain = btcpayUrl ? new URL(btcpayUrl).hostname : 'unknown';
         console.log(`[Invoice Creation] 🔍 CHECKOUT URL VERIFICATION:`);
         console.log(`  - Checkout URL: ${payment.btcpayCheckoutUrl}`);
         console.log(`  - Checkout Domain: ${checkoutDomain}`);

@@ -50,26 +50,46 @@ if (!RESEND_API_KEY || !EMAIL_FROM) {
 }
 
 // BTCPay configuration validation
-const BTCPAY_URL = process.env.BTCPAY_URL;
+const { normalizeBtcpayUrl, runSelfCheck } = require('./utils/normalizeBtcpayUrl');
+
+// Run self-check in development mode
+if (process.env.NODE_ENV !== 'production') {
+  runSelfCheck();
+}
+
+let BTCPAY_URL_NORMALIZED;
+const BTCPAY_URL_RAW = process.env.BTCPAY_URL;
 const BTCPAY_API_KEY = process.env.BTCPAY_API_KEY;
 const BTCPAY_STORE_ID = process.env.BTCPAY_STORE_ID;
-if (!BTCPAY_URL || !BTCPAY_API_KEY || !BTCPAY_STORE_ID) {
+
+if (!BTCPAY_URL_RAW || !BTCPAY_API_KEY || !BTCPAY_STORE_ID) {
   console.warn('\n═══════════════════════════════════════════════════════════');
   console.warn('⚠️  BTCPAY NOT FULLY CONFIGURED');
   console.warn('═══════════════════════════════════════════════════════════');
-  if (!BTCPAY_URL) console.warn('   Missing: BTCPAY_URL');
+  if (!BTCPAY_URL_RAW) console.warn('   Missing: BTCPAY_URL');
   if (!BTCPAY_API_KEY) console.warn('   Missing: BTCPAY_API_KEY');
   if (!BTCPAY_STORE_ID) console.warn('   Missing: BTCPAY_STORE_ID');
   console.warn('   Bitcoin payments will fail until configured.');
   console.warn('═══════════════════════════════════════════════════════════\n');
 } else {
-  const normalizedUrl = BTCPAY_URL.startsWith('http://') || BTCPAY_URL.startsWith('https://') 
-    ? BTCPAY_URL 
-    : `https://${BTCPAY_URL}`;
-  console.log('✅ BTCPay configured');
-  console.log('   BTCPAY_URL:', normalizedUrl);
-  console.log('   BTCPAY_STORE_ID:', BTCPAY_STORE_ID);
-  console.log('   BTCPAY_API_KEY: loaded');
+  try {
+    BTCPAY_URL_NORMALIZED = normalizeBtcpayUrl(BTCPAY_URL_RAW);
+    console.log('✅ BTCPay configured');
+    console.log('   BTCPAY_URL (raw):', BTCPAY_URL_RAW.substring(0, 50) + (BTCPAY_URL_RAW.length > 50 ? '...' : ''));
+    console.log('   BTCPAY_URL (normalized):', BTCPAY_URL_NORMALIZED);
+    console.log('   BTCPAY_STORE_ID:', BTCPAY_STORE_ID);
+    console.log('   BTCPAY_API_KEY: loaded (not logged for security)');
+  } catch (error) {
+    console.error('\n═══════════════════════════════════════════════════════════');
+    console.error('❌ BTCPAY_URL VALIDATION FAILED');
+    console.error('═══════════════════════════════════════════════════════════');
+    console.error('   Error:', error.message);
+    console.error('   Raw value:', BTCPAY_URL_RAW);
+    console.error('   Please fix BTCPAY_URL in Fly secrets:');
+    console.error('   fly secrets set BTCPAY_URL=https://btcpay483258.lndyn.com -a shipcanary-api');
+    console.error('═══════════════════════════════════════════════════════════\n');
+    process.exit(1);
+  }
 }
 
 const app = express();
@@ -253,12 +273,8 @@ app.use('/api/tracking', require('./routes/tracking'));
 app.use('/api/test', require('./routes/test-btcpay')); // Test endpoint for BTCPay verification
 
 // Health check
-app.get("/health", (req, res) => {
-  res.status(200).json({
-    ok: true,
-    service: "shipcanary-api",
-    time: new Date().toISOString(),
-  });
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok', message: 'ShipCanary API is running' });
 });
 
 // 6) Debug endpoint to verify env vars are loaded
